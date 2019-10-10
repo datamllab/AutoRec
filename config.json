@@ -1,0 +1,13 @@
+{
+  "mapper": {
+    "user":["LatentFactor"],
+    "item": ["LatentFactor"],
+    "user_item": [ ]
+  },
+  "interaction": {
+
+  },
+  "optimizer": {
+
+  }
+}
