@@ -11,7 +11,7 @@ Mapper:
       name: "user_id"
       LatentFactor_dim: 10
       id_num: 10000
-
+      
 
 Interaction:
   interaction1:
@@ -23,6 +23,6 @@ Interaction:
       param1: 10
 
 Optimizer:
-  "OptimizerType": "RatingPrediction"
-  "OptimizerParam":
-    "LatentFactor_dim": 10
+  OptimizerType: "RatingPrediction"
+  OptimizerParam:
+    LatentFactor_dim: 10
