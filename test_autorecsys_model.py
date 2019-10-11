@@ -1,6 +1,7 @@
 ## code=utf-8
 from queue import Queue
 import json
+import yaml
 
 import tensorflow as tf
 from autorecsys.mapper import *
@@ -26,12 +27,21 @@ data = data.repeat().shuffle( buffer_size=1000 ).batch( batch_size = 10240 ).pre
 # for step, item in enumerate( data.take( 5 ) ):
 #     print( item )
 
-with  open('./config.json','r',encoding='utf-8') as fr:
-    config = json.load( fr )
-    print( config )
+# with  open('./config.json','r',encoding='utf-8') as fr:
+#     config = json.load( fr )
+#     print( config )
+#
+#
+# with open( "./config.yaml", "w", encoding='utf-8' ) as fw:
+#     yaml.dump( config, fw )
 
 
-
+with open( "./config.yaml", "r", encoding='utf-8' ) as fr:
+   config =  yaml.load( fr )
+   print( config )
+   print( config[ "Mapper" ] )
+   print( config[ "Interaction" ] )
+   print( config[ "Optimizer" ] )
 
 class MF( tf.keras.Model ):
     def __init__( self, userID_max, itemID_max, embedding_dim ):
@@ -40,8 +50,8 @@ class MF( tf.keras.Model ):
         self.user_latentfactorMapper = LatentFactorMapper( userID_max, embedding_dim )
         self.item_latentfactorMapper = LatentFactorMapper( itemID_max, embedding_dim )
 
-        self.interaction = InnerProductInteraction()
-        # self.interaction = MLPInteraction()
+        # self.interaction = InnerProductInteraction()
+        self.interaction = MLPInteraction()
 
 
         self.optimizer = RatingPredictionOptimizer()

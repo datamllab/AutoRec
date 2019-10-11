@@ -11,20 +11,36 @@ class baseInteraction( tf.keras.layers.Layer ):
         pass
 
 
-
-
 class InnerProductInteraction( baseInteraction ):
     '''
     latent factor mapper for cateory datas
     '''
     def __init__(self):
         super( InnerProductInteraction, self ).__init__()
-        # self.user_embed = user_embed
-        # self.item_embed = item_embed
 
     def call(self, embed1, embed2):
         x = embed1 * embed2
         return x
+
+
+class MLPInteraction_legency( baseInteraction ):
+    '''
+    latent factor mapper for cateory datas
+    '''
+    def __init__(self):
+        super( MLPInteraction, self ).__init__()
+        self.dense_layers = []
+        self.dense_layers.append( tf.keras.layers.Dense(128) )
+        self.dense_layers.append( tf.keras.layers.Dense( 128 ) )
+        self.dense_layers.append( tf.keras.layers.Dense( 128 ) )
+        self.dense_layers.append( tf.keras.layers.Dense( 64 ) )
+
+    def call(self, embeds ):
+        x = tf.concat( embeds, axis = 1 )
+        for layer in self.dense_layers:
+            x = layer( x )
+        return x
+
 
 
 class MLPInteraction( baseInteraction ):
@@ -32,17 +48,15 @@ class MLPInteraction( baseInteraction ):
     latent factor mapper for cateory datas
     '''
     def __init__(self):
-        super( MLPInteraction, self ).__init__()
-        # self.user_embed = user_embed
-        # self.item_embed = item_embed
+        super( MLPInteraction, self ).__init__(  )
         self.dense_layers = []
         self.dense_layers.append( tf.keras.layers.Dense(128) )
         self.dense_layers.append( tf.keras.layers.Dense( 128 ) )
         self.dense_layers.append( tf.keras.layers.Dense( 128 ) )
         self.dense_layers.append( tf.keras.layers.Dense( 64 ) )
 
-    def call(self, embed1, embed2):
-        x = tf.concat( [embed1, embed2], axis = 1 )
+    def call(self, embeds):
+        x = tf.concat( embeds , axis = 1 )
         for layer in self.dense_layers:
             x = layer( x )
         return x
