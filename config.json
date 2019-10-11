@@ -1,13 +1,43 @@
 {
-  "mapper": {
-    "user":["LatentFactor"],
-    "item": ["LatentFactor"],
-    "user_item": [ ]
-  },
-  "interaction": {
+  "Mapper": {
 
+    "user_id":{
+      "MapperType": "LatentFactor",
+      "MapperParam": {
+        "LatentFactor_dim": 10
+      }
+    },
+    "item_id": {
+      "MapperType": "LatentFactor",
+      "MapperParam": {
+        "LatentFactor_dim": 10
+      }
+    }
   },
-  "optimizer": {
+
+  "Interaction": {
+    "interaction1": {
+      "Input": [
+        "item_id",
+        "user_id"
+      ],
+      "InteractionType": "MLP",
+      "InteractionParam": {
+        "param1": 10
+      },
+      "interaction1": {
+        "Input": [
+          "item_id",
+          "user_id"
+        ],
+        "InteractionType": "InnerProduct",
+        "InteractionParam": {
+          "param1": 10
+        }
+      }
+    }
+  },
+  "Optimizer": {
 
   }
 }
