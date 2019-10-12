@@ -2,13 +2,13 @@ from autorecsys.mapper import *
 from autorecsys.interaction import *
 from autorecsys.optimizer import *
 
+
 name_dict = {
     "LatentFactor": LatentFactorMapper,
     "MLP": MLPInteraction,
     "InnerProduct": InnerProductInteraction,
     "RatingPrediction": RatingPredictionOptimizer
 }
-
 
 def mapper_config( mapper_config_dict ):
     '''
