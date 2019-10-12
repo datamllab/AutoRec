@@ -1,17 +1,19 @@
 import tensorflow as tf
+from abc import ABCMeta, abstractmethod
 
 
-class baseInteraction( tf.keras.layers.Layer ):
+class BaseInteraction( tf.keras.Model, metaclass=ABCMeta ):
     def __init__(self):
-        super(baseInteraction, self).__init__()
+        super(BaseInteraction, self).__init__()
         pass
 
-
+    @abstractmethod
     def call(self, x):
-        pass
+        """call model."""
 
 
-class InnerProductInteraction( baseInteraction ):
+
+class InnerProductInteraction( BaseInteraction ):
     '''
     latent factor mapper for cateory datas
     '''
@@ -23,7 +25,7 @@ class InnerProductInteraction( baseInteraction ):
         return x
 
 
-class MLPInteraction_legency( baseInteraction ):
+class MLPInteraction_legency( BaseInteraction ):
     '''
     latent factor mapper for cateory datas
     '''
@@ -43,7 +45,7 @@ class MLPInteraction_legency( baseInteraction ):
 
 
 
-class MLPInteraction( baseInteraction ):
+class MLPInteraction( BaseInteraction ):
     '''
     latent factor mapper for cateory datas
     '''
@@ -54,6 +56,7 @@ class MLPInteraction( baseInteraction ):
         self.dense_layers.append( tf.keras.layers.Dense( 128 ) )
         self.dense_layers.append( tf.keras.layers.Dense( 128 ) )
         self.dense_layers.append( tf.keras.layers.Dense( 64 ) )
+
 
     def call(self, embeds):
         x = tf.concat( embeds , axis = 1 )
