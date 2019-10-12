@@ -38,6 +38,9 @@
     }
   },
   "Optimizer": {
+    "OptimizerType": "LatentFactor",
+    "OptimizerParam": {
+        "LatentFactor_dim": 10
 
   }
 }

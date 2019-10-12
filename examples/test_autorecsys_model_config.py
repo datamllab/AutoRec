@@ -29,7 +29,6 @@ with open( "./config.yaml", "r", encoding='utf-8' ) as fr:
    print( config )
    print( config[ "Mapper" ] )
    print( config[ "Interaction" ] )
-
    print( config[ "Optimizer" ] )
 
 

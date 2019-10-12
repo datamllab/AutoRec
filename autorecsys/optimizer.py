@@ -1,19 +1,20 @@
 import tensorflow as tf
+from abc import ABCMeta, abstractmethod
 
 
-class baseOptimizer( tf.keras.layers.Layer ):
+class BaseOptimizer( tf.keras.Model, metaclass=ABCMeta  ):
     def __init__(self):
-        super(baseOptimizer, self).__init__()
-        pass
+        super(BaseOptimizer, self).__init__()
 
 
+    @abstractmethod
     def call(self, x):
-        pass
+        """call model."""
 
 
 
 
-class RatingPredictionOptimizer( baseOptimizer ):
+class RatingPredictionOptimizer( BaseOptimizer ):
     '''
     latent factor mapper for cateory datas
     '''
