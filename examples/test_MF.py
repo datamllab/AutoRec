@@ -51,7 +51,6 @@ class MF(tf.keras.Model):
         return y_pred
 
 
-
 if __name__ == "__main__":
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     print(physical_devices)
