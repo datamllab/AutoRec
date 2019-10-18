@@ -1,28 +1,38 @@
 Mapper:
-  item_id:
-    MapperType: LatentFactor
-    MapperParam:
-      name: "item_id"
-      LatentFactor_dim: 10
-      id_num: 10000
-  user_id:
-    MapperType: LatentFactor
-    MapperParam:
-      name: "user_id"
-      LatentFactor_dim: 10
-      id_num: 10000
-      
 
-Interaction:
-  interaction1:
-    Input:
-    - item_id
-    - user_id
-    InteractionType: MLP
-    InteractionParam:
-      param1: 10
+  - LatentFactor:
+      input:
+        - user_id
+      output: u
+      params:
+        embedding_dim: 10
+        id_num: 10000
+
+  - LatentFactor:
+      input:
+        - item_id
+      output: v
+      params:
+        embedding_dim: 10
+        id_num: 10000
+
+
+Interactor:
+
+  - MLP:
+      input:
+        - u
+        - v
+      output: interaction
+      params:
+        output_dim: 10
+
 
 Optimizer:
-  OptimizerType: "RatingPrediction"
-  OptimizerParam:
-    LatentFactor_dim: 10
+
+  - RatingPrediction:
+      input:
+        - interaction
+      output: rating
+      params:
+        latent_factor_dim: 10
