@@ -1,72 +1,43 @@
 import tensorflow as tf
-from autorecsys.mapper import *
-from autorecsys.interaction import *
-from autorecsys.optimizer import *
+
+from autorecsys.utils import load_config
+from autorecsys.mapper import build_mappers
+from autorecsys.interaction import build_interactors
+from autorecsys.optimizer import build_optimizers
 
 
+class Recommender(tf.keras.Model):
+    def __init__(self, config_filename):
+        super(Recommender, self).__init__()
 
-class recommender( tf.keras.Model ):
-    def __init__( self, mapper_list,  interaction_list, optimizer_list):
-        super( recommender, self ).__init__()
-        self.mapper_list = mapper_list
-        self.interaction_list = {}
-        self.optimizer_list = {}
+        self.config = load_config(config_filename)
+        self._build()
 
-        # for mapper in mapper_list:
-        #     self.mapper_list[ mapper ] = mapper_list[ "mapper" ]
+    def _build(self):
 
-        # self.user_latentfactorMapper = LatentFactorMapper( userID_max, embedding_dim )
-        # self.item_latentfactorMapper = LatentFactorMapper( itemID_max, embedding_dim )
+        self.mappers = build_mappers(self.config["Mapper"])
+        self.interactors = build_interactors(self.config["Interactor"])
+        self.optimizers = build_optimizers(self.config["Optimizer"])
 
-        self.user_latentfactorMapper = self.mapper_list[ "user_id" ]
-        self.item_latentfactorMapper = self.mapper_list[ "item_id" ]
+    def call(self, feat_dict):
 
-        # self.interaction = InnerProductInteraction()
-        self.interaction = MLPInteraction()
+        # mapping
+        mapper_output_dict = {}
+        for mapper in self.mappers:
+            mapper_output_dict[mapper.config["output"]] = mapper({k: feat_dict[k] for k in mapper.config["input"]})
 
+        # interacting
+        interactor_output_dict = {}
+        for interactor in self.interactors:
+            interactor_output_dict[interactor.config["output"]] = interactor(
+                {k: mapper_output_dict[k] for k in interactor.config["input"]}
+            )
 
-        self.optimizer = RatingPredictionOptimizer()
-
-        # self.user_embedding = tf.keras.layers.Embedding( userID_max, embedding_dim )
-        # self.item_embedding = tf.keras.layers.Embedding( itemID_max, embedding_dim )
-
-    def call( self, userID, ItemID ):
-        userID_embedding = self.user_latentfactorMapper( userID )
-        itemID_embedding = self.item_latentfactorMapper( ItemID )
-        # print( "embedding", userID_embedding, itemID_embedding )
-
-        y_pred = self.interaction( userID_embedding, itemID_embedding )
-        # print( "y_pred",y_pred )
-
-        y_pred = self.optimizer( y_pred )
-        # y_pred = tf.reduce_sum( y_pred, axis = 1 )
-        # print( "y_pred_sum", y_pred )
+        # predicting
+        y_pred = {}
+        for optimizer in self.optimizers:
+            y_pred[optimizer.config["output"]] = optimizer(
+                {k: interactor_output_dict[k] for k in optimizer.config["input"]}
+            )
 
         return y_pred
-
-
-# class MF( tf.keras.Model ):
-#     def __init__( self, userID_max, itemID_max, embedding_dim ):
-#         super( MF, self ).__init__()
-#         self.user_latentfactorMapper = LatentFactorMapper( userID_max, embedding_dim )
-#         self.item_latentfactorMapper = LatentFactorMapper( itemID_max, embedding_dim )
-#         self.interaction = InnerProductInteraction()
-#         self.optimizer = RatingPredictionOptimizer()
-#
-#         # self.user_embedding = tf.keras.layers.Embedding( userID_max, embedding_dim )
-#         # self.item_embedding = tf.keras.layers.Embedding( itemID_max, embedding_dim )
-#
-#     def call( self, userID, ItemID ):
-#         userID_embedding = self.user_latentfactorMapper( userID )
-#         itemID_embedding = self.item_latentfactorMapper( ItemID )
-#         # print( "embedding", userID_embedding, itemID_embedding )
-#
-#         y_pred = self.interaction( userID_embedding, itemID_embedding )
-#         # print( "y_pred",y_pred )
-#
-#         y_pred = self.optimizer( y_pred )
-#         # y_pred = tf.reduce_sum( y_pred, axis = 1 )
-#         # print( "y_pred_sum", y_pred )
-#
-#         return y_pred
-
