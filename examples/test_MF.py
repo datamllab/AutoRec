@@ -23,7 +23,8 @@ if __name__ == "__main__":
     data = data.repeat().shuffle(buffer_size=1000).batch(batch_size=10240).prefetch(buffer_size=5)
 
     # build recommender
-    model = Recommender("config.yaml")
+    config_filename = "config.yaml"
+    model = Recommender(config_filename)
 
     # train model
     train(model, data)
