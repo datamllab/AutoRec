@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from abc import ABCMeta, abstractmethod
 import tensorflow as tf
 
@@ -39,9 +41,9 @@ class LatentFactorMapper(BaseMapper):
     def __init__(self, config):
         super(LatentFactorMapper, self).__init__(config)
         self.user_embedding = tf.keras.layers.Embedding(
-                                        config['params']['id_num'],
-                                        config['params']['embedding_dim']
-                                        )
+            config['params']['id_num'],
+            config['params']['embedding_dim']
+        )
 
     def call(self, x):
         # TODO: better implementation for dict inputs
