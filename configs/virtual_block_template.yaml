@@ -1,0 +1,16 @@
+
+ VirtualBlock:
+    input_space:
+    output: vb1
+    block_choice:
+      - MLP:
+          input:
+          output: mlp_interaction
+          params:
+            layer_output_dim:
+            - 128
+              64
+            - 128
+              64
+      - InnerProduct:
+

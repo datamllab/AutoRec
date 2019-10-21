@@ -1,4 +1,5 @@
-import logging
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import tensorflow as tf
 
 
@@ -7,7 +8,7 @@ def train(model, data):
 
     avg_loss = []
 
-    for step, (user_id, item_id, y) in enumerate(data.take(100000)):
+    for step, (user_id, item_id, y) in enumerate(data.take(10)):
         feat_dict = {"user_id": user_id, "item_id": item_id}
         with tf.GradientTape() as tape:
             y_pred = model(feat_dict)
@@ -22,3 +23,4 @@ def train(model, data):
             loss
             )
         )
+    return model

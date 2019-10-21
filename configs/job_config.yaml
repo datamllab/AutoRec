@@ -1,0 +1,69 @@
+TrainOption:
+    logging_config:
+        freq: 10
+        save_file: True
+    batch_size: 10240
+    epoch: 10
+    learning_rate: 0.1
+    device: "gpu:0"
+
+
+DataOption:
+
+    filename: "./tests/datasets/ml-1m/ratings.dat"
+    splits:
+      - 0.8
+      - 0.1
+
+
+ModelOption:
+
+    Mapper:
+
+      - LatentFactor:
+          input:
+            - user_id
+          output: u
+          params:
+            embedding_dim: 10
+            id_num: 10000
+
+      - LatentFactor:
+          input:
+            - item_id
+          output: v
+          params:
+            embedding_dim: 10
+            id_num: 10000
+
+
+    Interactor:
+
+      - MLP:
+          input:
+            - u
+            - v
+          output: mlp_interaction
+          params:
+            layer_output_dim:
+              - 128
+              - 128
+              - 128
+              - 64
+
+      - InnerProduct:
+          input:
+            - u
+            - v
+          output: inner_product_interaction
+
+
+    Optimizer:
+
+      - RatingPrediction:
+          input:
+            - mlp_interaction
+            - inner_product_interaction
+          output: rating
+          params:
+            latent_factor_dim: 10

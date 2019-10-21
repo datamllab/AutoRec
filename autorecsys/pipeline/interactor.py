@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import tensorflow as tf
 from abc import ABCMeta, abstractmethod
 
@@ -40,36 +42,7 @@ class InnerProductInteraction(BaseInteraction):
         super(InnerProductInteraction, self).__init__(config)
 
     def call(self, embeds):
-        # TODO:
-        """
-
-        Args:
-            embed1:
-            embed2:
-
-        Returns:
-
-        """
-        pass
-
-class MLPInteraction_legency(BaseInteraction):
-    """
-    latent factor interactor for categorical features
-    """
-
-    def __init__(self, config):
-        super(MLPInteraction, self).__init__(config)
-        self.dense_layers = []
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(64))
-
-    def call(self, embeds):
-        # TODO: should revise
-        x = tf.concat(embeds, axis=1)
-        for layer in self.dense_layers:
-            x = layer(x)
+        x = embeds[self.config["input"][0]] * embeds[self.config["input"][1]]
         return x
 
 
@@ -81,10 +54,8 @@ class MLPInteraction(BaseInteraction):
     def __init__(self, config):
         super(MLPInteraction, self).__init__(config)
         self.dense_layers = []
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(64))
+        for dim in self.config["params"]["layer_output_dim"]:
+            self.dense_layers.append(tf.keras.layers.Dense(dim))
 
     def call(self, embeds):
         x = tf.concat([v for _, v in embeds.items()], axis=1)
