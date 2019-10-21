@@ -13,4 +13,5 @@
             - 128
               64
       - InnerProduct:
+          input:
 

@@ -1,4 +1,3 @@
-
 # Copyright 2019 The Keras Tuner Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Oracle base class."
+"""Oracle base class."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import glob
@@ -24,11 +21,11 @@ import collections
 import json
 import logging
 
-from autokaggle.base import hyperparameters as hp_module
-from autokaggle.base import metric
-from autokaggle.base import trial as trial_lib
-from autokaggle.base.trial import Stateful
-from autokaggle.base.util import create_directory
+from autorecsys.tuner import hyperparameters as hp_module
+from autorecsys import metric
+from autorecsys.tuner import trial as trial_lib
+from autorecsys.tuner.trial import Stateful
+from autorecsys.utils import create_directory
 
 Objective = collections.namedtuple('Objective', 'name direction')
 LOGGER = logging.getLogger(__name__)

@@ -11,22 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"Tuner base class."
+"""Tuner base class."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import shutil
-import copy
 import logging
 
-from autokaggle.base.util import create_directory
-from autokaggle.base import trial as trial_module
-from autokaggle.base import display
-from autokaggle.base import oracle as oracle_module
-from autokaggle.base.pipeline import MLPipeline
+from autorecsys.utils import create_directory
+from autorecsys.tuner import trial as trial_module
+from autorecsys import display
+from autorecsys.tuner import oracle as oracle_module
+from autorecsys.pipeline.recommender import Recommender
 
 # TODO: Add more extensive display.
 
@@ -195,7 +192,7 @@ class PipeTuner(BaseTuner):
 
     def __init__(self, oracle, model, **kwargs):
         super(PipeTuner, self).__init__(oracle, **kwargs)
-        if not isinstance(model, MLPipeline):
+        if not isinstance(model, Recommender):
             raise TypeError(f'PipeTuner.model must be an instance of MLPipeline')
         origin_num_of_models = model.get_num_of_models()
         reset_num_of_models = {k: 1 for k in origin_num_of_models}
@@ -211,7 +208,7 @@ class PipeTuner(BaseTuner):
         print(self.cnt)
         # init_params = trial.hyperparameters.get_value_in_nested_format()
         # copy the self.pipe and update the current selected params to the pipeline
-        pipe = MLPipeline(dm=self.pipe.dm, template=self.pipe.template, init_params=None)
+        pipe = Recommender(dm=self.pipe.dm, template=self.pipe.template, init_params=None)
         if self.context is None and (not self.need_start_from_first_block_everytime):
             context_need_to_save = pipe.get_context_need_to_save(self.first_tunable_block_idx)
             output_blocks = pipe.get_blocks_from_context(context_need_to_save)
@@ -220,7 +217,8 @@ class PipeTuner(BaseTuner):
             else:
                 self.context = pipe.fit(*fit_args, **fit_kwargs, output_=output_blocks)
         if self.need_start_from_first_block_everytime and self.context is not None:
-            raise ValueError(f'when the `self.need_start_from_first_block_everytime` set, the self.context must be None')
+            raise ValueError(
+                f'when the `self.need_start_from_first_block_everytime` set, the self.context must be None')
         fit_kwargs.update(self.context)
         outputs = pipe.fit(*fit_args, **fit_kwargs, start_=self.pipe.first_tunable_block_idx, output_=-1)
         self.cnt += 1
