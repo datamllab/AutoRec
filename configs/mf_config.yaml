@@ -23,16 +23,27 @@ Interactor:
       input:
         - u
         - v
-      output: interaction
+      output: mlp_interaction
       params:
-        output_dim: 10
+        layer_output_dim:
+          - 128
+          - 128
+          - 128
+          - 64
+
+  - InnerProduct:
+      input:
+        - u
+        - v
+      output: inner_product_interaction
 
 
 Optimizer:
 
   - RatingPrediction:
       input:
-        - interaction
+        - mlp_interaction
+        - inner_product_interaction
       output: rating
       params:
         latent_factor_dim: 10
