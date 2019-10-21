@@ -13,9 +13,7 @@
 # limitations under the License.
 """Trial class."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import hashlib
 import random
@@ -23,8 +21,8 @@ import tensorflow as tf
 import time
 import json
 
-from autokaggle.base import hyperparameters as hp_module
-from autokaggle.base import display, metric
+from autorecsys.tuner import hyperparameters as hp_module
+from autorecsys import display, metric
 
 
 class Stateful(object):

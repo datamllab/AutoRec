@@ -2,7 +2,7 @@ import random
 import math
 import contextlib
 from tensorflow import keras
-from autokaggle.base.util import check_valid_params
+from autorecsys.tuner.utils import check_valid_params
 
 VALID_TYPE = {bool, str, int, float}
 SUPPORT_DISTRIBUTION = {'loguniform', 'uniform', 'discrete'}
