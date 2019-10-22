@@ -15,13 +15,12 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import hashlib
 import random
 import tensorflow as tf
 import time
 import json
 
-from autorecsys.tuner import hyperparameters as hp_module
+from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys import display, metric
 
 

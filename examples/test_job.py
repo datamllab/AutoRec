@@ -3,6 +3,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from autorecsys.api import Job
 
 if __name__ == "__main__":
-    config_filename = "job_config.yaml"
+    config_filename = "job_config"
     my_job = Job(config_filename)
     my_job.run()

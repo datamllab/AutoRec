@@ -15,7 +15,7 @@ class Recommender(tf.keras.Model):
         self.config = load_config(config)
         self._build()
 
-    def _build(self):
+    def _build(self, ):
 
         self.mappers = build_mappers(self.config["Mapper"])
         self.interactors = build_interactors(self.config["Interactor"])

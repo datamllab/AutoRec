@@ -1,14 +1,24 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
+from autorecsys.utils import load_config
 
 
-def train(model, data):
-    optimizer = tf.optimizers.Adam(learning_rate=0.01)
+def train(model, data, train_config=None):
+    if train_config is None:
+        train_config = load_config("train_default_config")
+    lr = train_config["TrainOption"]["learning_rate"]
+    if isinstance(lr, int):
+        lr = lr
+    elif isinstance(lr, list) and len(lr) == 1:
+        lr = lr[0]
+    num_batch = train_config["TrainOption"]["epoch"]
+
+    optimizer = tf.optimizers.Adam(learning_rate=lr)
 
     avg_loss = []
 
-    for step, (user_id, item_id, y) in enumerate(data.take(10)):
+    for step, (user_id, item_id, y) in enumerate(data.take(num_batch)):
         feat_dict = {"user_id": user_id, "item_id": item_id}
         with tf.GradientTape() as tape:
             y_pred = model(feat_dict)
@@ -21,6 +31,6 @@ def train(model, data):
             step,
             sum(avg_loss[-1000:]) / min(1000., step + 1),
             loss
-            )
+        )
         )
     return model

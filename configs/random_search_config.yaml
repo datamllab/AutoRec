@@ -1,17 +1,15 @@
 TrainOption:
     logging_config:
-        freq: 10
-        save_file: True
-    batch_size: 10240
-    learning_rate: 0.1
+        freq: [10]
+        save_file: [True]
+    batch_size: [10240]
+    learning_rate: [0.1]
 
 
 DataOption:
 
     filename: "./tests/datasets/ml-1m/ratings.dat"
-    splits:
-      - 0.8
-      - 0.1
+    splits: [0.8, 0.1]
 
 
 ModelOption:
@@ -19,16 +17,14 @@ ModelOption:
     Mapper:
 
       - LatentFactor:
-          input:
-            - user_id
+          input: [user_id]
           output: u
           params:
-            embedding_dim: 10
-            id_num: 10000
+            embedding_dim: [10]
+            id_num: [10000]
 
       - LatentFactor:
-          input:
-            - item_id
+          input: [item_id]
           output: v
           params:
             embedding_dim: 10
@@ -38,31 +34,23 @@ ModelOption:
     Interactor:
 
       - MLP:
-          input:
-            - u
-            - v
+          input: [u, v]
           output: mlp_interaction
           params:
-            layer_output_dim:
-              - 128
-              - 64
+            layer_output_dim: [128, 64]
       - InnerProduct:
-          input:
-            - u
-            - v
+          input: [u, v]
           output: inner_product_interaction
       - VirtualBlock:
-          input:
-            - u
-            - v
+          input: [u, v]
           output: vb1
           block_choice:
             - MLP:
                 output: mlp_interaction
                 params:
-                  layer_output_dim:
-                  - 128
-                    64
+                  num_layers: [2]
+                  units: [[64, 128], choice]
+
       - VirtualBlock:
           output: vb2
       - VirtualBlock:
@@ -74,9 +62,7 @@ ModelOption:
     Optimizer:
 
       - RatingPrediction:
-          input:
-            - mlp_interaction
-            - inner_product_interaction
+          input: [mlp_interaction, inner_product_interaction]
           output: rating
           params:
-            latent_factor_dim: 10
+            latent_factor_dim: [10]
