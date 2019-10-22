@@ -11,23 +11,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tuner base class."""
+"Tuner base class."
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import shutil
+import copy
 import logging
+import collections
 
 from autorecsys.utils import create_directory
-from autorecsys.tuner import trial as trial_module
+from autorecsys.searcher.core import trial as trial_module
 from autorecsys import display
-from autorecsys.tuner import oracle as oracle_module
+from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.pipeline.recommender import Recommender
+
+from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error
 
 # TODO: Add more extensive display.
 
 LOGGER = logging.getLogger(__name__)
+METRIC = {'auc': roc_auc_score, 'log_loss': log_loss, 'mse': mean_squared_error}
 
 
 class Display(object):
@@ -45,9 +50,7 @@ class Display(object):
 
 class BaseTuner(trial_module.Stateful):
     """Tuner base class.
-
     May be subclassed to create new tuners, including for non-Keras models.
-
     Args:
         oracle: Instance of Oracle class.
         model: Instance of HyperModel class
@@ -120,7 +123,6 @@ class BaseTuner(trial_module.Stateful):
 
     def search_space_summary(self, extended=False):
         """Print search space summary.
-
         Args:
             extended: Bool, optional. Display extended summary.
                 Defaults to False.
@@ -137,7 +139,6 @@ class BaseTuner(trial_module.Stateful):
 
     def results_summary(self, num_trials=10):
         """Display tuning results summary.
-
         Args:
             num_trials (int, optional): Number of trials to display.
                 Defaults to 10.
@@ -190,35 +191,35 @@ class BaseTuner(trial_module.Stateful):
 
 class PipeTuner(BaseTuner):
 
-    def __init__(self, oracle, model, **kwargs):
+    def __init__(self, oracle, **kwargs):
         super(PipeTuner, self).__init__(oracle, **kwargs)
-        if not isinstance(model, Recommender):
-            raise TypeError(f'PipeTuner.model must be an instance of MLPipeline')
-        origin_num_of_models = model.get_num_of_models()
-        reset_num_of_models = {k: 1 for k in origin_num_of_models}
-        pipe = model.copy()
-        pipe.update_num_of_models(reset_num_of_models)
-        self.pipe = pipe
         self.context = None
-        self.need_start_from_first_block_everytime = False
         self.cnt = 0
-        self.first_tunable_block_idx = self.pipe.first_tunable_block_idx
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
         print(self.cnt)
-        # init_params = trial.hyperparameters.get_value_in_nested_format()
-        # copy the self.pipe and update the current selected params to the pipeline
-        pipe = Recommender(dm=self.pipe.dm, template=self.pipe.template, init_params=None)
-        if self.context is None and (not self.need_start_from_first_block_everytime):
-            context_need_to_save = pipe.get_context_need_to_save(self.first_tunable_block_idx)
-            output_blocks = pipe.get_blocks_from_context(context_need_to_save)
-            if len(output_blocks) == 0:
-                self.need_start_from_first_block_everytime = True
-            else:
-                self.context = pipe.fit(*fit_args, **fit_kwargs, output_=output_blocks)
-        if self.need_start_from_first_block_everytime and self.context is not None:
-            raise ValueError(
-                f'when the `self.need_start_from_first_block_everytime` set, the self.context must be None')
+        pipe = Recommender()
         fit_kwargs.update(self.context)
-        outputs = pipe.fit(*fit_args, **fit_kwargs, start_=self.pipe.first_tunable_block_idx, output_=-1)
-        self.cnt += 1
+        outputs = train(model, data)
+        scores = self.get_scores(outputs, *fit_args, **fit_kwargs)
+        self.oracle.update_trial(trial.trial_id, metrics=scores)
+
+    def get_scores(self, outputs, *fit_args, **kwargs):
+        y_tra, y_val = kwargs.get('y_tra'), kwargs.get('y_val', None)
+        if y_val is not None:
+            key = [key_ for key_ in outputs.keys() if key_.endswith('_val')]
+            y_true = y_val
+        else:
+            key = list(outputs.keys())
+            y_true = y_tra
+        if len(key) != 1:
+            raise ValueError('When using PipeTuner, the output of the pipeline must have one exact '
+                             'output for scroing')
+        y_pred = outputs[key[0]]
+        scores = collections.defaultdict(dict)
+        if isinstance(self.oracle.objective, list):
+            raise TypeError('When using PipeTuner, the objective of a pipeline must be one exact metric')
+        score_func = METRIC[self.oracle.objective.name]
+        score = score_func(y_true, y_pred)
+        scores[self.oracle.objective.name] = score
+        return scores

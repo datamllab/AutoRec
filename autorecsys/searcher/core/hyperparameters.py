@@ -2,7 +2,7 @@ import random
 import math
 import contextlib
 from tensorflow import keras
-from autorecsys.tuner.utils import check_valid_params
+from autorecsys.searcher.core.utils import check_valid_params
 
 VALID_TYPE = {bool, str, int, float}
 SUPPORT_DISTRIBUTION = {'loguniform', 'uniform', 'discrete'}
@@ -393,7 +393,7 @@ class HyperParameters(object):
     def register(self, name, type, config):
         full_name = self._get_name(name)
         config['name'] = full_name
-        config = {'class_name': type, 'configs': config}
+        config = {'class_name': type, 'config': config}
         p = deserialize(config)
         self._space[full_name] = p
         value = p.default
@@ -502,7 +502,7 @@ class HyperParameters(object):
     def get_config(self):
         return {
             'space': [{'class_name': p.__class__.__name__,
-                       'configs': p.get_config()}
+                       'config': p.get_config()}
                       for p in self._space.values()],
             'values': dict((k, v) for (k, v) in self.values.items()),
         }

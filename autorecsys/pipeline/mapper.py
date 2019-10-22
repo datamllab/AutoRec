@@ -40,12 +40,25 @@ class LatentFactorMapper(BaseMapper):
 
     def __init__(self, config):
         super(LatentFactorMapper, self).__init__(config)
-        self.user_embedding = tf.keras.layers.Embedding(
-            config['params']['id_num'],
-            config['params']['embedding_dim']
-        )
+
+        if isinstance(self.config["params"]["id_num"], int):
+            self.id_num = self.config["params"]["id_num"]
+        elif isinstance(self.config["params"]["id_num"], list) and len(self.config["params"]["id_num"]) == 1:
+            self.id_num = self.config["params"]["id_num"][0]
+        else:
+            raise ValueError("Id_num should be an integer or a list with length 1.")
+
+        if isinstance(self.config["params"]["embedding_dim"], int):
+            self.embedding_dim = self.config["params"]["embedding_dim"]
+        elif isinstance(self.config["params"]["embedding_dim"], list) and len(self.config["params"]["embedding_dim"]) == 1:
+            self.embedding_dim = self.config["params"]["embedding_dim"][0]
+        else:
+            raise ValueError("Embedding_dim should be an integer or a list with length 1.")
+
+        self.user_embedding = tf.keras.layers.Embedding(self.id_num, self.embedding_dim)
 
     def call(self, x):
         # TODO: better implementation for dict inputs
+        print()
         x = self.user_embedding(list(x.values())[0])
         return x

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     data = data.repeat().shuffle(buffer_size=1000).batch(batch_size=10240).prefetch(buffer_size=5)
 
     # build recommender
-    config_filename = "mf_config"
+    config_filename = "mf_tune_config"
     model = Recommender(config_filename)
 
     # train model
