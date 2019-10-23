@@ -33,4 +33,4 @@ def train(model, data, train_config=None):
             loss
         )
         )
-    return model
+    return model, avg_loss

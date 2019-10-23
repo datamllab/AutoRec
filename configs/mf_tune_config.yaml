@@ -5,7 +5,7 @@ TrainOption:
     batch_size: 10240
     epoch: 10
     learning_rate: [0.1]
-    device: "gpu:7"
+    device: "gpu:0"
 
 
 DataOption:

@@ -118,8 +118,11 @@ class RandomSearchOracle(oracle_module.Oracle):
 
 
 class RandomSearch(PipeTuner):
-    """Random search searcher.
-    Attributes:
+    """Random search tuner.
+    # Arguments:
+        hypermodel: Instance of HyperModel class
+            (or callable that takes hyperparameters
+            and returns a Model instance).
         objective: String. Name of model metric to minimize
             or maximize, e.g. "val_accuracy".
         max_trials: Int. Total number of trials
@@ -144,6 +147,7 @@ class RandomSearch(PipeTuner):
     """
 
     def __init__(self,
+                 config,
                  objective,
                  max_trials,
                  seed=None,
@@ -161,4 +165,5 @@ class RandomSearch(PipeTuner):
             allow_new_entries=allow_new_entries)
         super(RandomSearch, self).__init__(
             oracle,
+            config,
             **kwargs)
