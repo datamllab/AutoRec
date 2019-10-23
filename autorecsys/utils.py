@@ -26,8 +26,6 @@ def load_config(raw_config):
 
 
 def convert_config(param_name_, param_info_):
-    print(param_name_)
-    print(param_info_)
     map_ = {'int': 'Int', 'float': 'Float', 'bool': 'Boolean', 'choice': 'Choice'}
 
     if 'default' not in param_info_:
@@ -48,8 +46,6 @@ def convert_config(param_name_, param_info_):
     else:
         config.update({'min_value': range_[0], 'max_value': range_[1], 'sampling': distribution_})
     type_ = map_[type_]
-    print(config)
-    print(type_)
     return config, type_
 
 
@@ -65,9 +61,8 @@ def extract_tunable_hps(config_dict):
                 for p_name, p_info in b_config["params"].items():
                     if isinstance(p_info, dict) and "range" in p_info:
                         p_config, p_type = convert_config('-'.join([c_name, str(block_id), b_name, p_name]), p_info)
-                        with hps.name_scope(b_name):
-                            method_to_call = getattr(hps, p_type)
-                            method_to_call(**p_config)
+                        method_to_call = getattr(hps, p_type)
+                        method_to_call(**p_config)
     return hps
 
 
@@ -82,8 +77,7 @@ def set_tunable_hps(config_dict, hps):
                 for p_name, p_info in b_config["params"].items():
                     if isinstance(p_info, dict) and "range" in p_info:
                         hp_name = '-'.join([c_name, str(block_id), b_name, p_name])
-                        config_dict[c_name][b_name][p_name] = hps.values[hp_name]
-    print(config_dict)
+                        config_dict[c_name][block_id][b_name]["params"][p_name] = [hps.values[hp_name]]
     return config_dict
 
 

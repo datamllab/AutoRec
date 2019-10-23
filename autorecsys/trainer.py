@@ -27,10 +27,12 @@ def train(model, data, train_config=None):
 
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         avg_loss.append(float(loss))
-        print("Step: {}, avg_loss: {}, loss: {}".format(
-            step,
-            sum(avg_loss[-1000:]) / min(1000., step + 1),
-            loss
-        )
-        )
+        if train_config["TrainOption"]["logging_config"]["freq"] > 0 \
+                and step % train_config["TrainOption"]["logging_config"]["freq"] == 0:
+            print("Step: {}, avg_loss: {}, loss: {}".format(
+                step,
+                sum(avg_loss[-1000:]) / min(1000., step + 1),
+                loss
+                )
+            )
     return model, avg_loss

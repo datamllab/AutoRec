@@ -1,6 +1,6 @@
 TrainOption:
     logging_config:
-        freq: 10
+        freq: -1
         save_file: True
     batch_size: 10240
     epoch: 10
