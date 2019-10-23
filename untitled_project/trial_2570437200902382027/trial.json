@@ -1,1 +1,0 @@
-{"trial_id": 2570437200902382027, "hyperparameters": {"space": [{"class_name": "Int", "config": {"name": "MLP/Interactor-MLP-units", "default": 32, "min_value": 64, "max_value": 128, "sampling": "uniform"}}], "values": {"MLP/Interactor-MLP-units": 113}}, "metrics": {"metrics": {}}, "score": null, "best_step": null, "status": "RUNNING"}
