@@ -21,11 +21,12 @@ import copy
 import logging
 import collections
 
-from autorecsys.utils import create_directory
+from autorecsys.utils import create_directory, set_tunable_hps
 from autorecsys.searcher.core import trial as trial_module
 from autorecsys import display
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.pipeline.recommender import Recommender
+from autorecsys.trainer import train
 
 from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error
 
@@ -53,9 +54,6 @@ class BaseTuner(trial_module.Stateful):
     May be subclassed to create new tuners, including for non-Keras models.
     Args:
         oracle: Instance of Oracle class.
-        model: Instance of HyperModel class
-            (or callable that takes hyperparameters
-            and returns a Model instance).
         directory: String. Path to the working directory (relative).
         project_name: Name to use as prefix for files saved
             by this Tuner.
@@ -191,35 +189,17 @@ class BaseTuner(trial_module.Stateful):
 
 class PipeTuner(BaseTuner):
 
-    def __init__(self, oracle, **kwargs):
+    def __init__(self, oracle, config, dataset, **kwargs):
         super(PipeTuner, self).__init__(oracle, **kwargs)
-        self.context = None
-        self.cnt = 0
+        self.config = config
+        self.data = dataset
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
-        print(self.cnt)
-        pipe = Recommender()
-        fit_kwargs.update(self.context)
-        outputs = train(model, data)
-        scores = self.get_scores(outputs, *fit_args, **fit_kwargs)
+        new_model_config = set_tunable_hps(self.config, trial.hyperparameters)
+        new_model = Recommender(new_model_config)
+        scores = self.get_scores(new_model)
         self.oracle.update_trial(trial.trial_id, metrics=scores)
 
-    def get_scores(self, outputs, *fit_args, **kwargs):
-        y_tra, y_val = kwargs.get('y_tra'), kwargs.get('y_val', None)
-        if y_val is not None:
-            key = [key_ for key_ in outputs.keys() if key_.endswith('_val')]
-            y_true = y_val
-        else:
-            key = list(outputs.keys())
-            y_true = y_tra
-        if len(key) != 1:
-            raise ValueError('When using PipeTuner, the output of the pipeline must have one exact '
-                             'output for scroing')
-        y_pred = outputs[key[0]]
-        scores = collections.defaultdict(dict)
-        if isinstance(self.oracle.objective, list):
-            raise TypeError('When using PipeTuner, the objective of a pipeline must be one exact metric')
-        score_func = METRIC[self.oracle.objective.name]
-        score = score_func(y_true, y_pred)
-        scores[self.oracle.objective.name] = score
-        return scores
+    def get_scores(self, model):
+        _, avg_loss = train(model, self.data)
+        return avg_loss[-1]

@@ -23,4 +23,4 @@ if __name__ == "__main__":
     model = Recommender(config_filename)
 
     # train model
-    model = train(model, data)
+    model, avg_loss = train(model, data)
