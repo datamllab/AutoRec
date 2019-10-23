@@ -4,8 +4,7 @@ import contextlib
 from tensorflow import keras
 from autorecsys.searcher.core.utils import check_valid_params
 
-VALID_TYPE = {bool, str, int, float}
-SUPPORT_DISTRIBUTION = {'loguniform', 'uniform', 'discrete'}
+SUPPORT_DISTRIBUTION = {'loguniform', 'uniform'}
 
 
 def _check_sampling_arg(sampling,
