@@ -35,11 +35,12 @@ class AutoSearch(object):
         set_device(self.search_config["TrainOption"]["device"])
         # load data
         self.data = load_dataset(self.search_config)
-        self.searcher = RandomSearch(config=self.search_config["ModelOption"],
+        self.searcher = RandomSearch(config=self.search_config,
                                      objective='mse',
                                      max_trials=10,
                                      hyperparameters=self.hps,
-                                     dataset=self.data)
+                                     dataset=self.data,
+                                     overwrite=True)
         self.model = None
 
     def search(self):

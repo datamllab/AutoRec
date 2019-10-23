@@ -59,6 +59,5 @@ class LatentFactorMapper(BaseMapper):
 
     def call(self, x):
         # TODO: better implementation for dict inputs
-        print()
         x = self.user_embedding(list(x.values())[0])
         return x

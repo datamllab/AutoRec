@@ -195,11 +195,11 @@ class PipeTuner(BaseTuner):
         self.data = dataset
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
-        new_model_config = set_tunable_hps(self.config, trial.hyperparameters)
+        new_model_config = set_tunable_hps(self.config["ModelOption"], trial.hyperparameters)
         new_model = Recommender(new_model_config)
         scores = self.get_scores(new_model)
         self.oracle.update_trial(trial.trial_id, metrics=scores)
 
     def get_scores(self, model):
-        _, avg_loss = train(model, self.data)
-        return avg_loss[-1]
+        _, avg_loss = train(model, self.data, self.config)
+        return {"mse": avg_loss[-1]}
