@@ -1,10 +1,11 @@
 TrainOption:
     logging_config:
-        freq: [10]
+        freq: 10
         save_file: [True]
-    batch_size: [10240]
+    batch_size: 10240
+    epoch: 10
     learning_rate: [0.1]
-
+    device: "gpu:7"
 
 DataOption:
 
@@ -37,27 +38,42 @@ ModelOption:
           input: [u, v]
           output: mlp_interaction
           params:
-            layer_output_dim: [128, 64]
+            num_layers: 3
+            units: {
+                    type: int,
+                    range: [64, 128],
+                    distribution: uniform,
+                    default: 32
+                    }
+
       - InnerProduct:
           input: [u, v]
           output: inner_product_interaction
       - VirtualBlock:
-          input: [u, v]
-          output: vb1
           block_choice:
             - MLP:
-                output: mlp_interaction
+                input: [u, v]
+                output: vb1
                 params:
-                  num_layers: [2]
-                  units: [[64, 128], choice]
+                  num_layers: 3
+                  units: {
+                          type: int,
+                          range: [64, 128],
+                          distribution: uniform,
+                          default: 96
+                          }
 
-      - VirtualBlock:
-          output: vb2
-      - VirtualBlock:
-          output: vb3
-      - VirtualBlock:
-          output: vb4
-
+            - MLP:
+                input: [u, v]
+                output: vb1
+                params:
+                  num_layers: [3]
+                  units: {
+                          type: int,
+                          range: [16, 32, 64],
+                          distribution: choice,
+                          default: 32
+                          }
 
     Optimizer:
 
