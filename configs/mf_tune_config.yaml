@@ -5,7 +5,7 @@ TrainOption:
     batch_size: 10240
     epoch: 10
     learning_rate: [0.1]
-    device: "gpu:0"
+    device: "gpu:7"
 
 
 DataOption:
@@ -42,9 +42,9 @@ ModelOption:
             num_layers: 3
             units: {
                     type: int,
-                    range: [64, 128],
+                    range: [64, 68],
                     distribution: uniform,
-                    default: 32
+                    default: 64
                     }
 
       - InnerProduct:

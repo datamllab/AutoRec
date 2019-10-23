@@ -120,9 +120,8 @@ class RandomSearchOracle(oracle_module.Oracle):
 class RandomSearch(PipeTuner):
     """Random search tuner.
     # Arguments:
-        hypermodel: Instance of HyperModel class
-            (or callable that takes hyperparameters
-            and returns a Model instance).
+        config: Dictionary. Specify the search configurations
+            including TrainOptions, ModelOptions, Search Options.
         objective: String. Name of model metric to minimize
             or maximize, e.g. "val_accuracy".
         max_trials: Int. Total number of trials
