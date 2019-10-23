@@ -59,16 +59,32 @@ def extract_tunable_hps(config_dict):
     """
     hps = HyperParameters()
     for c_name, c_config_list in config_dict.items():  # component: mapper interactor optimizer
-        for block in c_config_list:
+        for block_id, block in enumerate(c_config_list):
             b_name, b_config = list(block.keys())[0], list(block.values())[0]
             if "params" in b_config.keys():
                 for p_name, p_info in b_config["params"].items():
                     if isinstance(p_info, dict) and "range" in p_info:
-                        p_config, p_type = convert_config('-'.join([c_name, b_name, p_name]), p_info)
+                        p_config, p_type = convert_config('-'.join([c_name, str(block_id), b_name, p_name]), p_info)
                         with hps.name_scope(b_name):
                             method_to_call = getattr(hps, p_type)
                             method_to_call(**p_config)
     return hps
+
+
+def set_tunable_hps(config_dict, hps):
+    """
+    Merge new hps to config dict
+    """
+    for c_name, c_config_list in config_dict.items():  # component: mapper interactor optimizer
+        for block_id, block in enumerate(c_config_list):
+            b_name, b_config = list(block.keys())[0], list(block.values())[0]
+            if "params" in b_config.keys():
+                for p_name, p_info in b_config["params"].items():
+                    if isinstance(p_info, dict) and "range" in p_info:
+                        hp_name = '-'.join([c_name, str(block_id), b_name, p_name])
+                        config_dict[c_name][b_name][p_name] = hps.values[hp_name]
+    print(config_dict)
+    return config_dict
 
 
 def create_directory(path, remove_existing=False):

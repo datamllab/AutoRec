@@ -5,7 +5,7 @@ from autorecsys.utils import load_config, extract_tunable_hps, set_device
 from autorecsys.data import load_dataset
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.trainer import train
-from autorecsys.searcher.random_search import RandomSearch
+from autorecsys.searcher.randomsearch import RandomSearch
 
 
 class Job(object):
@@ -20,7 +20,7 @@ class Job(object):
 
     def run(self):
         # train model
-        self.model = train(self.model, self.data)
+        self.model, self.avg_loss = train(self.model, self.data)
 
     def eval(self, test_file):
         # TODO:
@@ -35,9 +35,9 @@ class AutoSearch(object):
         set_device(self.search_config["TrainOption"]["device"])
         # load data
         self.data = load_dataset(self.search_config)
-        self.searcher = RandomSearch(model=Recommender,
+        self.searcher = RandomSearch(config=self.search_config["ModelOption"],
                                      objective='mse',
-                                     max_trials=3,
+                                     max_trials=10,
                                      hyperparameters=self.hps,
                                      dataset=self.data)
         self.model = None

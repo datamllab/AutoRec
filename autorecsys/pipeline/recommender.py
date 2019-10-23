@@ -8,6 +8,15 @@ from autorecsys.pipeline.interactor import build_interactors
 from autorecsys.pipeline.optimizer import build_optimizers
 
 
+# class HyperRecommender(tf.keras.tuner.Hypermodel):
+#
+#     def build(self, hp):
+#         a = hp.Boolean(name="bool", default=True)
+#         hp.values['bool']
+#         config = self.convert(hp)
+#         return Recommender(config)
+
+
 class Recommender(tf.keras.Model):
     def __init__(self, config):
         super(Recommender, self).__init__()
@@ -15,7 +24,7 @@ class Recommender(tf.keras.Model):
         self.config = load_config(config)
         self._build()
 
-    def _build(self, ):
+    def _build(self):
 
         self.mappers = build_mappers(self.config["Mapper"])
         self.interactors = build_interactors(self.config["Interactor"])
