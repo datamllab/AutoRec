@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import tensorflow as tf
 from abc import ABCMeta, abstractmethod
 
@@ -39,37 +41,13 @@ class InnerProductInteraction(BaseInteraction):
     def __init__(self, config):
         super(InnerProductInteraction, self).__init__(config)
 
-    def call(self, embeds):
-        # TODO:
-        """
-
-        Args:
-            embed1:
-            embed2:
-
-        Returns:
-
-        """
-        pass
-
-class MLPInteraction_legency(BaseInteraction):
-    """
-    latent factor interactor for categorical features
-    """
-
-    def __init__(self, config):
-        super(MLPInteraction, self).__init__(config)
-        self.dense_layers = []
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(64))
+        if not isinstance(self.config["input"], list):
+            raise ValueError("Inputs of InnerProductInteraction should be a list.")
+        elif len(self.config["input"]) != 2:
+            raise ValueError("Inputs of InnerProductInteraction should be a list of length 2.")
 
     def call(self, embeds):
-        # TODO: should revise
-        x = tf.concat(embeds, axis=1)
-        for layer in self.dense_layers:
-            x = layer(x)
+        x = embeds[self.config["input"][0]] * embeds[self.config["input"][1]]
         return x
 
 
@@ -81,10 +59,23 @@ class MLPInteraction(BaseInteraction):
     def __init__(self, config):
         super(MLPInteraction, self).__init__(config)
         self.dense_layers = []
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(128))
-        self.dense_layers.append(tf.keras.layers.Dense(64))
+
+        if isinstance(self.config["params"]["num_layers"], int):
+            self.num_layers = self.config["params"]["num_layers"]
+        elif isinstance(self.config["params"]["num_layers"], list) and len(self.config["params"]["num_layers"]) == 1:
+            self.num_layers = self.config["params"]["num_layers"][0]
+        else:
+            raise ValueError("num_layers should be an integer or a list with length 1.")
+        self.units = self.config["params"]["units"]
+
+        if len(self.units) == 1 and self.num_layers > 1:
+            self.units = self.units * self.num_layers
+
+        if len(self.units) != self.num_layers:
+            raise ValueError("Units should be a list of length 1 or the same number as num_layers.")
+
+        for unit in self.units:
+            self.dense_layers.append(tf.keras.layers.Dense(unit))
 
     def call(self, embeds):
         x = tf.concat([v for _, v in embeds.items()], axis=1)
