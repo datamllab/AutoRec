@@ -17,7 +17,7 @@ def load_config(raw_config):
     if isinstance(raw_config, dict):
         config = raw_config
     elif isinstance(raw_config, str):
-        with open(os.path.join("./configs", raw_config + ".yaml"), "r", encoding='utf-8') as fr:
+        with open(os.path.join("./examples/configs", raw_config + ".yaml"), "r", encoding='utf-8') as fr:
             config = yaml.load(fr)
     else:
         raise ValueError("Configuration should be a dict or a yaml filename!")

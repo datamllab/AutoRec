@@ -21,10 +21,9 @@ import collections
 import json
 import logging
 
-from autorecsys import metric
 from autorecsys.searcher.core import trial as trial_lib, hyperparameters as hp_module
 from autorecsys.searcher.core.trial import Stateful
-from autorecsys.utils import create_directory
+from autorecsys.utils import create_directory, metric
 
 Objective = collections.namedtuple('Objective', 'name direction')
 LOGGER = logging.getLogger(__name__)
@@ -364,7 +363,7 @@ def _format_objective(objective):
     if isinstance(objective, Objective):
         return objective
     if isinstance(objective, str):
-        direction = metric.infer_metric_direction(objective)
+        direction = metric.infer_metric_direction( objective )
         return Objective(name=objective, direction=direction)
     else:
         raise ValueError('`objective` not understood, expected str or '
