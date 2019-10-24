@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 
-from autorecsys.utils import load_config
+from autorecsys.utils import *
 from autorecsys.pipeline.mapper import build_mappers
 from autorecsys.pipeline.interactor import build_interactors
 from autorecsys.pipeline.optimizer import build_optimizers

@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.trainer import train
-from autorecsys.utils import load_config
 
 if __name__ == "__main__":
     # set GPU devices
@@ -17,7 +16,7 @@ if __name__ == "__main__":
     # load dataset
     used_column = [0, 1, 2]
     record_defaults = [tf.int32, tf.int32, tf.float32]
-    data = tf.data.experimental.CsvDataset("./tests/datasets/ml-1m/ratings.dat", record_defaults,
+    data = tf.data.experimental.CsvDataset("./examples/datasets/ml-1m/ratings.dat", record_defaults,
                                            field_delim=",", select_cols=used_column)
     data = data.repeat().shuffle(buffer_size=1000).batch(batch_size=1024)
 
