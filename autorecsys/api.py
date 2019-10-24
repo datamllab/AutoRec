@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from autorecsys.utils import load_config, extract_tunable_hps, set_device
-from autorecsys.utils.data import load_dataset
+from autorecsys.utils import load_dataset
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.trainer import train
 from autorecsys.searcher.randomsearch import RandomSearch
