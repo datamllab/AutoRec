@@ -8,6 +8,10 @@ import tensorflow as tf
 from autorecsys.searcher.core.hyperparameters import HyperParameters
 
 
+def env_config(config):
+    load_config(config)
+
+
 def config_checker(config):
     # TODO: check configs
     return config
@@ -17,7 +21,7 @@ def load_config(raw_config):
     if isinstance(raw_config, dict):
         config = raw_config
     elif isinstance(raw_config, str):
-        with open(os.path.join("./configs", raw_config + ".yaml"), "r", encoding='utf-8') as fr:
+        with open(os.path.join("./examples/configs", raw_config + ".yaml"), "r", encoding='utf-8') as fr:
             config = yaml.load(fr)
     else:
         raise ValueError("Configuration should be a dict or a yaml filename!")
@@ -67,7 +71,7 @@ def extract_tunable_hps(config_dict):
                     "range": list(range(len(b_config["block_choice"]))),
                     "distribution": "choice",
                     "default": 0
-                    }
+                }
                 )
                 method_to_call = getattr(hps, p_type)
                 method_to_call(**p_config)

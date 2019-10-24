@@ -17,13 +17,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import shutil
-import copy
 import logging
-import collections
 
-from autorecsys.utils import create_directory, set_tunable_hps
+from autorecsys.utils import create_directory, set_tunable_hps, display
 from autorecsys.searcher.core import trial as trial_module
-from autorecsys import display
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.trainer import train
