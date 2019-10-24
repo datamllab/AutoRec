@@ -37,12 +37,12 @@ class Display(object):
 
     @staticmethod
     def on_trial_begin(trial):
-        display.section( 'New model' )
+        display.section('New model')
         trial.summary()
 
     @staticmethod
     def on_trial_end(trial):
-        display.section( 'Trial complete' )
+        display.section('Trial complete')
         trial.summary()
 
 
@@ -122,15 +122,15 @@ class BaseTuner(trial_module.Stateful):
             extended: Bool, optional. Display extended summary.
                 Defaults to False.
         """
-        display.section( 'Search space summary' )
+        display.section('Search space summary')
         hp = self.oracle.get_space()
         display.display_setting(
             'Default search space size: %d' % len(hp.space))
         for p in hp.space:
             config = p.get_config()
             name = config.pop('name')
-            display.subsection( '%s (%s)' % (name, p.__class__.__name__) )
-            display.display_settings( config )
+            display.subsection('%s (%s)' % (name, p.__class__.__name__))
+            display.display_settings(config)
 
     def results_summary(self, num_trials=10):
         """Display tuning results summary.
@@ -138,10 +138,10 @@ class BaseTuner(trial_module.Stateful):
             num_trials (int, optional): Number of trials to display.
                 Defaults to 10.
         """
-        display.section( 'Results summary' )
-        display.display_setting( 'Results in %s' % self.project_dir )
+        display.section('Results summary')
+        display.display_setting('Results in %s' % self.project_dir)
         best_trials = self.oracle.get_best_trials(num_trials)
-        display.display_setting( 'Showing %d best trials' % num_trials )
+        display.display_setting('Showing %d best trials' % num_trials)
         for trial in best_trials:
             display.display_setting(
                 'Objective: {} Score: {}'.format(
