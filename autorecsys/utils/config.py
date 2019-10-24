@@ -7,6 +7,10 @@ import tensorflow as tf
 
 from autorecsys.searcher.core.hyperparameters import HyperParameters
 
+def env_config(config):
+    load_config(config)
+
+
 
 def config_checker(config):
     # TODO: check configs

@@ -1,4 +1,5 @@
 TrainOption:
+
     logging_config:
         freq: 10
         save_file: [True]
@@ -7,10 +8,12 @@ TrainOption:
     learning_rate: [0.1]
     device: "gpu:7"
 
+
 DataOption:
 
     filename: "./examples/datasets/ml-1m/ratings.dat"
     splits: [0.8, 0.1]
+
 
 
 ModelOption:
