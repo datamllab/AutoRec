@@ -2,3 +2,4 @@
 /examples/datasets/
 .idea/*
 .DS_Store
+.pyc
