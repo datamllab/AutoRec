@@ -363,7 +363,7 @@ def _format_objective(objective):
     if isinstance(objective, Objective):
         return objective
     if isinstance(objective, str):
-        direction = metric.infer_metric_direction( objective )
+        direction = metric.infer_metric_direction(objective)
         return Objective(name=objective, direction=direction)
     else:
         raise ValueError('`objective` not understood, expected str or '
