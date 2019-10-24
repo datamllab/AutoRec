@@ -1,3 +1,4 @@
 /autorecsys/__pycache__/
 /tests/datasets/
 .idea/*
+.DS_Store
