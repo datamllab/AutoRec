@@ -7,9 +7,9 @@ import tensorflow as tf
 
 from autorecsys.searcher.core.hyperparameters import HyperParameters
 
+
 def env_config(config):
     load_config(config)
-
 
 
 def config_checker(config):
@@ -71,7 +71,7 @@ def extract_tunable_hps(config_dict):
                     "range": list(range(len(b_config["block_choice"]))),
                     "distribution": "choice",
                     "default": 0
-                    }
+                }
                 )
                 method_to_call = getattr(hps, p_type)
                 method_to_call(**p_config)

@@ -26,7 +26,6 @@ from colorama import init, Fore, Back, Style
 
 init()  # colorama init
 
-
 # Check if we are in a ipython/colab environement
 try:
     class_name = get_ipython().__class__.__name__
@@ -38,22 +37,21 @@ try:
 except NameError:
     IS_NOTEBOOK = False
 
-
 if IS_NOTEBOOK:
     from tqdm import tqdm_notebook as tqdm
     from IPython.display import HTML
     from IPython.display import display as ipython_display
 
+
     def display(text):
         ipython_display(HTML(text))
 else:
     from tqdm import tqdm
-    display = print
 
+    display = print
 
 FG = 0
 BG = 1
-
 
 # TODO: create a set of HTML color to allows richer display in colab
 colors = {
@@ -214,12 +212,12 @@ def highlight(text):
     else:
         cprint(text, 'green', brightness="bright")
 
+
 # Charts
 
 
 def display_bar_chart(val, max_val, title=None, left='', right='',
                       color='green', length=80):
-
     bar = make_bar_chart(val, max_val, title=title, left=left, right=right,
                          color=color, length=length)
     display(bar)
@@ -233,7 +231,7 @@ def make_bar_chart(val, max_val, title=None, left='', right='',
 
     # building the bar
     bar = ''
-    num_full = length * val/float(max_val)
+    num_full = length * val / float(max_val)
     bar += full_block * int(num_full)
     if not (num_full).is_integer():
         bar += half_block
@@ -253,6 +251,7 @@ def make_bar_chart(val, max_val, title=None, left='', right='',
     st = SingleTable([row], title)
     st.inner_column_border = False
     return st.table
+
 
 # Low level function
 
