@@ -21,10 +21,9 @@ import collections
 import json
 import logging
 
-from autorecsys import metric
 from autorecsys.searcher.core import trial as trial_lib, hyperparameters as hp_module
 from autorecsys.searcher.core.trial import Stateful
-from autorecsys.utils import create_directory
+from autorecsys.utils import create_directory, metric
 
 Objective = collections.namedtuple('Objective', 'name direction')
 LOGGER = logging.getLogger(__name__)
