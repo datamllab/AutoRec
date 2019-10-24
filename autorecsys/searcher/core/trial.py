@@ -67,16 +67,16 @@ class Trial(Stateful):
         self.status = status
 
     def summary(self):
-        display.section( 'Trial summary' )
+        display.section('Trial summary')
         if self.hyperparameters.values:
-            display.subsection( 'Hp values:' )
-            display.display_settings( self.hyperparameters.values )
+            display.subsection('Hp values:')
+            display.display_settings(self.hyperparameters.values)
         else:
-            display.subsection( 'Hp values: default configuration.' )
+            display.subsection('Hp values: default configuration.')
         if self.score is not None:
-            display.display_setting( 'Score: {}'.format( self.score ) )
+            display.display_setting('Score: {}'.format(self.score))
         if self.best_step is not None:
-            display.display_setting( 'Best step: {}'.format( self.best_step ) )
+            display.display_setting('Best step: {}'.format(self.best_step))
 
     def get_state(self):
         return {
@@ -94,7 +94,7 @@ class Trial(Stateful):
             state['hyperparameters']
         )
         self.hyperparameters = hp
-        self.metrics = metric.MetricsTracker.from_config( state[ 'metrics' ] )
+        self.metrics = metric.MetricsTracker.from_config(state['metrics'])
         self.score = state['score']
         self.best_step = state['best_step']
         self.status = state['status']
