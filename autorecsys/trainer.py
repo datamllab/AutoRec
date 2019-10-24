@@ -1,11 +1,12 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-from autorecsys.utils import *
+from autorecsys.utils import load_dataset, load_config
 
 import logging
-logging.basicConfig(level = logging.INFO,format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logging.basicConfig(level = logging.DEBUG,format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -40,6 +41,6 @@ def train(model, data, train_config=None):
                 step,
                 sum(avg_loss[-1000:]) / min(1000., step + 1),
                 loss
-                )
+            )
             )
     return model, avg_loss
