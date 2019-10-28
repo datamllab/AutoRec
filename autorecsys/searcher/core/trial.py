@@ -21,7 +21,7 @@ import time
 import json
 
 from autorecsys.searcher.core import hyperparameters as hp_module
-from autorecsys import display, metric
+from autorecsys.utils import display, metric
 
 
 class Stateful(object):

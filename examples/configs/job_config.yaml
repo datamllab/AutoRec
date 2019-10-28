@@ -1,4 +1,5 @@
 TrainOption:
+
     logging_config:
         freq: 10
         save_file: True
@@ -10,7 +11,7 @@ TrainOption:
 
 DataOption:
 
-    filename: "./tests/datasets/ml-1m/ratings.dat"
+    filename: "./examples/datasets/ml-1m/ratings.dat"
     splits: [0.8, 0.1]
 
 
