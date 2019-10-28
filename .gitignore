@@ -1,4 +1,4 @@
-/autorecsys/__pycache__/*
+./autorecsys/__pycache__/*
 .idea/*
 .DS_Store
 *.pyc
