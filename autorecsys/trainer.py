@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-from autorecsys.utils import load_dataset, load_config
+from autorecsys.utils import load_config
 
 import logging
 
@@ -10,9 +10,9 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
-def train(model, data, train_config=None):
-    if train_config is None:
-        train_config = load_config("train_default_config")
+def train(model, data, train_config="./examples/configs/train_default_config.yaml"):
+
+    train_config = load_config(train_config)
 
     lr = train_config["TrainOption"]["learning_rate"]
     if isinstance(lr, int):

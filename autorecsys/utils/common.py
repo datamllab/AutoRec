@@ -5,7 +5,6 @@ import shutil
 import tensorflow as tf
 
 
-
 def create_directory(path, remove_existing=False):
     # Create the directory if it doesn't exist.
     if not os.path.exists(path):
@@ -22,6 +21,8 @@ def set_device(device_name):
         pass
     else:
         gpus = tf.config.experimental.list_physical_devices('GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
         print("Available GPUs: {}".format(gpus))
         assert len(gpus) > 0, "Not enough GPU hardware devices available"
         gpu_idx = int(device_name[-1])
