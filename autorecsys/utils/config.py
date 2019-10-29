@@ -1,9 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
-import shutil
+import os 
 import yaml
-import tensorflow as tf
 
 from autorecsys.searcher.core.hyperparameters import HyperParameters
 
@@ -125,25 +123,3 @@ def set_tunable_hps(config_dict, hps):
                         hp_name = '-'.join([c_name, str(block_id), b_name, p_name])
                         config_dict[c_name][block_id][b_name]["params"][p_name] = [hps.values[hp_name]]
     return config_dict
-
-
-def create_directory(path, remove_existing=False):
-    # Create the directory if it doesn't exist.
-    if not os.path.exists(path):
-        os.mkdir(path)
-    # If it does exist, and remove_existing is specified,
-    # the directory will be removed and recreated.
-    elif remove_existing:
-        shutil.rmtree(path)
-        os.mkdir(path)
-
-
-def set_device(device_name):
-    if device_name == "cpu":
-        pass
-    else:
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        print("Available GPUs: {}".format(gpus))
-        assert len(gpus) > 0, "Not enough GPU hardware devices available"
-        gpu_idx = int(device_name[-1])
-        tf.config.experimental.set_visible_devices(gpus[gpu_idx], 'GPU')

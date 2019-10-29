@@ -5,4 +5,4 @@ TrainOption:
     batch_size: 10240
     epoch: 100
     learning_rate: [0.01]
-    device: "gpu:7"
+    device: "gpu:0"
