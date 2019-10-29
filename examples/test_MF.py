@@ -15,12 +15,12 @@ if __name__ == "__main__":
     gpus = tf.config.experimental.list_physical_devices('GPU')
     print("Available GPUs: {}".format(gpus))
     assert len(gpus) > 0, "Not enough GPU hardware devices available"
-    tf.config.experimental.set_visible_devices(gpus[7], 'GPU')
+    tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
 
     # load dataset
     used_column = [0, 1, 2]
     record_defaults = [tf.int32, tf.int32, tf.float32]
-    data = tf.data.experimental.CsvDataset("./examples/datasets/ml-1m/ratings.dat", record_defaults,
+    data = tf.data.experimental.CsvDataset("./tests/datasets/ml-1m/ratings.dat", record_defaults,
                                            field_delim=",", select_cols=used_column)
     data = data.repeat().shuffle(buffer_size=1000).batch(batch_size=1024)
 
