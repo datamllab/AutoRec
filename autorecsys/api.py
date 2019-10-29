@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from autorecsys.utils import load_config, extract_tunable_hps, set_device
+from autorecsys.utils.config import load_config, extract_tunable_hps
+from autorecsys.utils.common import set_device
 from autorecsys.utils import load_dataset
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.trainer import train
@@ -19,7 +20,7 @@ class Job(object):
 
     def run(self):
         # train model
-        self.model, self.avg_loss = train(self.model, self.data)
+        self.model, self.avg_loss = train(self.model, self.data, self.job_config)
 
     def eval(self, test_file):
         # TODO:
@@ -35,8 +36,8 @@ class AutoSearch(object):
         # load data
         self.data = load_dataset(self.search_config)
         self.searcher = RandomSearch(config=self.search_config,
-                                     objective='mse',
-                                     max_trials=10,
+                                     objective=self.search_config["SearchOption"]["objective"],
+                                     max_trials=self.search_config["SearchOption"]["max_trials"],
                                      hyperparameters=self.hps,
                                      dataset=self.data,
                                      overwrite=True)
@@ -44,8 +45,8 @@ class AutoSearch(object):
 
     def search(self):
         # train model
-        self.model = self.searcher.search()
-        return self.model
+        self.searcher.search()
+        return self.searcher.results_summary()
 
     def final_eval(self, test_file):
         # TODO:
