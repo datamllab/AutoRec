@@ -6,12 +6,12 @@ TrainOption:
     batch_size: 10240
     epoch: 100
     learning_rate: [0.1]
-    device: "gpu:7"
+    device: "gpu:0"
 
 
 DataOption:
 
-    filename: "./examples/datasets/ml-1m/ratings.dat"
+    filename: "./tests/datasets/ml-1m/ratings.dat"
     splits: [0.8, 0.1]
 
 
