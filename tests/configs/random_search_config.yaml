@@ -4,7 +4,7 @@ TrainOption:
         freq: 10
         save_file: [True]
     batch_size: 10240
-    epoch: 10
+    epoch: 1
     learning_rate: [0.1]
     device: "gpu:0"
 
@@ -89,4 +89,4 @@ ModelOption:
 SearchOption:
 
     objective: "mse"
-    max_trials: 10
+    max_trials: 2
