@@ -23,7 +23,8 @@ import logging
 
 from autorecsys.searcher.core import trial as trial_lib, hyperparameters as hp_module
 from autorecsys.searcher.core.trial import Stateful
-from autorecsys.utils import create_directory, metric
+from autorecsys.utils import metric
+from autorecsys.utils.common import create_directory
 
 Objective = collections.namedtuple('Objective', 'name direction')
 LOGGER = logging.getLogger(__name__)
