@@ -19,7 +19,9 @@ import os
 import shutil
 import logging
 
-from autorecsys.utils import create_directory, set_tunable_hps, display
+from autorecsys.utils import display
+from autorecsys.utils.common import create_directory
+from autorecsys.utils.config import set_tunable_hps
 from autorecsys.searcher.core import trial as trial_module
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.pipeline.recommender import Recommender
