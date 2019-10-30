@@ -14,6 +14,17 @@ def data_load_from_config(dataset= "movielens",dataset_path = None, col_names = 
 
     config = "./examples/configs/data_default_config.yaml"
     data_config = load_config(config)[ "DataOption"  ]
+    data_config["dtype"] = {key: eval(data_config["dtype"][key]) for key in data_config["dtype"]}
+    # train_X, train_y, val_X, val_y = data_load(dataset="movielens",
+    #                                            dataset_path="./examples/datasets/ml-1m/ratings.dat",
+    #                                            col_names=["user_id", "item_id", "rating", "timestamp"],
+    #                                            used_col_names=["user_id", "item_id", "rating"],
+    #                                            dtype = data_config["dtype"]
+    #                                            )
+
+    # data_config[ "dtype" ] = { key : eval( data_config[ "dtype" ][key] )  for key in data_config[ "dtype" ]  }
+    # data_config[ "dtype" ]  = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32,
+    #          "timestamp": np.int32}
     train_X, train_y, val_X, val_y = data_load( **data_config )
     return train_X, train_y, val_X, val_y
 
@@ -46,8 +57,9 @@ if __name__ == "__main__":
      # data_load( dataset= "movielens", dataset_path ="./examples/datasets/ml-1m/ratings.dat", col_names = ["user_id", "item_id", "rating", "timestamp"], used_col_names = ["user_id", "item_id", "rating"] ,dtype={"user_id":np.int32, "item_id":np.int32, "rating":np.float32, "timestamp":np.int32}  )
 
     config_file = "./examples/configs/data_default_config.yaml"
-    data_config = load_config(config_file)[ "DataOption"  ]
-    print( data_config )
+    # data_config = load_config(config_file)[ "DataOption"  ]
+    # data_config[ "dtype" ] = { key : eval( data_config[ "dtype" ][key] )  for key in data_config[ "dtype" ]  }
+    # print( data_config )
     data_load_from_config( config_file )
 
 

@@ -6,6 +6,7 @@ from autorecsys.utils import load_dataset
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.trainer import train
 from autorecsys.searcher.randomsearch import RandomSearch
+from autorecsys.pipeline.preprocesser import data_load_from_config
 
 
 class Job(object):
@@ -14,13 +15,13 @@ class Job(object):
         # set device
         set_device(self.job_config["TrainOption"]["device"])
         # load data
-        self.data = load_dataset(self.job_config)
+        self.train_X, self.train_y, self.val_X, self.val_y = data_load_from_config(self.job_config)
         # build model
-        self.model = Recommender(self.job_config["ModelOption"])
+        self.recommender = Recommender(self.job_config["ModelOption"])
 
     def run(self):
         # train model
-        self.model, self.avg_loss = train(self.model, self.data, self.job_config)
+         self.avg_loss = self.recommender.train( self.train_X, self.train_y, self.val_X, self.val_y, self.job_config)
 
     def eval(self, test_file):
         # TODO:
@@ -34,12 +35,16 @@ class AutoSearch(object):
         # set device
         set_device(self.search_config["TrainOption"]["device"])
         # load data
-        self.data = load_dataset(self.search_config)
+        self.train_X, self.train_y, self.val_X, self.val_y = data_load_from_config(self.search_config)
+
         self.searcher = RandomSearch(config=self.search_config,
                                      objective=self.search_config["SearchOption"]["objective"],
                                      max_trials=self.search_config["SearchOption"]["max_trials"],
                                      hyperparameters=self.hps,
-                                     dataset=self.data,
+                                     train_X=self.train_X,
+                                     train_y=self.train_y,
+                                     val_X=self.val_X,
+                                     val_y=self.val_y,
                                      overwrite=True)
         self.model = None
 
