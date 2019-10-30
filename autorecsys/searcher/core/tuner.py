@@ -203,5 +203,5 @@ class PipeTuner(BaseTuner):
         self.oracle.update_trial(trial.trial_id, metrics=scores)
 
     def get_scores(self, model):
-        _, _, val_loss = train(model, self.train_X, self.train_y, self.val_X, self.val_y, self.config)
-        return {"mse": val_loss[-1]}
+        _, val_loss = model.train(self.train_X, self.train_y, self.val_X, self.val_y, self.config)
+        return {"mse": val_loss}
