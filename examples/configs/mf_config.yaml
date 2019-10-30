@@ -1,3 +1,17 @@
+TrainOption:
+    logging_config:
+        freq: 1
+        save_file: True
+    batch_size: 1024
+    epoch: 1000
+    learning_rate: [0.01]
+    device: "gpu:0"
+
+DataOption:
+
+    filename: "./tests/datasets/ml-1m/ratings.dat"
+    splits: [0.8, 0.1]
+
 Mapper:
 
   - LatentFactor:

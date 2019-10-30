@@ -19,6 +19,7 @@ import numpy as np
 from tensorflow import keras
 
 
+
 class MetricObservation(object):
 
     def __init__(self, value, step):
