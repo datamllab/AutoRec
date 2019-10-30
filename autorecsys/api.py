@@ -4,7 +4,6 @@ from autorecsys.utils.config import load_config, extract_tunable_hps
 from autorecsys.utils.common import set_device
 from autorecsys.utils import load_dataset
 from autorecsys.pipeline.recommender import Recommender
-from autorecsys.trainer import train
 from autorecsys.searcher.randomsearch import RandomSearch
 from autorecsys.pipeline.preprocesser import data_load_from_config
 
