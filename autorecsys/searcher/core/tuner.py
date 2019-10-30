@@ -25,7 +25,6 @@ from autorecsys.utils.config import set_tunable_hps
 from autorecsys.searcher.core import trial as trial_module
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.pipeline.recommender import Recommender
-from autorecsys.trainer import train
 
 from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error
 
