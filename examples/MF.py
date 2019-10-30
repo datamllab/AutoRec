@@ -27,7 +27,9 @@ if __name__ == "__main__":
 
     # # build recommender
     config_filename = "./examples/configs/mf_config.yaml"
-    model = Recommender(config_filename)
+    recommender = Recommender(config_filename)
 
     # # train model
-    model, train_loss, val_loss  = train(model, train_X, train_y, val_X, val_y, train_config="./examples/configs/mf_config.yaml")
+    train_loss, val_loss = recommender.train(train_X, train_y, val_X, val_y,
+                                        train_config="./examples/configs/mf_config.yaml")
+    # model, train_loss, val_loss  = train(model, train_X, train_y, val_X, val_y, train_config="./examples/configs/mf_config.yaml")

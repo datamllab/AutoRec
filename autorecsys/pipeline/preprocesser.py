@@ -7,6 +7,16 @@ from abc import ABCMeta, abstractmethod
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
+from autorecsys.utils import load_config
+
+
+def data_load_from_config(dataset= "movielens",dataset_path = None, col_names = None, dtype=None, used_col_names=None, test_size=0.1 ):
+
+    config = "./examples/configs/data_default_config.yaml"
+    data_config = load_config(config)[ "DataOption"  ]
+    train_X, train_y, val_X, val_y = data_load( **data_config )
+    return train_X, train_y, val_X, val_y
+
 
 def data_load(dataset= "movielens",dataset_path = None, col_names = None, dtype=None, used_col_names=None, test_size=0.1 ):
     if dataset == "movielens":
@@ -15,7 +25,6 @@ def data_load(dataset= "movielens",dataset_path = None, col_names = None, dtype=
         raise ValueError("Embedding_dim should be a string")
     train_X, train_y, val_X, val_y = data_spilt(X, y, test_size)
     return train_X, train_y, val_X, val_y
-
 
 
 def data_load_movielens( dataset_path, col_names, used_col_names = None, dtype=None ):
@@ -34,8 +43,11 @@ def data_spilt( X, y, test_size = 0.1 ):
 
 
 if __name__ == "__main__":
-     data_load( dataset= "movielens", dataset_path ="./examples/datasets/ml-1m/ratings.dat", col_names = ["user_id", "item_id", "rating", "timestamp"], used_col_names = ["user_id", "item_id", "rating"] ,dtype={"user_id":np.int32, "item_id":np.int32, "rating":np.float32, "timestamp":np.int32}  )
+     # data_load( dataset= "movielens", dataset_path ="./examples/datasets/ml-1m/ratings.dat", col_names = ["user_id", "item_id", "rating", "timestamp"], used_col_names = ["user_id", "item_id", "rating"] ,dtype={"user_id":np.int32, "item_id":np.int32, "rating":np.float32, "timestamp":np.int32}  )
 
-
+    config_file = "./examples/configs/data_default_config.yaml"
+    data_config = load_config(config_file)[ "DataOption"  ]
+    print( data_config )
+    data_load_from_config( config_file )
 
 
