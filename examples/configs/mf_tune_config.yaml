@@ -11,10 +11,7 @@ TrainOption:
 DataOption:
 
     filename: "./tests/datasets/ml-1m/ratings.dat"
-    validation_percentage: 0.1
-
-
-
+    splits: [0.8, 0.1]
 
 
 ModelOption:
