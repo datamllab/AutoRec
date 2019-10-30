@@ -30,6 +30,7 @@ class Recommender(tf.keras.Model):
         self.interactors = build_interactors(self.config["Interactor"])
         self.optimizers = build_optimizers(self.config["Optimizer"])
 
+
     def call(self, feat_dict):
 
         # mapping
