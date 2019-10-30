@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-
 from autorecsys.utils import load_config
 from autorecsys.pipeline.mapper import build_mappers
 from autorecsys.pipeline.interactor import build_interactors
@@ -11,15 +10,6 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-
-# class HyperRecommender(tf.keras.tuner.Hypermodel):
-#
-#     def build(self, hp):
-#         a = hp.Boolean(name="bool", default=True)
-#         hp.values['bool']
-#         config = self.convert(hp)
-#         return Recommender(config)
 
 
 class Recommender(tf.keras.Model):
@@ -59,10 +49,10 @@ class Recommender(tf.keras.Model):
 
         return y_pred
 
+
     def train(self, train_X, train_y, val_X, val_y, train_config="./examples/configs/train_default_config.yaml"):
 
         train_config = load_config(train_config)
-
         lr = train_config["TrainOption"]["learning_rate"]
         if isinstance(lr, int):
             lr = lr
