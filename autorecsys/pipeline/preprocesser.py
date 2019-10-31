@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from abc import ABCMeta, abstractmethod
 from sklearn.model_selection import train_test_split
 import pandas as pd
+import numpy as np
 from autorecsys.utils import load_config
 
 
