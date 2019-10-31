@@ -1,18 +1,32 @@
 TrainOption:
-
     logging_config:
-        freq: 10
-        save_file: [True]
-    batch_size: 10240
-    epoch: 10
-    learning_rate: [0.1]
+        freq: 1
+        save_file: True
+    batch_size: 1024
+    epoch: 100
+    learning_rate: [0.01]
     device: "gpu:0"
-
 
 DataOption:
 
-    filename: "./tests/datasets/ml-1m/ratings.dat"
-    splits: [0.8, 0.1]
+    dataset: "movielens"
+    dataset_path: "./tests/datasets/ml-1m/ratings.dat"
+    col_names:
+        - user_id
+        - item_id
+        - rating
+        - timestamp
+    used_col_names:
+        - user_id
+        - item_id
+        - rating
+    dtype:
+        user_id: np.int32
+        item_id: np.int32
+        rating: np.float32
+        timestamp: np.int32
+    test_size: 0.1
+
 
 
 
