@@ -93,6 +93,6 @@ class Recommender(tf.keras.Model):
         return val_loss
 
     def predict(self, val_data):
-        pred = self.cal(val_data)
+        pred = self.call(val_data)
         return pred
 
