@@ -25,7 +25,6 @@ from autorecsys.utils.config import set_tunable_hps
 from autorecsys.searcher.core import trial as trial_module
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.pipeline.recommender import Recommender
-from autorecsys.trainer import train
 
 from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error
 
@@ -188,10 +187,13 @@ class BaseTuner(trial_module.Stateful):
 
 class PipeTuner(BaseTuner):
 
-    def __init__(self, oracle, config, dataset, **kwargs):
+    def __init__(self, oracle, config, train_X, train_y, val_X, val_y,  **kwargs):
         super(PipeTuner, self).__init__(oracle, **kwargs)
         self.config = config
-        self.data = dataset
+        self.train_X = train_X
+        self.train_y = train_y
+        self.val_X = val_X
+        self.val_y = val_y
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
         new_model_config = set_tunable_hps(self.config["ModelOption"], trial.hyperparameters)
@@ -200,5 +202,5 @@ class PipeTuner(BaseTuner):
         self.oracle.update_trial(trial.trial_id, metrics=scores)
 
     def get_scores(self, model):
-        _, avg_loss = train(model, self.data, self.config)
-        return {"mse": avg_loss[-1]}
+        _, val_loss = model.train(self.train_X, self.train_y, self.val_X, self.val_y, self.config)
+        return {"mse": val_loss}

@@ -18,6 +18,7 @@ Interactor:
   VirtualBlock:
     block_choice: [MLP: , InnerProduct:]
 
+
 Optimizer:
 
   RatingPrediction:
