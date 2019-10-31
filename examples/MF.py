@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocesser import data_load_from_config
+from autorecsys.pipeline.preprocessor import data_load_from_config
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

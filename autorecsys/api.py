@@ -5,7 +5,7 @@ from autorecsys.utils.common import set_device
 from autorecsys.utils import load_dataset
 from autorecsys.pipeline.recommender import Recommender
 from autorecsys.searcher.randomsearch import RandomSearch
-from autorecsys.pipeline.preprocesser import data_load_from_config
+from autorecsys.pipeline.preprocessor import data_load_from_config
 
 
 class Job(object):
