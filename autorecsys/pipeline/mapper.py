@@ -50,7 +50,8 @@ class LatentFactorMapper(BaseMapper):
 
         if isinstance(self.config["params"]["embedding_dim"], int):
             self.embedding_dim = self.config["params"]["embedding_dim"]
-        elif isinstance(self.config["params"]["embedding_dim"], list) and len(self.config["params"]["embedding_dim"]) == 1:
+        elif isinstance(self.config["params"]["embedding_dim"], list) and len(
+                self.config["params"]["embedding_dim"]) == 1:
             self.embedding_dim = self.config["params"]["embedding_dim"][0]
         else:
             raise ValueError("Embedding_dim should be an integer or a list with length 1.")
