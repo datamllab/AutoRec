@@ -18,7 +18,10 @@ def create_directory(path, remove_existing=False):
 
 def set_device(device_name):
     if device_name == "cpu":
-        pass
+        cpus = tf.config.experimental.list_physical_devices('CPU')
+        print("Available CPUs: {}".format(cpus))
+        assert len(cpus) > 0, "Not enough CPU hardware devices available"
+        tf.config.experimental.set_visible_devices(cpus[0], 'CPU')
     else:
         gpus = tf.config.experimental.list_physical_devices('GPU')
         for gpu in gpus:
