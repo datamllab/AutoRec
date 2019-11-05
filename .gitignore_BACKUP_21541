@@ -1,0 +1,10 @@
+/autorecsys/__pycache__/*
+/tests/datasets/*
+/examples/datasets/*
+.idea/*
+.DS_Store
+.pyc
+<<<<<<< HEAD
+=======
+/tests/tmp_autokaggle-tmp-3/
+>>>>>>> 31a9e37fbe20902dca1ac9000aea985466be36bf

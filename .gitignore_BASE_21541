@@ -1,0 +1,5 @@
+/autorecsys/__pycache__/
+/examples/datasets/
+.idea/*
+.DS_Store
+.pyc
