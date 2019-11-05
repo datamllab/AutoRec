@@ -1,0 +1,13 @@
+{
+  "examples/test_MF.py": true, 
+  "examples/test_MF_tune.py": true, 
+  "examples/test_default_config.py": true, 
+  "examples/test_job.py": true, 
+  "examples/test_random_search.py": true, 
+  "tests/integration_tests/test_api.py": true, 
+  "tests/searcher_test/core_test/test_hyperparameters.py": true, 
+  "tests/searcher_test/core_test/test_oracle.py": true, 
+  "tests/searcher_test/core_test/test_trial.py": true, 
+  "tests/searcher_test/test_searchers.py": true, 
+  "tests/test_pipeline/test_interactor.py": true
+}

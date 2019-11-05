@@ -1,0 +1,7 @@
+{
+  "integration_tests/test_api.py": true, 
+  "searcher_test/core_test/test_hyperparameters.py": true, 
+  "searcher_test/core_test/test_oracle.py": true, 
+  "searcher_test/core_test/test_trial.py": true, 
+  "searcher_test/test_searchers.py": true
+}
