@@ -52,6 +52,7 @@ class TestMappers(unittest.TestCase):
 
     def test_LatentFactorMapper(self):
         lf_mapper = set_mapper_from_config(self.default_mapper_name, self.default_mapper_config)
+        # TODO: Anthony (similar to the the interactor test)
         # out_feat_dict = lf_mapper(self.feat_dict)
         # assert
         
