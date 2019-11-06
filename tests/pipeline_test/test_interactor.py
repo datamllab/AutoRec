@@ -29,7 +29,11 @@ class TestInteractors(unittest.TestCase):
         tf.random.set_seed(4321)
 
         self.default_interactor_name = "MLP"
+        # TODO: Anthony you may need to specify the 'input' or 'output' here as the key
+        # you wanna extract from self.feat_dict 
         self.default_interactor_config = {
+            'input': [],
+            'output': [],
             'params': {
                 'num_layers': [3],
                 'units': [2,3,4]
@@ -58,5 +62,8 @@ class TestInteractors(unittest.TestCase):
 
     def test_MLPInteraction(self):
         mlp_interactor= set_interactor_from_config(self.default_interactor_name, self.default_interactor_config)
+        # TODO: Anthony, construct a fake input ditionary "self.feat_dict", the key should be sepecified 
+        # in the block you wanna test (i.e., in the self.default_interactor_config), then test the output shape
+        # and values are correct 
         # out_feat_dict = mlp_interactor(self.feat_dict)
         # assert
