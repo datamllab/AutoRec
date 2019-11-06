@@ -49,5 +49,6 @@ class TestOptimizers(unittest.TestCase):
 
     def test_RatingPredictionOptimizer(self):
         rp_optimizer = set_optimizer_from_config(self.default_optimizer_name, self.default_optimizer_config)
+        # TODO: Anthony (similar to the the interactor test)
         # out_feat_dict = rp_optimizer(self.feat_dict)
         # assert
