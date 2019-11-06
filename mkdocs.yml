@@ -1,5 +1,0 @@
-site_name: AutoRecSys
-pages:
-   - Home: index.md
-   - About: about.md
-theme: readthedocs
