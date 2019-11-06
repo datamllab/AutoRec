@@ -1,0 +1,43 @@
+TrainOption:
+    logging_config:
+        freq: 10
+        save_file: True
+    batch_size: 10240
+    epoch: 1
+    learning_rate: [0.01]
+    device: "gpu:0"
+
+
+Mapper:
+
+  - LatentFactor:
+      input: [user_id]
+      output: u
+      params:
+        embedding_dim: [10]
+        id_num: 10000
+
+  - LatentFactor:
+      input: [item_id]
+      output: v
+      params:
+        embedding_dim: [10]
+        id_num: 10000
+
+
+Interactor:
+
+  - MLP:
+      input: [u, v]
+      output: mlp_interaction
+      params:
+        num_layers: [4]
+        units: [128, 128, 128, 64]
+
+Optimizer:
+
+  - RatingPrediction:
+      input: [mlp_interaction]
+      output: rating
+      params:
+        latent_factor_dim: [10]
