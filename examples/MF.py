@@ -23,7 +23,13 @@ if __name__ == "__main__":
 
     # build recommender
     recommender = Recommender(config_filename)
+    # print( recommender.summary() )
+    # recommender.build(  )
 
-    # # train model
+    # train model
     train_loss, val_loss = recommender.train(train_X, train_y, val_X, val_y,
                                         train_config="./examples/configs/mf_config.yaml")
+
+    # recommender.save_weights(".")
+    # recommender._set_inputs(inputs)
+    # recommender.save('.')
