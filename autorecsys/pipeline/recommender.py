@@ -26,8 +26,6 @@ class Recommender(tf.keras.Model):
         self.interactors = build_interactors(self.config["Interactor"])
         self.optimizers = build_optimizers(self.config["Optimizer"])
 
-
-
     def call(self, feat_dict):
 
         # mapping
@@ -50,7 +48,6 @@ class Recommender(tf.keras.Model):
             )
 
         return y_pred
-
 
     def train(self, train_X, train_y, val_X, val_y, train_config="./examples/configs/train_default_config.yaml"):
 
@@ -88,14 +85,13 @@ class Recommender(tf.keras.Model):
                 logging.info(
                     "Step: {:<5d}, train_loss: {:>15.10f}, val_loss: {:>15.10f}".format(step, train_loss, val_loss)
                 )
-        return  train_loss, val_loss
+        return train_loss, val_loss
 
     def validate(self, val_X, val_y, metric=tf.keras.metrics.MeanSquaredError):
-        pred_y = self.predict( val_X )
+        pred_y = self.predict(val_X)
         val_loss = metric(pred_y, val_y)
         return val_loss
 
     def predict(self, val_data):
         pred = self.call(val_data)
         return pred
-
