@@ -6,6 +6,7 @@ from autorecsys.pipeline.mapper import build_mappers
 from autorecsys.pipeline.interactor import build_interactors
 from autorecsys.pipeline.optimizer import build_optimizers
 import logging
+from tensorflow.keras.models import load_model
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -24,6 +25,7 @@ class Recommender(tf.keras.Model):
         self.mappers = build_mappers(self.config["Mapper"])
         self.interactors = build_interactors(self.config["Interactor"])
         self.optimizers = build_optimizers(self.config["Optimizer"])
+
 
 
     def call(self, feat_dict):
@@ -73,6 +75,7 @@ class Recommender(tf.keras.Model):
                 y_pred = self.call(trian_feat_dict)
                 train_loss = tf.keras.losses.MSE(y_pred["rating"], y)
             grads = tape.gradient(train_loss, self.trainable_variables)
+
 
             optimizer.apply_gradients(zip(grads, self.trainable_variables))
             if train_config["TrainOption"]["logging_config"]["freq"] > 0 \
