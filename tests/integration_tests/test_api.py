@@ -13,7 +13,7 @@ def test_job_api(tmp_dir):
     config_filename = "./tests/configs/job_config.yaml"
     tmp_job = Job(config_filename)
     tmp_job.run()
-    assert type(tmp_job.model) == Recommender
+    assert type(tmp_job.recommender) == Recommender
 
 
 def test_search_api(tmp_dir):
