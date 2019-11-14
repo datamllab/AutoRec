@@ -1,6 +1,9 @@
 import pickle
+import functools
 
-from autokaggle.base.trial import Stateful
+from autorecsys.searcher.core.trial import Stateful
+from autorecsys.pipeline import base
+from autorecsys.pipeline import compiler
 import tensorflow as tf
 from tensorflow.python.util import nest
 
@@ -168,3 +171,276 @@ class Graph(Stateful):
         with open(fname, 'r') as f:
             state = pickle.load(f)
         self.set_state(state)
+
+
+class PreprocessGraph(Graph):
+    """A graph consists of only Preprocessors.
+    It is both a search space with Hyperparameters and a model to be fitted. It
+    preprocess the dataset with the Preprocessors. The output is the input to the
+    Keras model. It does not extend Hypermodel class because it cannot be built into
+    a Keras model.
+    """
+
+    def preprocess(self, dataset, validation_data=None, fit=False):
+        """Preprocess the data to be ready for the Keras Model.
+        # Arguments
+            dataset: tf.data.Dataset. Training data.
+            validation_data: tf.data.Dataset. Validation data.
+            fit: Boolean. Whether to fit the preprocessing layers with x and y.
+        # Returns
+            if validation data is provided.
+            A tuple of two preprocessed tf.data.Dataset, (train, validation).
+            Otherwise, return the training dataset.
+        """
+        dataset = self._preprocess(dataset, fit=fit)
+        if validation_data:
+            validation_data = self._preprocess(validation_data)
+        return dataset, validation_data
+
+    def _preprocess(self, dataset, fit=False):
+        # A list of input node ids in the same order as the x in the dataset.
+        input_node_ids = [self._node_to_id[input_node] for input_node in self.inputs]
+
+        # Iterate until all the model inputs have their data.
+        while set(map(lambda node: self._node_to_id[node], self.outputs)
+                  ) - set(input_node_ids):
+            # Gather the blocks for the next iteration over the dataset.
+            blocks = []
+            for node_id in input_node_ids:
+                for block in self._nodes[node_id].out_blocks:
+                    if block in self._blocks:
+                        blocks.append(block)
+            if fit:
+                # Iterate the dataset to fit the preprocessors in current depth.
+                self._fit(dataset, input_node_ids, blocks)
+
+            # Transform the dataset.
+            output_node_ids = []
+            dataset = dataset.map(functools.partial(
+                self._transform,
+                input_node_ids=input_node_ids,
+                output_node_ids=output_node_ids,
+                blocks=blocks,
+                fit=fit))
+
+            # Build input_node_ids for next depth.
+            input_node_ids = output_node_ids
+        return dataset
+
+    def _fit(self, dataset, input_node_ids, blocks):
+        # Iterate the dataset to fit the preprocessors in current depth.
+        for x, y in dataset:
+            x = nest.flatten(x)
+            id_to_data = {
+                node_id: temp_x for temp_x, node_id in zip(x, input_node_ids)
+            }
+            for block in blocks:
+                data = [id_to_data[self._node_to_id[input_node]]
+                        for input_node in block.inputs]
+                block.update(data, y=y)
+
+        # Finalize and set the shapes of the output nodes.
+        for block in blocks:
+            block.finalize()
+            nest.flatten(block.outputs)[0].shape = block.output_shape
+
+    def _transform(self,
+                   x,
+                   y,
+                   input_node_ids,
+                   output_node_ids,
+                   blocks,
+                   fit=False):
+        x = nest.flatten(x)
+        id_to_data = {
+            node_id: temp_x
+            for temp_x, node_id in zip(x, input_node_ids)
+        }
+        output_data = {}
+        # Transform each x by the corresponding block.
+        for hm in blocks:
+            data = [id_to_data[self._node_to_id[input_node]]
+                    for input_node in hm.inputs]
+            data = tf.py_function(functools.partial(hm.transform, fit=fit),
+                                  inp=nest.flatten(data),
+                                  Tout=hm.output_types())
+            data = nest.flatten(data)[0]
+            data.set_shape(hm.output_shape)
+            output_data[self._node_to_id[hm.outputs[0]]] = data
+        # Keep the Keras Model inputs even they are not inputs to the blocks.
+        for node_id, data in id_to_data.items():
+            if self._nodes[node_id] in self.outputs:
+                output_data[node_id] = data
+
+        for node_id in sorted(output_data.keys()):
+            output_node_ids.append(node_id)
+        return tuple(map(
+            lambda node_id: output_data[node_id], output_node_ids)), y
+
+    def build(self, hp):
+        """Obtain the values of all the HyperParameters.
+        Different from the build function of Hypermodel. This build function does not
+        produce a Keras model. It only obtain the hyperparameter values from
+        HyperParameters.
+        # Arguments
+            hp: HyperParameters.
+        """
+        super().build(hp)
+        self.compile(compiler.BEFORE)
+        for block in self._blocks:
+            block.build(hp)
+
+
+class KerasGraph(Graph, base.HyperModel):
+    """A graph and HyperModel to be built into a Keras model."""
+
+    def build(self, hp):
+        """Build the HyperModel into a Keras Model."""
+        super().build(hp)
+        self.compile(compiler.AFTER)
+        real_nodes = {}
+        for input_node in self.inputs:
+            node_id = self._node_to_id[input_node]
+            real_nodes[node_id] = input_node.build()
+        for block in self._blocks:
+            if isinstance(block, base.Preprocessor):
+                continue
+            temp_inputs = [real_nodes[self._node_to_id[input_node]]
+                           for input_node in block.inputs]
+            outputs = block.build(hp, inputs=temp_inputs)
+            outputs = nest.flatten(outputs)
+            for output_node, real_output_node in zip(block.outputs, outputs):
+                real_nodes[self._node_to_id[output_node]] = real_output_node
+        model = tf.keras.Model(
+            [real_nodes[self._node_to_id[input_node]] for input_node in
+             self.inputs],
+            [real_nodes[self._node_to_id[output_node]] for output_node in
+             self.outputs])
+
+        return self._compile_keras_model(hp, model)
+
+    def _get_metrics(self):
+        metrics = {}
+        for output_node in self.outputs:
+            block = output_node.in_blocks[0]
+            if isinstance(block, base.Head):
+                metrics[block.name] = block.metrics
+        return metrics
+
+    def _get_loss(self):
+        loss = {}
+        for output_node in self.outputs:
+            block = output_node.in_blocks[0]
+            if isinstance(block, base.Head):
+                loss[block.name] = block.loss
+        return loss
+
+    def _compile_keras_model(self, hp, model):
+        # Specify hyperparameters from compile(...)
+        optimizer = hp.Choice('optimizer',
+                              ['adam',
+                               'adadelta',
+                               'sgd'])
+
+        model.compile(optimizer=optimizer,
+                      metrics=self._get_metrics(),
+                      loss=self._get_loss())
+
+        return model
+
+
+class PlainGraph(Graph):
+    """A graph built from a HyperGraph to produce KerasGraph and PreprocessGraph.
+    A PlainGraph does not contain HyperBlock. HyperGraph's hyper_build function
+    returns an instance of PlainGraph, which can be directly built into a KerasGraph
+    and a PreprocessGraph.
+    # Arguments
+        inputs: A list of input node(s) for the PlainGraph.
+        outputs: A list of output node(s) for the PlainGraph.
+    """
+
+    def __init__(self, inputs, outputs, **kwargs):
+        self._keras_model_inputs = []
+        super().__init__(inputs=inputs, outputs=outputs, **kwargs)
+
+    def _build_network(self):
+        super()._build_network()
+        # Find the model input nodes
+        for node in self._nodes:
+            if self._is_keras_model_inputs(node):
+                self._keras_model_inputs.append(node)
+
+        self._keras_model_inputs = sorted(self._keras_model_inputs,
+                                          key=lambda x: self._node_to_id[x])
+
+    @staticmethod
+    def _is_keras_model_inputs(node):
+        for block in node.in_blocks:
+            if not isinstance(block, base.Preprocessor):
+                return False
+        for block in node.out_blocks:
+            if not isinstance(block, base.Preprocessor):
+                return True
+        return False
+
+    def build_keras_graph(self):
+        return KerasGraph(self._keras_model_inputs,
+                          self.outputs,
+                          override_hps=self.override_hps)
+
+    def build_preprocess_graph(self):
+        return PreprocessGraph(self.inputs,
+                               self._keras_model_inputs,
+                               override_hps=self.override_hps)
+
+
+def copy(old_instance):
+    instance = old_instance.__class__()
+    instance.set_state(old_instance.get_state())
+    return instance
+
+
+class HyperGraph(Graph):
+    """A HyperModel based on connected Blocks and HyperBlocks.
+    # Arguments
+        inputs: A list of input node(s) for the HyperGraph.
+        outputs: A list of output node(s) for the HyperGraph.
+    """
+
+    def __init__(self, inputs, outputs, **kwargs):
+        super().__init__(inputs, outputs, **kwargs)
+        self.compile(compiler.HYPER)
+
+    def build_graphs(self, hp):
+        plain_graph = self.hyper_build(hp)
+        preprocess_graph = plain_graph.build_preprocess_graph()
+        preprocess_graph.build(hp)
+        return (preprocess_graph,
+                plain_graph.build_keras_graph())
+
+    def hyper_build(self, hp):
+        """Build a GraphHyperModel with no HyperBlock but only Block."""
+        # Make sure get_uid would count from start.
+        tf.keras.backend.clear_session()
+        inputs = []
+        old_node_to_new = {}
+        for old_input_node in self.inputs:
+            input_node = copy(old_input_node)
+            inputs.append(input_node)
+            old_node_to_new[old_input_node] = input_node
+        for old_block in self._blocks:
+            inputs = [old_node_to_new[input_node]
+                      for input_node in old_block.inputs]
+            if isinstance(old_block, base.HyperBlock):
+                outputs = old_block.build(hp, inputs=inputs)
+            else:
+                outputs = copy(old_block)(inputs)
+            for output_node, old_output_node in zip(outputs, old_block.outputs):
+                old_node_to_new[old_output_node] = output_node
+        inputs = []
+        for input_node in self.inputs:
+            inputs.append(old_node_to_new[input_node])
+        outputs = []
+        for output_node in self.outputs:
+            outputs.append(old_node_to_new[output_node])
+        return PlainGraph(inputs, outputs, override_hps=self.override_hps)

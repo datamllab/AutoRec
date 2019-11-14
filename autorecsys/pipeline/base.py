@@ -1,11 +1,8 @@
-import logging
-import time
-import random
-import json
-import tempfile
-
+import types
+import tensorflow as tf
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.searcher.core.trial import Stateful
+from autorecsys.utils.common import to_snake_case
 from tensorflow.python.util import nest
 
 
@@ -24,6 +21,9 @@ class Node(Stateful):
     def add_out_block(self, hypermodel):
         self.out_blocks.append(hypermodel)
 
+    def build(self):
+        return tf.keras.Input(shape=self.shape)
+
     def get_state(self):
         return {'shape': self.shape}
 
@@ -31,25 +31,63 @@ class Node(Stateful):
         self.shape = state['shape']
 
 
-class Block(Stateful):
-    def __init__(self, name=None, tunable=True, directory=None):
-        self.fixed_params = None
-        self.tunable_candidates = None
-        self.name = name or self._generate_random_name()
+class HyperModel(object):
+    """Defines a searchable space of Models and builds Models from this space.
+    # Attributes:
+        name: The name of this HyperModel.
+        tunable: Whether the hyperparameters defined in this hypermodel
+          should be added to search space. If `False`, either the search
+          space for these parameters must be defined in advance, or the
+          default values will be used.
+    """
+
+    def __init__(self, name=None, tunable=True):
+        self.name = name
         self.tunable = tunable
+
+        self._build = self.build
+        self.build = self._build_wrapper
+
+    def build(self, hp):
+        """Builds a model.
+        # Arguments:
+            hp: A `HyperParameters` instance.
+        # Returns:
+            A model instance.
+        """
+        raise NotImplementedError
+
+    def _build_wrapper(self, hp, *args, **kwargs):
+        if not self.tunable:
+            # Copy `HyperParameters` object so that new entries are not added
+            # to the search space.
+            hp = hp.copy()
+        return self._build(hp, *args, **kwargs)
+
+
+class Block(HyperModel, Stateful):
+    def __init__(self, name=None, **kwargs):
+        super().__init__(**kwargs)
+        if not name:
+            prefix = self.__class__.__name__
+            name = prefix + '_' + str(tf.keras.backend.get_uid(prefix))
+            name = to_snake_case(name)
+        self._hyperparameters = None
+        self.name = name
         self.inputs = None
         self.outputs = None
         self._num_output_node = 1
-        self._hyperparameters = None
-        self.logger = logging.getLogger(self.name)
-        self.directory = directory
 
-    def _generate_random_name(self):
-        prefix = self.__class__.__name__
-        s = str(time.time()) + str(random.randint(1, 1e7))
-        s = hash(s) % 1045543567
-        name = prefix + '_' + str(s)
-        return name
+    def __new__(cls, *args, **kwargs):
+        obj = super().__new__(cls)
+        build_fn = obj.build
+
+        def build_wrapper(obj, hp, *args, **kwargs):
+            with hp.name_scope(obj.name):
+                return build_fn(hp, *args, **kwargs)
+
+        obj.build = types.MethodType(build_wrapper, obj)
+        return obj
 
     def __str__(self):
         return self.name
@@ -151,12 +189,60 @@ class HyperBlock(Block):
         raise NotImplementedError
 
 
-class GeneralBlock(Block):
-    """Hyper General block base class.
-    It extends Block which extends Hypermodel. A GeneralBlock is a Hypermodel, which
+class Preprocessor(Block):
+    """Hyper preprocessing block base class.
+    It extends Block which extends Hypermodel. A preprocessor is a Hypermodel, which
     means it is a search space. However, different from other Hypermodels, it is
-    also a model whose config could be set.
+    also a model which can be fit.
     """
+
+    def build(self, hp):
+        """Get the values of the required HyperParameters.
+        It does not build and return a Keras Model, but initialize the
+        HyperParameters for the preprocessor to be fit.
+        """
+        pass
+
+    def update(self, x, y=None):
+        """Incrementally fit the preprocessor with a single training instance.
+        # Arguments
+            x: EagerTensor. A single instance in the training dataset.
+            y: EagerTensor. The targets of the tasks. Defaults to None.
+        """
+        raise NotImplementedError
+
+    def transform(self, x, fit=False):
+        """Incrementally fit the preprocessor with a single training instance.
+        # Arguments
+            x: EagerTensor. A single instance in the training dataset.
+            fit: Boolean. Whether it is in fit mode.
+        Returns:
+            A transformed instanced which can be converted to a tf.Tensor.
+        """
+        raise NotImplementedError
+
+    def output_types(self):
+        """The output types of the transformed data, e.g. tf.int64.
+        The output types are required by tf.py_function, which is used for transform
+        the dataset into a new one with a map function.
+        # Returns
+            A tuple of data types.
+        """
+        raise NotImplementedError
+
+    @property
+    def output_shape(self):
+        """The output shape of the transformed data.
+        The output shape is needed to build the Keras Model from the AutoModel.
+        The output shape of the preprocessor is the input shape of the Keras Model.
+        # Returns
+            A tuple of int(s) or a TensorShape.
+        """
+        raise NotImplementedError
+
+    def finalize(self):
+        """Training process of the preprocessor after update with all instances."""
+        pass
 
     def get_config(self):
         """Get the configuration of the preprocessor.
@@ -196,46 +282,3 @@ class GeneralBlock(Block):
         self.set_config(state['config'])
         super().set_state(state['config'])
         self.set_weights(state['weights'])
-
-    def initialize(self):
-        pass
-
-    def save_weights(self, filename):
-        pass
-
-    def load_weights(self, filename):
-        with open(filename, 'r') as fp:
-            weights = json.load(fp)
-        self.set_weights(weights)
-
-
-class Preprocessor(GeneralBlock):
-    """Hyper preprocessing block base class.
-    It extends Block which extends GeneralBlock. A preprocessor is a Hypermodel, which
-    means it is a search space. However, different from other Hypermodels and GeneralBlock, it is
-    also a model which can be fit.
-    """
-
-    def fit_transform(self, x, y):
-        """Incrementally fit the preprocessor with a single training instance.
-
-        # Arguments
-            x: EagerTensor. A single instance in the training dataset.
-            fit: Boolean. Whether it is in fit mode.
-
-        Returns:
-            A transformed instanced which can be converted to a tf.Tensor.
-        """
-        raise NotImplementedError
-
-    def transform(self, x):
-        """Incrementally fit the preprocessor with a single training instance.
-
-        # Arguments
-            x: EagerTensor. A single instance in the training dataset.
-            fit: Boolean. Whether it is in fit mode.
-
-        Returns:
-            A transformed instanced which can be converted to a tf.Tensor.
-        """
-        raise NotImplementedError

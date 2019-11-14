@@ -1,11 +1,24 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import re
 import os
 import shutil
 import tensorflow as tf
 
+
 def dataset_shape(dataset):
     return tf.compat.v1.data.get_output_shapes(dataset)
+
+
+def to_snake_case(name):
+    intermediate = re.sub('(.)([A-Z][a-z0-9]+)', r'\1_\2', name)
+    insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
+    # If the class is private the name starts with "_" which is not secure
+    # for creating scopes. We prefix the name with "private" in this case.
+    if insecure[0] != '_':
+        return insecure
+    return 'private' + insecure
+
 
 def create_directory(path, remove_existing=False):
     # Create the directory if it doesn't exist.
