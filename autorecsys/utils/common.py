@@ -4,6 +4,8 @@ import os
 import shutil
 import tensorflow as tf
 
+def dataset_shape(dataset):
+    return tf.compat.v1.data.get_output_shapes(dataset)
 
 def create_directory(path, remove_existing=False):
     # Create the directory if it doesn't exist.

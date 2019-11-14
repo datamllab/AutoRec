@@ -8,6 +8,24 @@ import numpy as np
 from autorecsys.utils import load_config
 
 
+class BaseProprocessor(metaclass=ABCMeta):
+    def __init__(self, config, **kwarg):
+        super(BaseProprocessor, self).__init__()
+        self.config = config
+
+    @abstractmethod
+    def load_data(self, dataset):
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_batch(self):
+        raise NotImplementedError
+
+class TabularPreprocessor(BaseProprocessor):
+    def __init__(self, config):
+        super(TabularPreprocessor, self).__init__(config)
+
+
 def data_load_from_config(dataset="movielens", dataset_path=None, col_names=None, dtype=None, used_col_names=None,
                           test_size=0.1):
     config = "./examples/configs/data_default_config.yaml"
