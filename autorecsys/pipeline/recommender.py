@@ -5,6 +5,8 @@ from autorecsys.utils import load_config
 from autorecsys.pipeline.mapper import build_mappers
 from autorecsys.pipeline.interactor import build_interactors
 from autorecsys.pipeline.optimizer import build_optimizers
+from autorecsys.pipeline.graph import Graph
+
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -12,12 +14,15 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
-class Recommender(tf.keras.Model):
-    def __init__(self, config):
-        super(Recommender, self).__init__()
+class BaseRecommender(Graph):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-        self.config = load_config(config)
-        self._build()
+    # def __init__(self, config):
+    #     super(BaseRecommender, self).__init__()
+    #
+    #     self.config = load_config(config)
+    #     self._build()
 
     def _build(self):
 
@@ -93,3 +98,13 @@ class Recommender(tf.keras.Model):
     def predict(self, val_data):
         pred = self.cal(val_data)
         return pred
+
+
+class CFRecommender(BaseRecommender):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class CTRRecommender(BaseRecommender):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
