@@ -70,7 +70,10 @@ class Trial(Stateful):
         display.section('Trial summary')
         if self.hyperparameters.values:
             display.subsection('Hp values:')
-            display.display_settings(self.hyperparameters.values)
+            value_need_display = {k: v for k, v in self.hyperparameters.values.items()
+                       if k in self.hyperparameters._space and
+                       self.hyperparameters._space[k].__class__.__name__ != 'Fixed'}
+             display.display_settings(value_need_display)
         else:
             display.subsection('Hp values: default configuration.')
         if self.score is not None:
@@ -115,4 +118,4 @@ class Trial(Stateful):
 def generate_trial_id():
     s = str(time.time()) + str(random.randint(1, 1e7))
     # return hashlib.sha256(s.encode('utf-8')).hexdigest()[:32]
-    return hash(s)
+    return hash(s) % 1045543567

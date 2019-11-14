@@ -51,6 +51,34 @@ class HyperParameter(object):
         raise NotImplementedError
 
 
+class Fixed(HyperParameter):
+    """Fixed, untunable value.
+
+    # Arguments
+        name: Str. Name of parameter. Must be unique.
+        value: Value to use (can be any JSON-serializable
+            Python type).
+    """
+
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def __repr__(self):
+        return 'Fixed(name: {}, value: {})'.format(
+            self.name, self.value)
+
+    def random_sample(self, seed=None):
+        return self.value
+
+    @property
+    def default(self):
+        return self.value
+
+    def get_config(self):
+        return {'name': self.name, 'value': self.value}
+
+
 class Int(HyperParameter):
     """Integer range.
 
@@ -438,6 +466,16 @@ class HyperParameters(object):
         raise ValueError(
             'Unknown parameter: {}'.format(full_name_no_cond))
 
+    def Fixed(self,
+              name,
+              value,
+              parent_name=None,
+              parent_values=None):
+        return self._retrieve(name, 'Fixed',
+                              config={'value': value},
+                              parent_name=parent_name,
+                              parent_values=parent_values)
+
     def Choice(self,
                name,
                values,
@@ -608,7 +646,7 @@ class HyperParameters(object):
                 helper(cur_dict_[lt_[0]], lt_[1:], val_)
 
         res = dict()
-        for key, val in self.values.items():
+        for key, val in self.values.items():    
             lt = key.split('/')
             helper(res, lt, val)
         return res
@@ -617,7 +655,7 @@ class HyperParameters(object):
 def deserialize(config):
     # Autograph messes with globals(), so in order to support HPs inside `call` we
     # have to enumerate them manually here.
-    objects = [HyperParameter, Float, Int, Choice, Boolean, HyperParameters]
+    objects = [HyperParameter, Float, Int, Choice, Boolean, Fixed, HyperParameters]
     module_objects = {cls.__name__: cls for cls in objects}
     return keras.utils.deserialize_keras_object(
         config, module_objects=module_objects)
