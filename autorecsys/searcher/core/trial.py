@@ -71,9 +71,9 @@ class Trial(Stateful):
         if self.hyperparameters.values:
             display.subsection('Hp values:')
             value_need_display = {k: v for k, v in self.hyperparameters.values.items()
-                       if k in self.hyperparameters._space and
-                       self.hyperparameters._space[k].__class__.__name__ != 'Fixed'}
-             display.display_settings(value_need_display)
+                                  if k in self.hyperparameters._space and
+                                  self.hyperparameters._space[k].__class__.__name__ != 'Fixed'}
+            display.display_settings(value_need_display)
         else:
             display.subsection('Hp values: default configuration.')
         if self.score is not None:

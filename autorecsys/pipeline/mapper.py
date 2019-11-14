@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from abc import ABCMeta, abstractmethod
 import tensorflow as tf
+from autorecsys.pipeline.base import Block
 
 
 def set_mapper_from_config(mapper_name, mapper_config):
@@ -10,7 +10,10 @@ def set_mapper_from_config(mapper_name, mapper_config):
     name2mapper = {
         "LatentFactor": LatentFactorMapper,
     }
-    return name2mapper[mapper_name](mapper_config)
+    if 'params' in mapper_config:
+        return name2mapper[mapper_name](**mapper_config['params'])
+    else:
+        return name2mapper[mapper_name]()
 
 
 def build_mappers(mapper_list):
@@ -22,43 +25,35 @@ def build_mappers(mapper_list):
     return mappers
 
 
-class BaseMapper(tf.keras.Model, metaclass=ABCMeta):
-    def __init__(self, config, **kwarg):
-        super(BaseMapper, self).__init__()
-        self.config = config
-
-    @abstractmethod
-    def call(self, x):
-        """call model."""
-        raise NotImplementedError
-
-
-class LatentFactorMapper(BaseMapper):
+class LatentFactorMapper(Block):
     """
     latent factor mapper for cateory datas
     """
 
-    def __init__(self, config):
-        super(LatentFactorMapper, self).__init__(config)
+    def __init__(self,
+                 id_num=None,
+                 embedding_dim=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.id_num = id_num
+        self.embedding_dim = embedding_dim
 
-        if isinstance(self.config["params"]["id_num"], int):
-            self.id_num = self.config["params"]["id_num"]
-        elif isinstance(self.config["params"]["id_num"], list) and len(self.config["params"]["id_num"]) == 1:
-            self.id_num = self.config["params"]["id_num"][0]
-        else:
-            raise ValueError("Id_num should be an integer or a list with length 1.")
+    def get_state(self):
+        state = super().get_state()
+        state.update({
+            'id_num': self.id_num,
+            'embedding_dim': self.embedding_dim})
+        return state
 
-        if isinstance(self.config["params"]["embedding_dim"], int):
-            self.embedding_dim = self.config["params"]["embedding_dim"]
-        elif isinstance(self.config["params"]["embedding_dim"], list) and len(
-                self.config["params"]["embedding_dim"]) == 1:
-            self.embedding_dim = self.config["params"]["embedding_dim"][0]
-        else:
-            raise ValueError("Embedding_dim should be an integer or a list with length 1.")
+    def set_state(self, state):
+        super().set_state(state)
+        self.id_num = state['id_num']
+        self.embedding_dim = state['embedding_dim']
 
-        self.user_embedding = tf.keras.layers.Embedding(self.id_num, self.embedding_dim)
-
-    def call(self, x):
-        # TODO: better implementation for dict inputs
-        x = self.user_embedding(list(x.values())[0])
-        return x
+    def build(self, hp, inputs=None):
+        input_node = list(inputs.values())[0]
+        # TODO: better name for hp and better default for id_num
+        id_num = self.id_num or hp.Choice('id_num', [10000], default=10000)
+        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16], default=8)
+        output_node = tf.keras.layers.Embedding(id_num, embedding_dim)(input_node)
+        return output_node

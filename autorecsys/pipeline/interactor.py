@@ -1,7 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-from abc import ABCMeta, abstractmethod
+
+from autorecsys.pipeline.base import Block
 
 
 def set_interactor_from_config(interactor_name, interactor_config):
@@ -11,7 +12,10 @@ def set_interactor_from_config(interactor_name, interactor_config):
         "MLP": MLPInteraction,
         "InnerProduct": InnerProductInteraction,
     }
-    return name2interactor[interactor_name](interactor_config)
+    if 'params' in interactor_config:
+        return name2interactor[interactor_name](**interactor_config['params'])
+    else:
+        return name2interactor[interactor_name]()
 
 
 def build_interactors(interactor_list):
@@ -23,62 +27,70 @@ def build_interactors(interactor_list):
     return interactors
 
 
-class BaseInteraction(tf.keras.Model, metaclass=ABCMeta):
-    def __init__(self, config):
-        super(BaseInteraction, self).__init__(config)
-        self.config = config
-
-    @abstractmethod
-    def call(self):
-        raise NotImplementedError
-
-
-class InnerProductInteraction(BaseInteraction):
+class InnerProductInteraction(Block):
     """
     latent factor interactor for category datas
     """
 
-    def __init__(self, config):
-        super(InnerProductInteraction, self).__init__(config)
-
-        if not isinstance(self.config["input"], list):
-            raise ValueError("Inputs of InnerProductInteraction should be a list.")
-        elif len(self.config["input"]) != 2:
+    def build(self, hp, inputs=None):
+        if not isinstance(inputs, list) or len(inputs) != 2:
             raise ValueError("Inputs of InnerProductInteraction should be a list of length 2.")
 
-    def call(self, embeds):
-        x = embeds[self.config["input"][0]] * embeds[self.config["input"][1]]
-        return x
+        input_node = inputs
+        output_node = input_node[0] * input_node[1]
+        return output_node
 
 
-class MLPInteraction(BaseInteraction):
+class MLPInteraction(Block):
     """
-    latent factor interactor for cateory datas
+    latent factor interactor for cateory data
     """
 
-    def __init__(self, config):
-        super(MLPInteraction, self).__init__(config)
-        self.dense_layers = []
+    def __init__(self,
+                 num_layers=None,
+                 use_batchnorm=None,
+                 dropout_rate=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.num_layers = num_layers
+        self.use_batchnorm = use_batchnorm
+        self.dropout_rate = dropout_rate
 
-        if isinstance(self.config["params"]["num_layers"], int):
-            self.num_layers = self.config["params"]["num_layers"]
-        elif isinstance(self.config["params"]["num_layers"], list) and len(self.config["params"]["num_layers"]) == 1:
-            self.num_layers = self.config["params"]["num_layers"][0]
-        else:
-            raise ValueError("num_layers should be an integer or a list with length 1.")
-        self.units = self.config["params"]["units"]
+    def get_state(self):
+        state = super().get_state()
+        state.update({
+            'num_layers': self.num_layers,
+            'use_batchnorm': self.use_batchnorm,
+            'dropout_rate': self.dropout_rate})
+        return state
 
-        if len(self.units) == 1 and self.num_layers > 1:
-            self.units = self.units * self.num_layers
+    def set_state(self, state):
+        super().set_state(state)
+        self.num_layers = state['num_layers']
+        self.use_batchnorm = state['use_batchnorm']
+        self.dropout_rate = state['dropout_rate']
 
-        if len(self.units) != self.num_layers:
-            raise ValueError("Units should be a list of length 1 or the same number as num_layers.")
+    def build(self, hp, inputs=None):
 
-        for unit in self.units:
-            self.dense_layers.append(tf.keras.layers.Dense(unit))
+        input_node = tf.concat([v for _, v in inputs.items()], axis=1)
+        output_node = input_node
 
-    def call(self, embeds):
-        x = tf.concat([v for _, v in embeds.items()], axis=1)
-        for layer in self.dense_layers:
-            x = layer(x)
-        return x
+        num_layers = self.num_layers or hp.Choice('num_layers', [1, 2, 3], default=2)
+        use_batchnorm = self.use_batchnorm
+        if use_batchnorm is None:
+            use_batchnorm = hp.Choice('use_batchnorm', [True, False], default=False)
+        dropout_rate = self.dropout_rate or hp.Choice('dropout_rate',
+                                                      [0.0, 0.25, 0.5],
+                                                      default=0)
+
+        for i in range(num_layers):
+            units = hp.Choice(
+                'units_{i}'.format(i=i),
+                [16, 32, 64, 128, 256, 512, 1024],
+                default=32)
+            output_node = tf.keras.layers.Dense(units)(output_node)
+            if use_batchnorm:
+                output_node = tf.keras.layers.BatchNormalization()(output_node)
+            output_node = tf.keras.layers.ReLU()(output_node)
+            output_node = tf.keras.layers.Dropout(dropout_rate)(output_node)
+        return output_node
