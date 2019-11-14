@@ -18,14 +18,16 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import shutil
 import logging
+import collections
 
 from autorecsys.utils import display
 from autorecsys.utils.common import create_directory
 from autorecsys.utils.config import set_tunable_hps
 from autorecsys.searcher.core import trial as trial_module
 from autorecsys.searcher.core import oracle as oracle_module
-from autorecsys.pipeline.recommender import Recommender
+from autorecsys.pipeline.recommender import CTRRecommender, CFRecommender
 
+from tensorflow.python.util import nest
 from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error
 
 # TODO: Add more extensive display.
@@ -103,16 +105,17 @@ class BaseTuner(trial_module.Stateful):
                 # Oracle is calculating, resend request.
                 continue
 
-            self.run_trial(trial, *fit_args, **fit_kwargs)
-            self.on_trial_end(trial)
+            model = self.run_trial(trial, *fit_args, **fit_kwargs)
+            self.on_trial_end(trial, model)
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
         raise NotImplementedError
 
-    def on_trial_end(self, trial):
+    def on_trial_end(self, trial, model):
         # Send status to Logger
         self.oracle.end_trial(
             trial.trial_id, trial_module.TrialStatus.COMPLETED)
+        self.save_weights(trial, model)
         self.oracle.update_space(trial.hyperparameters)
         self._display.on_trial_end(trial)
         self.save()
@@ -130,6 +133,8 @@ class BaseTuner(trial_module.Stateful):
         for p in hp.space:
             config = p.get_config()
             name = config.pop('name')
+            if p.__class__.__name__ == 'Fixed':
+                continue
             display.subsection('%s (%s)' % (name, p.__class__.__name__))
             display.display_settings(config)
 
@@ -184,16 +189,42 @@ class BaseTuner(trial_module.Stateful):
             self.project_dir,
             'tuner_' + str(self.tuner_id) + '.json')
 
+    def get_best_models(self, num_models=1):
+        """Returns the best model(s), as determined by the tuner's objective.
+
+        This method is only a convenience shortcut.
+
+        Args:
+            num_models (int, optional): Number of best models to return.
+                Models will be returned in sorted order. Defaults to 1.
+
+        Returns:
+            List of trained model instances.
+        """
+        best_trials = self.oracle.get_best_trials(num_models)
+        models = [self.load_model(trial) for trial in best_trials]
+        return models
+
+    def save_weights(self, trial, model):
+        raise NotImplementedError
+
+    def load_model(self, trial):
+        raise NotImplementedError
+
 
 class PipeTuner(BaseTuner):
 
-    def __init__(self, oracle, config, train_X, train_y, val_X, val_y,  **kwargs):
+    def __init__(self, oracle, model, **kwargs):
         super(PipeTuner, self).__init__(oracle, **kwargs)
-        self.config = config
-        self.train_X = train_X
-        self.train_y = train_y
-        self.val_X = val_X
-        self.val_y = val_y
+        if not isinstance(model, CFRecommender) and not isinstance(model, CTRRecommender):
+            raise TypeError(f'PipeTuner.model must be an instance of CFRecommender or CTRRecommender!')
+        self._pipe = model
+        self.context = {}
+
+        # self.train_X = train_X
+        # self.train_y = train_y
+        # self.val_X = val_X
+        # self.val_y = val_y
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
         new_model_config = set_tunable_hps(self.config["ModelOption"], trial.hyperparameters)
@@ -204,3 +235,44 @@ class PipeTuner(BaseTuner):
     def get_scores(self, model):
         _, val_loss = model.train(self.train_X, self.train_y, self.val_X, self.val_y, self.config)
         return {"mse": val_loss}
+
+    # def get_scores(self, y_true, y_pred):
+    #     scores = collections.defaultdict(dict)
+    #     if isinstance(self.oracle.objective, list):
+    #         raise TypeError('When using PipeTuner, the objective of a pipeline must be one exact metric')
+    #     score_func = METRIC[self.oracle.objective.name]
+    #     score = score_func(y_true, y_pred)
+    #     scores[self.oracle.objective.name] = score
+    #     return scores
+
+    # def run_trial(self, trial, *fit_args, **fit_kwargs):
+    #     # copy self._pipe and update the current selected params to the pipeline
+    #     if len(self.context) == 0 and self.start_nodes_idx_during_search is None:
+    #         self.start_nodes_idx_during_search = self._pipe.get_tunable_blocks_input_nodes()
+    #         x, x_val = self._pipe.fit(*fit_args, **fit_kwargs, output_=self.start_nodes_idx_during_search)
+    #         self.context['x'] = x
+    #         self.context['x_val'] = x_val
+    #     pipe = self._get_pipeline(trial.hyperparameters)
+    #     fit_kwargs.update(self.context)
+    #     _, y_pred = pipe.fit(*fit_args, **fit_kwargs, start_=self.start_nodes_idx_during_search)
+    #     if len(y_pred) != 1:
+    #         raise ValueError('When using PipeTuner, the output of the pipeline must have one exact '
+    #                          'output for scroing')
+    #     y_pred = nest.flatten(y_pred)[0]
+    #     scores = self.get_scores(fit_kwargs['y_val'], y_pred)
+    #     self.oracle.update_trial(trial.trial_id, metrics=scores)
+    #     return pipe
+    #
+
+    def save_weights(self, trial, pipe):
+        trial_dir = self.get_trial_dir(trial.trial_id)
+        pipe.save_weights(trial_dir)
+
+    def load_model(self, trial):
+        trial_dir = self.get_trial_dir(trial.trial_id)
+        pipe = self._get_pipeline(trial.hyperparameters)
+        pipe.load_weights(trial_dir)
+        return pipe
+
+    def _get_pipeline(self, hyperparameters):
+        return self._pipe.hyper_build(hyperparameters)
