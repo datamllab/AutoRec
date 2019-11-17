@@ -3,7 +3,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import re
 import os
 import shutil
+import pandas as pd
+import numpy as np
+import inspect
+import pkgutil
+from collections import OrderedDict
+import importlib
 import tensorflow as tf
+from tensorflow.python.util import nest
 
 
 def dataset_shape(dataset):
@@ -46,3 +53,54 @@ def set_device(device_name):
         assert len(gpus) > 0, "Not enough GPU hardware devices available"
         gpu_idx = int(device_name[-1])
         tf.config.experimental.set_visible_devices(gpus[gpu_idx], 'GPU')
+
+
+# TODO: do we need this?
+def load_dataframe_input(x):
+    if x is None:
+        return None
+    if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
+        res = x
+    elif isinstance(x, np.ndarray):
+        res = pd.Series(x) if len(x.shape) == 1 else pd.DataFrame(x)
+    elif isinstance(x, str):
+        if not x.endswith('.csv'):
+            raise TypeError(f'ONLY accept path to the local csv files')
+        res = pd.read_csv(x)
+    else:
+        raise TypeError(f"cannot load {type(x)} into pandas dataframe")
+    # make sure the returned dataframe's col name data type is string
+    if isinstance(res, pd.DataFrame):
+        res.columns = res.columns.astype('str')
+    return res
+
+
+# TODO: do we need this?
+def preprocess_xy(x, y):
+    x = load_dataframe_input(x)
+    y = load_dataframe_input(y)
+    if x is not None and y is not None:
+        n_instance = y.shape[0]
+        if x.shape[0] != n_instance:
+            raise ValueError('Input in x should have equal #instance with y')
+    return x, y
+
+
+# TODO: do we need this?
+def get_available_components(package, directory, base_class):
+    def find_components(_package, _directory, _base_class):
+        components = OrderedDict()
+        for module_loader, module_name, ispkg in pkgutil.iter_modules([_directory]):
+            full_module_name = f"{_package}.{module_name}"
+            if full_module_name is ispkg:
+                continue
+            module = importlib.import_module(full_module_name)
+            for member_name, obj in inspect.getmembers(module):
+                cls_flag = inspect.isclass(obj) and issubclass(obj, _base_class) and obj != _base_class
+                if not cls_flag:
+                    continue
+                components[obj.get_name()] = obj
+        return components
+
+    available_components = find_components(package, directory, base_class)
+    return available_components

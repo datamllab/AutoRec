@@ -31,8 +31,7 @@ class RatingPredictionOptimizer(Block):
     """
 
     def build(self, hp, inputs=None):
-        input_node = inputs
-        output_node = tf.concat([v for _, v in input_node.items()], axis=1)
-        output_node = tf.keras.layers.Dense(1)(output_node)
+        input_node = tf.concat(inputs, axis=1)
+        output_node = tf.keras.layers.Dense(1)(input_node)
         output_node = tf.reshape(output_node, [-1])
         return output_node

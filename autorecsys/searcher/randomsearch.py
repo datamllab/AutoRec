@@ -150,7 +150,7 @@ class RandomSearch(PipeTuner):
     """
 
     def __init__(self,
-                 config,
+                 hypergraph,
                  objective,
                  max_trials,
                  seed=None,
@@ -168,5 +168,9 @@ class RandomSearch(PipeTuner):
             allow_new_entries=allow_new_entries)
         super(RandomSearch, self).__init__(
             oracle,
-            config,
+            hypergraph,
             **kwargs)
+
+    @classmethod
+    def get_name(cls):
+        return 'random'
