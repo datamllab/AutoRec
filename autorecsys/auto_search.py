@@ -35,9 +35,11 @@ class CFRSearch(object):
         create_directory(self.dir, remove_existing=overwrite)
         self.logger = logging.getLogger(self.name)
         self.logger.info('Project directory: {}'.format(self.dir))
-        self.bestpipeline = None
+        self.best_keras_graph = None
+        self.best_model = None
+        self.need_fully_train = False
 
-    def search(self, x=None, y=None, x_val=None, y_val=None, train_size=0.8, objective=None):
+    def search(self, x=None, y=None, x_val=None, y_val=None, objective=None, batch_size=None):
         # overwrite the objective
         self.objective = objective or 'mse'
         tuner = self._build_tuner(self.tuner, self.tuner_params)
@@ -45,15 +47,29 @@ class CFRSearch(object):
         tuner.search_space_summary()
 
         # TODO search on a small piece of train data, currently it uses whole train data
-        tuner.search(x=x, y=y, x_val=x_val, y_val=y_val)
+        tuner.search(x=x, y=y, x_val=x_val, y_val=y_val, batch_size=batch_size)
         tuner.results_summary()
         best_pipe_lists = tuner.get_best_models(1)
         # len(best_pipe_lists) == 0 means that this pipeline does not have tunable parameters
-        self.bestpipeline = best_pipe_lists[0] if len(best_pipe_lists) > 0 \
-            else self.pipe
+        self.best_keras_graph, self.best_model = best_pipe_lists[0]
+        self.best_keras_graph.save(tuner.best_keras_graph_path)
         self.logger.info('retrain the best pipeline using whole data set')
-        self.bestpipeline.refit(x=x, y=y, x_val=x_val, y_val=y_val)
-        return self.bestpipeline
+        # Fully train the best model with original callbacks.
+        # TODO: refit the final model on the full dataset
+        # follow https://github.com/keras-team/autokeras/blob/fd4216a75d19d79de17b689f7674798e5203e195/autokeras/tuner.py#L129
+        # if self.need_fully_train or self.fit_on_val_data:
+        #     new_fit_kwargs = copy.copy(fit_kwargs)
+        #     new_fit_kwargs.update(
+        #         dict(zip(inspect.getfullargspec(tf.keras.Model.fit).args, fit_args)))
+        #     tuner._prepare_run(new_fit_kwargs)
+        #     if self.fit_on_val_data:
+        #         new_fit_kwargs['x'] = new_fit_kwargs['x'].concatenate(
+        #             new_fit_kwargs['validation_data'])
+        #     best_model = self.best_keras_graph.build(tuner.best_hp)
+        #     best_model.fit(**new_fit_kwargs)
+
+        self.best_model.save_weights(tuner.best_model_path)
+        return self.best_model
 
     def _build_tuner(self, tuner, tuner_params):
         available_tuners = get_available_components(package=f'{__package__}.searcher',
@@ -74,20 +90,14 @@ class CFRSearch(object):
                           **tuner_params)
         return tuner
 
-    def predict(self, x, id_column=None, outputs=None):
+    def predict(self, x):
         x = load_dataframe_input(x)
-        if id_column:
-            x.set_index(id_column, inplace=True)
-            x = x.sort_index()
-        return self.bestpipeline.predict(x, outputs=outputs)
+        return self.best_model.predict(x)
 
-    def evaluate(self, x, y_true, id_column=None):
-        y_pred = self.predict(x, id_column)[0]
-        score_func = METRIC[self.objective]
+    def evaluate(self, x, y_true):
+        y_pred = self.predict(x)
+        score_func = METRIC[self.objective.split('_')[-1]]
         y_true = load_dataframe_input(y_true)
-        if id_column:
-            y_true.set_index(id_column, inplace=True)
-            y_true.sort_index(inplace=True)
         y_true = y_true.values.reshape(-1, 1)
         self.logger.info(f'evaluate prediction results using {self.objective}')
         return score_func(y_true, y_pred)
