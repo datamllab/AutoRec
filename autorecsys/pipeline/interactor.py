@@ -31,7 +31,6 @@ class InnerProductInteraction(Block):
     """
     latent factor interactor for category datas
     """
-
     def build(self, hp, inputs=None):
         if not isinstance(inputs, list) or len(inputs) != 2:
             raise ValueError("Inputs of InnerProductInteraction should be a list of length 2.")
@@ -47,18 +46,25 @@ class MLPInteraction(Block):
     """
 
     def __init__(self,
+                 units=None,
                  num_layers=None,
                  use_batchnorm=None,
                  dropout_rate=None,
                  **kwargs):
         super().__init__(**kwargs)
+        self.fixed_params = []
+        self.tunable_candidates = ['units', 'num_layers', 'use_batchnorm', 'dropout_rate']
+        self.units = units
         self.num_layers = num_layers
         self.use_batchnorm = use_batchnorm
         self.dropout_rate = dropout_rate
+        self._check_fixed()
+        self._hyperparameters = self._get_hyperparameters()
 
     def get_state(self):
         state = super().get_state()
         state.update({
+            'units': self.units,
             'num_layers': self.num_layers,
             'use_batchnorm': self.use_batchnorm,
             'dropout_rate': self.dropout_rate})
@@ -66,13 +72,14 @@ class MLPInteraction(Block):
 
     def set_state(self, state):
         super().set_state(state)
+        self.units = state['units']
         self.num_layers = state['num_layers']
         self.use_batchnorm = state['use_batchnorm']
         self.dropout_rate = state['dropout_rate']
 
     def build(self, hp, inputs=None):
 
-        input_node = tf.concat([v for _, v in inputs.items()], axis=1)
+        input_node = tf.concat(inputs, axis=1)
         output_node = input_node
 
         num_layers = self.num_layers or hp.Choice('num_layers', [1, 2, 3], default=2)
@@ -84,7 +91,7 @@ class MLPInteraction(Block):
                                                       default=0)
 
         for i in range(num_layers):
-            units = hp.Choice(
+            units = self.units or hp.Choice(
                 'units_{i}'.format(i=i),
                 [16, 32, 64, 128, 256, 512, 1024],
                 default=32)
