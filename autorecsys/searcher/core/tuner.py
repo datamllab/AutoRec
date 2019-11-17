@@ -695,14 +695,13 @@ class PipeTuner(MultiExecutionTuner):
 
     def _prepare_run(self, fit_kwargs):
 
-        validation_data = (
-            tf.data.Dataset.from_tensor_slices(fit_kwargs.get('x_val', None)),
-            tf.data.Dataset.from_tensor_slices(fit_kwargs.get('y_val', None))
+        validation_data = tf.data.Dataset.from_tensor_slices(
+            (fit_kwargs.pop('x_val', None), fit_kwargs.pop('y_val', None))
         )
 
         # Update the new fit kwargs values
-        fit_kwargs['x'] = tf.data.Dataset.from_tensor_slices(fit_kwargs.get('x', None))
-        fit_kwargs['y'] = tf.data.Dataset.from_tensor_slices(fit_kwargs.get('y', None))
+        fit_kwargs['x'] = fit_kwargs.get('x', None)
+        fit_kwargs['y'] = fit_kwargs.get('y', None)
         fit_kwargs['validation_data'] = validation_data
         fit_kwargs['batch_size'] = fit_kwargs.get('batch_size', 32)
 

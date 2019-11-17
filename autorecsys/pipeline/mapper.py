@@ -63,5 +63,5 @@ class LatentFactorMapper(Block):
         # TODO: better name for hp and better default for id_num
         id_num = self.id_num or hp.Choice('id_num', [10000], default=10000)
         embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16], default=8)
-        output_node = tf.keras.layers.Embedding(id_num, embedding_dim)(input_node[:, self.feat_column_id])
+        output_node = tf.keras.layers.Embedding(id_num, embedding_dim)(input_node[0][:, self.feat_column_id])
         return output_node

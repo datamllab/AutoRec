@@ -133,7 +133,8 @@ class Block(HyperModel, Stateful):
         # Arguments
             state: A dictionary of the configurations of the preprocessor.
         """
-        self.name = state['name']
+        if 'name' in state:
+            self.name = state['name']
 
     def _check_fixed(self):
         if self.fixed_params is None:

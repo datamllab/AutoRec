@@ -12,17 +12,14 @@ from tensorflow.python.util import nest
 
 
 class Graph(Stateful):
-    """A graph consists of connected Blocks, HyperBlocks, Preprocessors or Heads.
+    """A graph consists of connected Blocks, HyperBlocks
 
     # Arguments
         inputs: A list of input node(s) for the Graph.
         outputs: A list of output node(s) for the Graph.
-        override_hps: A list of HyperParameters. The predefined HyperParameters that
-            will override the space of the Hyperparameters defined in the Hypermodels
-            with the same names.
     """
 
-    def __init__(self, inputs, outputs, override_hps=None):
+    def __init__(self, inputs, outputs):
         super().__init__()
         # TODO flatten inputs & outputs
         self.inputs = nest.flatten(inputs)
@@ -34,7 +31,6 @@ class Graph(Stateful):
         self._blocks = []
         self._block_to_id = {}
         self._build_network()
-        self.override_hps = override_hps or []
 
     def compile(self, func):
         """Share the information between blocks by calling functions in compiler.
@@ -47,15 +43,6 @@ class Graph(Stateful):
             if block.__class__ in func:
                 func[block.__class__](block)
 
-    def _register_hps(self, hp):
-        """Register the override HyperParameters for current HyperParameters."""
-        for single_hp in self.override_hps:
-            name = single_hp.name
-            if name not in hp.values:
-                hp.register(single_hp.name,
-                            single_hp.__class__.__name__,
-                            single_hp.get_config())
-                hp.values[name] = single_hp.default
 
     def _build_network(self):
         self._node_to_id = {}
@@ -187,7 +174,7 @@ class Graph(Stateful):
         self.set_state(state)
 
     def build(self, hp):
-        self._register_hps(hp)
+        pass
 
 class PreprocessGraph(Graph):
     """A graph consists of only Preprocessors.
@@ -319,8 +306,6 @@ class KerasGraph(Graph, base.HyperModel):
             node_id = self._node_to_id[input_node]
             real_nodes[node_id] = input_node.build()
         for block in self._blocks:
-            if isinstance(block, base.Preprocessor):
-                continue
             temp_inputs = [real_nodes[self._node_to_id[input_node]]
                            for input_node in block.inputs]
             outputs = block.build(hp, inputs=temp_inputs)
@@ -336,19 +321,23 @@ class KerasGraph(Graph, base.HyperModel):
         return self._compile_keras_model(hp, model)
 
     def _get_metrics(self):
-        metrics = {}
+        # metrics = {}
+        metrics = []
         for output_node in self.outputs:
             block = output_node.in_blocks[0]
-            if isinstance(block, base.Head):
-                metrics[block.name] = block.metrics
+            if 'optimizer' in str(type(block)):
+                # metrics[block.name] = block.metric
+                metrics.append(block.metric)
         return metrics
 
     def _get_loss(self):
-        loss = {}
+        # loss = {}
+        loss = []
         for output_node in self.outputs:
             block = output_node.in_blocks[0]
-            if isinstance(block, base.Head):
-                loss[block.name] = block.loss
+            if 'optimizer' in str(type(block)):
+                # loss[block.name] = block.loss
+                loss.append(block.loss)
         return loss
 
     def _compile_keras_model(self, hp, model):
@@ -401,13 +390,11 @@ class PlainGraph(Graph):
 
     def build_keras_graph(self):
         return KerasGraph(self._keras_model_inputs,
-                          self.outputs,
-                          override_hps=self.override_hps)
+                          self.outputs)
 
     def build_preprocess_graph(self):
         return PreprocessGraph(self.inputs,
-                               self._keras_model_inputs,
-                               override_hps=self.override_hps)
+                               self._keras_model_inputs)
 
 
 def copy(old_instance):
@@ -474,4 +461,10 @@ class HyperGraph(Graph):
         outputs = []
         for output_node in self.outputs:
             outputs.append(old_node_to_new[output_node])
-        return PlainGraph(inputs, outputs, override_hps=self.override_hps)
+
+        pipe = PlainGraph(inputs, outputs)
+        hp = hp.get_value_in_nested_format()
+        for block in pipe._blocks:
+            if block.name in hp:
+                block.set_state(hp[block.name])
+        return pipe
