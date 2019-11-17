@@ -1,9 +1,9 @@
-/autorecsys/__pycache__/*
 /tests/datasets/*
 /examples/datasets/*
 .idea/*
 .DS_Store
-.pyc
+*.pyc
 /tests/tmp_autokaggle-tmp-3/
 /examples/old/
 /cfr_search_1/
+__pycache__/

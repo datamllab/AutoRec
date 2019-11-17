@@ -38,8 +38,8 @@ class RatingPredictionOptimizer(Block):
 
     @property
     def metric(self):
-        return tf.keras.metrics.MeanSquaredError(name=self.name)
+        return tf.keras.metrics.MeanSquaredError(name='mse')
 
     @property
     def loss(self):
-        return tf.keras.losses.MeanSquaredError(name=self.name)
+        return tf.keras.losses.MeanSquaredError(name='mse')
