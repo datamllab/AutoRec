@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-from abc import ABCMeta, abstractmethod
+from autorecsys.pipeline.base import Block
 
 
 def set_optimizer_from_config(optimizer_name, optimizer_config):
@@ -10,7 +10,10 @@ def set_optimizer_from_config(optimizer_name, optimizer_config):
     name2optimizer = {
         "RatingPrediction": RatingPredictionOptimizer,
     }
-    return name2optimizer[optimizer_name](optimizer_config)
+    if 'params' in optimizer_config:
+        return name2optimizer[optimizer_name](**optimizer_config['params'])
+    else:
+        return name2optimizer[optimizer_name]()
 
 
 def build_optimizers(optimizer_list):
@@ -22,27 +25,21 @@ def build_optimizers(optimizer_list):
     return optimizers
 
 
-class BaseOptimizer(tf.keras.Model, metaclass=ABCMeta):
-    def __init__(self, config, **kwargs):
-        super(BaseOptimizer, self).__init__(config)
-        self.config = config
-
-    @abstractmethod
-    def call(self, x):
-        """call model."""
-
-
-class RatingPredictionOptimizer(BaseOptimizer):
+class RatingPredictionOptimizer(Block):
     """
     latent factor optimizer for cateory datas
     """
 
-    def __init__(self, config):
-        super(RatingPredictionOptimizer, self).__init__(config)
-        self.dense_layer = tf.keras.layers.Dense(1)
+    def build(self, hp, inputs=None):
+        input_node = tf.concat(inputs, axis=1)
+        output_node = tf.keras.layers.Dense(1)(input_node)
+        output_node = tf.reshape(output_node, [-1])
+        return output_node
 
-    def call(self, embeds):
-        x = tf.concat([v for _, v in embeds.items()], axis=1)
-        x = self.dense_layer(x)
-        x = tf.reshape(x, [-1])
-        return x
+    @property
+    def metric(self):
+        return tf.keras.metrics.MeanSquaredError(name='mse')
+
+    @property
+    def loss(self):
+        return tf.keras.losses.MeanSquaredError(name='mse')
