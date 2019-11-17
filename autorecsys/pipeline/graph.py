@@ -164,12 +164,12 @@ class Graph(Stateful):
 
     def save(self, fname):
         state = self.get_state()
-        with open(fname, 'w') as f:
+        with tf.io.gfile.GFile(fname, 'wb') as f:
             pickle.dump(state, f)
         return str(fname)
 
     def reload(self, fname):
-        with open(fname, 'r') as f:
+        with tf.io.gfile.GFile(fname, 'rb') as f:
             state = pickle.load(f)
         self.set_state(state)
 

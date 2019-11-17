@@ -111,7 +111,6 @@ class BaseTuner(trial_module.Stateful):
         # To support tuning distribution.
         self.tuner_id = os.environ.get('KERASTUNER_TUNER_ID', 'tuner0')
 
-
         # Logs etc
         self.logger = logger
         self._display = Display()
@@ -145,8 +144,8 @@ class BaseTuner(trial_module.Stateful):
                 continue
 
             self.on_trial_begin(trial)
-            self.run_trial(trial, *fit_args, **fit_kwargs)
-            self.on_trial_end(trial)
+            model = self.run_trial(trial, *fit_args, **fit_kwargs)
+            self.on_trial_end(trial, model)
         self.on_search_end()
 
     def run_trial(self, trial, *fit_args, **fit_kwargs):
@@ -211,7 +210,7 @@ class BaseTuner(trial_module.Stateful):
     def run_trial(self, trial, *fit_args, **fit_kwargs):
         raise NotImplementedError
 
-    def on_trial_end(self, trial):
+    def on_trial_end(self, trial, model):
         """A hook called after each trial is run.
         # Arguments:
             trial: A `Trial` instance.
@@ -222,6 +221,7 @@ class BaseTuner(trial_module.Stateful):
 
         self.oracle.end_trial(
             trial.trial_id, trial_module.TrialStatus.COMPLETED)
+        self.save_weights(trial, model)
         self.oracle.update_space(trial.hyperparameters)
         self._display.on_trial_end(trial)
         self.save()
@@ -263,15 +263,6 @@ class BaseTuner(trial_module.Stateful):
             List of `HyperParameter` objects.
         """
         return [t.hyperparameters for t in self.oracle.get_best_trials(num_trials)]
-
-    def on_trial_end(self, trial, model):
-        # Send status to Logger
-        self.oracle.end_trial(
-            trial.trial_id, trial_module.TrialStatus.COMPLETED)
-        self.save_weights(trial, model)
-        self.oracle.update_space(trial.hyperparameters)
-        self._display.on_trial_end(trial)
-        self.save()
 
     def search_space_summary(self, extended=False):
         """Print search space summary.
@@ -456,6 +447,7 @@ class Tuner(BaseTuner):
 
         model = self.hypermodel.build(trial.hyperparameters)
         model.fit(*fit_args, **fit_kwargs, callbacks=callbacks)
+        return model
 
     def save_model(self, trial_id, model, step=0):
         epoch = step
@@ -644,6 +636,7 @@ class MultiExecutionTuner(Tuner):
 
             model = self.hypermodel.build(trial.hyperparameters)
             history = model.fit(*fit_args, **fit_kwargs, callbacks=callbacks)
+
             for metric, epoch_values in history.history.items():
                 if self.oracle.objective.direction == 'min':
                     best_value = np.min(epoch_values)
@@ -657,6 +650,7 @@ class MultiExecutionTuner(Tuner):
             averaged_metrics[metric] = np.mean(execution_values)
         self.oracle.update_trial(
             trial.trial_id, metrics=averaged_metrics, step=self._reported_step)
+        return model
 
     def _configure_tensorboard_dir(self, callbacks, trial_id, execution=0):
         for callback in callbacks:
@@ -691,13 +685,11 @@ class PipeTuner(MultiExecutionTuner):
 
         self._prepare_run(new_fit_kwargs)
 
-        super().run_trial(trial, **new_fit_kwargs)
+        model = super().run_trial(trial, **new_fit_kwargs)
+        return model
 
     def _prepare_run(self, fit_kwargs):
-
-        validation_data = tf.data.Dataset.from_tensor_slices(
-            (fit_kwargs.pop('x_val', None), fit_kwargs.pop('y_val', None))
-        )
+        validation_data = (fit_kwargs.pop('x_val', None), fit_kwargs.pop('y_val', None))
 
         # Update the new fit kwargs values
         fit_kwargs['x'] = fit_kwargs.get('x', None)
@@ -749,9 +741,9 @@ class PipeTuner(MultiExecutionTuner):
         filename = '{trial_id}-{name}'.format(trial_id=trial.trial_id, name=name)
         return os.path.join(self.get_trial_dir(trial.trial_id), filename)
 
-    def on_trial_end(self, trial):
+    def on_trial_end(self, trial, model):
         """Save and clear the hypermodel."""
-        super().on_trial_end(trial)
+        super().on_trial_end(trial, model)
 
         self.hypermodel.save(self._get_save_path(trial, 'keras_graph'))
         self.hypermodel = None

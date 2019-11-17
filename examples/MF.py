@@ -58,12 +58,12 @@ def custom_pipeline():
 
     # AutoML search and predict.
     cf_searcher = CFRSearch(tuner='random',
-                            tuner_params={'max_trials': 1, 'overwrite': True},
+                            tuner_params={'max_trials': 3, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)
-    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='mse')
-    print(cf_searcher.predict(x=val_X, id_column='id', outputs=[mlp_output1, mlp_output2, final_output]))
-    print(cf_searcher.evaluate(x=val_X, y_true=val_y))
+    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=10000)
+    logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
+    logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
 
 
 if __name__ == "__main__":
