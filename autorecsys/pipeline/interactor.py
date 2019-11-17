@@ -95,9 +95,9 @@ class MLPInteraction(Block):
                 'units_{i}'.format(i=i),
                 [16, 32, 64, 128, 256, 512, 1024],
                 default=32)
-            output_node = tf.keras.layers.Dense(units)(output_node)
-            if use_batchnorm:
-                output_node = tf.keras.layers.BatchNormalization()(output_node)
-            output_node = tf.keras.layers.ReLU()(output_node)
-            output_node = tf.keras.layers.Dropout(dropout_rate)(output_node)
+        output_node = tf.keras.layers.Dense(units)(output_node)
+        if use_batchnorm:
+            output_node = tf.keras.layers.BatchNormalization()(output_node)
+        output_node = tf.keras.layers.ReLU()(output_node)
+        output_node = tf.keras.layers.Dropout(dropout_rate)(output_node)
         return output_node

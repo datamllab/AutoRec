@@ -18,7 +18,6 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
-
 class CFRSearch(object):
     def __init__(self, name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
         self.pipe = CFRecommender(**kwargs)
@@ -44,8 +43,6 @@ class CFRSearch(object):
         tuner = self._build_tuner(self.tuner, self.tuner_params)
         # show the search space
         tuner.search_space_summary()
-        x, y = preprocess_xy(x, y)
-        x_val, y_val = preprocess_xy(x_val, y_val)
 
         # TODO search on a small piece of train data, currently it uses whole train data
         tuner.search(x=x, y=y, x_val=x_val, y_val=y_val)

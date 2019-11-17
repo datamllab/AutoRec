@@ -35,3 +35,11 @@ class RatingPredictionOptimizer(Block):
         output_node = tf.keras.layers.Dense(1)(input_node)
         output_node = tf.reshape(output_node, [-1])
         return output_node
+
+    @property
+    def metric(self):
+        return tf.keras.metrics.MeanSquaredError(name=self.name)
+
+    @property
+    def loss(self):
+        return tf.keras.losses.MeanSquaredError(name=self.name)
