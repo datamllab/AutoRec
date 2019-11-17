@@ -5,5 +5,4 @@
 *.pyc
 /tests/tmp_autokaggle-tmp-3/
 /examples/old/
-/cfr_search_1/
 __pycache__/
