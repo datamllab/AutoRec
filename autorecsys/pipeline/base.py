@@ -68,6 +68,8 @@ class HyperModel(object):
 class Block(HyperModel, Stateful):
     def __init__(self, name=None, **kwargs):
         super().__init__(**kwargs)
+        self.fixed_params = None
+        self.tunable_candidates = None
         if not name:
             prefix = self.__class__.__name__
             name = prefix + '_' + str(tf.keras.backend.get_uid(prefix))

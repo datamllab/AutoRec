@@ -1,9 +1,12 @@
+import os
 import pickle
 import functools
 
 from autorecsys.searcher.core.trial import Stateful
+from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.pipeline import base
 from autorecsys.pipeline import compiler
+
 import tensorflow as tf
 from tensorflow.python.util import nest
 
@@ -19,7 +22,7 @@ class Graph(Stateful):
             with the same names.
     """
 
-    def __init__(self, inputs, outputs):
+    def __init__(self, inputs, outputs, override_hps=None):
         super().__init__()
         # TODO flatten inputs & outputs
         self.inputs = nest.flatten(inputs)
@@ -31,6 +34,7 @@ class Graph(Stateful):
         self._blocks = []
         self._block_to_id = {}
         self._build_network()
+        self.override_hps = override_hps or []
 
     def compile(self, func):
         """Share the information between blocks by calling functions in compiler.
@@ -42,6 +46,16 @@ class Graph(Stateful):
         for block in self._blocks:
             if block.__class__ in func:
                 func[block.__class__](block)
+
+    def _register_hps(self, hp):
+        """Register the override HyperParameters for current HyperParameters."""
+        for single_hp in self.override_hps:
+            name = single_hp.name
+            if name not in hp.values:
+                hp.register(single_hp.name,
+                            single_hp.__class__.__name__,
+                            single_hp.get_config())
+                hp.values[name] = single_hp.default
 
     def _build_network(self):
         self._node_to_id = {}
@@ -172,6 +186,8 @@ class Graph(Stateful):
             state = pickle.load(f)
         self.set_state(state)
 
+    def build(self, hp):
+        self._register_hps(hp)
 
 class PreprocessGraph(Graph):
     """A graph consists of only Preprocessors.
@@ -286,7 +302,7 @@ class PreprocessGraph(Graph):
             hp: HyperParameters.
         """
         super().build(hp)
-        self.compile(compiler.BEFORE)
+        # self.compile(compiler.BEFORE)
         for block in self._blocks:
             block.build(hp)
 
@@ -297,7 +313,7 @@ class KerasGraph(Graph, base.HyperModel):
     def build(self, hp):
         """Build the HyperModel into a Keras Model."""
         super().build(hp)
-        self.compile(compiler.AFTER)
+        # self.compile(compiler.AFTER)
         real_nodes = {}
         for input_node in self.inputs:
             node_id = self._node_to_id[input_node]
@@ -409,14 +425,29 @@ class HyperGraph(Graph):
 
     def __init__(self, inputs, outputs, **kwargs):
         super().__init__(inputs, outputs, **kwargs)
-        self.compile(compiler.HYPER)
+        # self.compile(compiler.HYPER)
 
     def build_graphs(self, hp):
         plain_graph = self.hyper_build(hp)
-        preprocess_graph = plain_graph.build_preprocess_graph()
-        preprocess_graph.build(hp)
-        return (preprocess_graph,
-                plain_graph.build_keras_graph())
+        return plain_graph.build_keras_graph()
+
+    def save_weights(self, directory):
+        for block in self._blocks:
+            block_filename = os.path.join(directory, block.name)
+            block.save_weights(filename=block_filename)
+
+    def get_hyperparameters(self):
+        """Get the tunable hyperperparameters from all the blocks in this pipeline."""
+        hps = hp_module.HyperParameters()
+        for block in self._blocks:
+            params_dict = block.hyperparameters
+            if params_dict:
+                with hps.name_scope(block.name):
+                    for param_name, single_hp in params_dict.items():
+                        hps.register(param_name,
+                                     single_hp.__class__.__name__,
+                                     single_hp.get_config())
+        return hps
 
     def hyper_build(self, hp):
         """Build a GraphHyperModel with no HyperBlock but only Block."""
