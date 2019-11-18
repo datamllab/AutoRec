@@ -28,7 +28,7 @@ class TabularPreprocessor(BaseProprocessor):
 
 def data_load_from_config(config=None):
     if config is None:
-        config = "./examples/old/configs/data_default_config.yaml"
+        config = "./examples/configs/data_default_config.yaml"
     data_config = load_config(config)["DataOption"]
     print(data_config)
     data_config["dtype"] = {key: eval(data_config["dtype"][key]) for key in data_config["dtype"]}

@@ -1,0 +1,82 @@
+TrainOption:
+
+    logging_config:
+        freq: 10
+        save_file: True
+    batch_size: 10240
+    epoch: 100
+    learning_rate: [0.1]
+    device: "gpu:0"
+
+
+DataOption:
+
+    dataset: "movielens"
+    dataset_path: "./tests/datasets/ml-1m/ratings.dat"
+    col_names:
+        - user_id
+        - item_id
+        - rating
+        - timestamp
+    used_col_names:
+        - user_id
+        - item_id
+        - rating
+    dtype:
+        user_id: np.int32
+        item_id: np.int32
+        rating: np.float32
+        timestamp: np.int32
+    test_size: 0.1
+
+
+
+
+ModelOption:
+
+    Mapper:
+
+      - LatentFactor:
+          input:
+            - user_id
+          output: u
+          params:
+            embedding_dim: [10]
+            id_num: 10000
+
+      - LatentFactor:
+          input:
+            - item_id
+          output: v
+          params:
+            embedding_dim: [10]
+            id_num: 10000
+
+
+    Interactor:
+
+      - MLP:
+          input:
+            - u
+            - v
+          output: mlp_interaction
+          params:
+            num_layers: [4]
+            units: [128, 128, 128, 64]
+
+      - InnerProduct:
+          input:
+            - u
+            - v
+          output: inner_product_interaction
+
+
+    Optimizer:
+
+      - RatingPrediction:
+          input:
+            - mlp_interaction
+            - inner_product_interaction
+          output: rating
+          params:
+            latent_factor_dim: [10]
