@@ -17,6 +17,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from autorecsys.searcher.core.tuner import PipeTuner
+
+from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.searcher.core import trial as trial_lib
 
@@ -84,6 +86,8 @@ class RandomSearchOracle(oracle_module.Oracle):
         while 1:
             # Generate a set of random values.
             values = {}
+            if all(isinstance(p, hp_module.Fixed) for p in self.hyperparameters.space):
+                 break
             for p in self.hyperparameters.space:
                 values[p.name] = p.random_sample(self._seed_state)
                 self._seed_state += 1
@@ -146,7 +150,7 @@ class RandomSearch(PipeTuner):
     """
 
     def __init__(self,
-                 config,
+                 hypergraph,
                  objective,
                  max_trials,
                  seed=None,
@@ -164,5 +168,9 @@ class RandomSearch(PipeTuner):
             allow_new_entries=allow_new_entries)
         super(RandomSearch, self).__init__(
             oracle,
-            config,
+            hypergraph,
             **kwargs)
+
+    @classmethod
+    def get_name(cls):
+        return 'random'
