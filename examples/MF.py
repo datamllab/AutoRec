@@ -12,7 +12,7 @@ from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocessor import data_load_from_config
+from autorecsys.pipeline.preprocesser import data_load_from_config
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 def custom_pipeline():
     # set GPU devices
-    # set_device('cpu:0')
+    set_device('cpu:0')
 
     #config filename
     config_filename = "./examples/old/configs/data_default_config.yaml"
