@@ -6,7 +6,7 @@ from autorecsys.pipeline.mapper import build_mappers
 from autorecsys.pipeline.interactor import build_interactors
 from autorecsys.pipeline.optimizer import build_optimizers
 import logging
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.models import load_model
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
