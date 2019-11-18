@@ -24,7 +24,7 @@ def custom_pipeline():
     set_device('cpu:0')
 
     #config filename
-    config_filename = "./examples/old/configs/data_default_config.yaml"
+    config_filename = "./examples/configs/data_default_config.yaml"
 
     # load dataset
     train_X, train_y, val_X, val_y = data_load_from_config(config_filename)
