@@ -11,6 +11,8 @@ def set_interactor_from_config(interactor_name, interactor_config):
     name2interactor = {
         "MLP": MLPInteraction,
         "InnerProduct": InnerProductInteraction,
+        "Concatenate": ConcatenateInteraction,
+        "ElementwiseAdd": ElementwiseAddInteraction,
     }
     if 'params' in interactor_config:
         return name2interactor[interactor_name](**interactor_config['params'])
@@ -25,6 +27,30 @@ def build_interactors(interactor_list):
         for interactor in interactor_configs
     ]
     return interactors
+
+
+class ConcatenateInteraction(Block):
+    """
+    latent factor interactor for category datas
+    """
+    def build(self, hp, inputs=None):
+        if not isinstance(inputs, list) or len(inputs) != 2:
+            raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
+
+        output_node = tf.concat(inputs, axis=0)
+        return output_node
+
+
+class ElementwiseAddInteraction(Block):
+    """
+    latent factor interactor for category datas
+    """
+    def build(self, hp, inputs=None):
+        if not isinstance(inputs, list) or len(inputs) != 2:
+            raise ValueError("Inputs of ElementwiseAddInteraction should be a list of length 2.")
+
+        output_node = tf.add(inputs[0], inputs[1])
+        return output_node
 
 
 class InnerProductInteraction(Block):
