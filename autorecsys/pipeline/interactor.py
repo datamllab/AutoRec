@@ -63,7 +63,6 @@ class InnerProductInteraction(Block):
 
         input_node = inputs
         output_node = input_node[0] * input_node[1]
-        print(type(output_node))
         return output_node
 
 
