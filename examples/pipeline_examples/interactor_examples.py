@@ -1,6 +1,10 @@
+import os
 import pytest
-from autorecsys.pipeline.interactor import *
+import tensorflow as tf
+from autorecsys.pipeline.interactor import ConcatenateInteraction, ElementwiseAddInteraction
 from autorecsys.searcher.core import hyperparameters as hp_module
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress warning for running TF with CPU
 
 
 @pytest.fixture
@@ -8,11 +12,6 @@ def inputs():
     v1 = tf.constant([1, 2, 3])
     v2 = tf.constant([4, 5, 6])
     return [v1, v2]
-
-
-def assert_tensor_operation(ans, sol):
-    result = tf.equal(ans, sol)
-    assert False not in result
 
 
 def test_concatenate(inputs):
@@ -25,7 +24,7 @@ def test_concatenate(inputs):
 
     ans = interactor.build(hp, inputs)  # Act
 
-    assert_tensor_operation(ans, sol)  # Assert
+    assert all(tf.equal(ans, sol))  # Assert
 
 
 def test_elementwise_add(inputs):
@@ -38,4 +37,4 @@ def test_elementwise_add(inputs):
 
     ans = interactor.build(hp, inputs)  # Act
 
-    assert_tensor_operation(ans, sol)  # Assert
+    assert all(tf.equal(ans, sol))  # Assert
