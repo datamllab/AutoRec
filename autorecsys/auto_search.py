@@ -101,3 +101,8 @@ class CFRSearch(object):
         y_true = y_true.values.reshape(-1, 1)
         self.logger.info(f'evaluate prediction results using {self.objective}')
         return score_func(y_true, y_pred)
+
+
+class CTRRSearch(object):
+    def __init__(self, name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
+        pass
