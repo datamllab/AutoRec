@@ -1,8 +1,0 @@
-TrainOption:
-    logging_config:
-        freq: 10
-        save_file: True
-    batch_size: 10240
-    epoch: 1
-    learning_rate: [0.01]
-    device: "gpu:0"
