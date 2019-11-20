@@ -7,3 +7,4 @@
 /examples/old/
 __pycache__/
 /tests/config/
+/.pytest_cache/
