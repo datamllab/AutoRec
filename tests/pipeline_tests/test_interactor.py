@@ -34,7 +34,9 @@ class TestInteractors(unittest.TestCase):
 
     def test_MLPInteraction(self):
         # TODO: Anthony
-        pass
+        hp = hp_module.HyperParameters()
+        mlp = MLPInteraction()
+        check = mlp.build(hp, self.inputs)
 
     def test_concatenate(self):
         """

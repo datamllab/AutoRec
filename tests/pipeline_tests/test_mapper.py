@@ -26,8 +26,11 @@ class TestMappers(unittest.TestCase):
 
     def setUp(self):
         super(TestMappers, self).setUp()
+        self.inputs = [tf.constant([1,2,3]), tf.constant([4,5,6])]
 
 
     def test_LatentFactorMapper(self):
         # TODO: Anthony
-        pass    
+        hp = hp_module.HyperParameters()
+        mapper = LatentFactorMapper()
+        check = mapper.build(hp, self.inputs)

@@ -1,0 +1,10 @@
+{
+  "tests/integration_tests/test_api.py": true, 
+  "tests/pipeline_test/test_interactor.py": true, 
+  "tests/pipeline_test/test_mapper.py": true, 
+  "tests/pipeline_test/test_optimizer.py": true, 
+  "tests/searcher_test/core_test/test_hyperparameters.py": true, 
+  "tests/searcher_test/core_test/test_oracle.py": true, 
+  "tests/searcher_test/core_test/test_trial.py": true, 
+  "tests/searcher_test/test_searchers.py": true
+}

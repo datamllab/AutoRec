@@ -27,8 +27,12 @@ class TestOptimizers(unittest.TestCase):
 
     def setUp(self):
         super(TestOptimizers, self).setUp()
+        self.inputs = [tf.constant([1,2]), tf.constant([3,4])]
 
 
     def test_RatingPredictionOptimizer(self):
         # TODO: Anthony
-        pass    
+        hp = hp_module.HyperParameters()
+        opt = RatingPredictionOptimizer()
+        check = opt.build(hp, self.inputs)
+        
