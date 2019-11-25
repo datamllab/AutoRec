@@ -8,5 +8,4 @@
 __pycache__/
 /tests/config/
 /.pytest_cache/
-.*
-!.gitignoregit rm -r --cached .
+._*
