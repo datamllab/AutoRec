@@ -4,27 +4,6 @@ import tensorflow as tf
 from autorecsys.pipeline.base import Block
 
 
-def set_mapper_from_config(mapper_name, mapper_config):
-    if mapper_name is None:
-        return None
-    name2mapper = {
-        "LatentFactor": LatentFactorMapper,
-    }
-    if 'params' in mapper_config:
-        return name2mapper[mapper_name](**mapper_config['params'])
-    else:
-        return name2mapper[mapper_name]()
-
-
-def build_mappers(mapper_list):
-    mapper_configs = [(k, v) for mapper in mapper_list for k, v in mapper.items()]
-    mappers = [
-        set_mapper_from_config(mapper[0], mapper[1])
-        for mapper in mapper_configs
-    ]
-    return mappers
-
-
 class LatentFactorMapper(Block):
     """
     latent factor mapper for cateory datas
