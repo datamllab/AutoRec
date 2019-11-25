@@ -5,26 +5,28 @@ import tensorflow as tf
 from autorecsys.pipeline.base import Block
 
 
-def set_interactor_from_config(interactor_name, interactor_config):
-    if interactor_name is None:
-        return None
-    name2interactor = {
-        "MLP": MLPInteraction,
-        "InnerProduct": InnerProductInteraction,
-    }
-    if 'params' in interactor_config:
-        return name2interactor[interactor_name](**interactor_config['params'])
-    else:
-        return name2interactor[interactor_name]()
+class ConcatenateInteraction(Block):
+    """
+    latent factor interactor for category datas
+    """
+    def build(self, hp, inputs=None):
+        if not isinstance(inputs, list) or len(inputs) != 2:
+            raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
+
+        output_node = tf.concat(inputs, axis=0)
+        return output_node
 
 
-def build_interactors(interactor_list):
-    interactor_configs = [(k, v) for interactor in interactor_list for k, v in interactor.items()]
-    interactors = [
-        set_interactor_from_config(interactor[0], interactor[1])
-        for interactor in interactor_configs
-    ]
-    return interactors
+class ElementwiseAddInteraction(Block):
+    """
+    latent factor interactor for category datas
+    """
+    def build(self, hp, inputs=None):
+        if not isinstance(inputs, list) or len(inputs) != 2:
+            raise ValueError("Inputs of ElementwiseAddInteraction should be a list of length 2.")
+
+        output_node = tf.add(inputs[0], inputs[1])
+        return output_node
 
 
 class InnerProductInteraction(Block):
