@@ -5,30 +5,6 @@ import tensorflow as tf
 from autorecsys.pipeline.base import Block
 
 
-def set_interactor_from_config(interactor_name, interactor_config):
-    if interactor_name is None:
-        return None
-    name2interactor = {
-        "MLP": MLPInteraction,
-        "InnerProduct": InnerProductInteraction,
-        "Concatenate": ConcatenateInteraction,
-        "ElementwiseAdd": ElementwiseAddInteraction,
-    }
-    if 'params' in interactor_config:
-        return name2interactor[interactor_name](**interactor_config['params'])
-    else:
-        return name2interactor[interactor_name]()
-
-
-def build_interactors(interactor_list):
-    interactor_configs = [(k, v) for interactor in interactor_list for k, v in interactor.items()]
-    interactors = [
-        set_interactor_from_config(interactor[0], interactor[1])
-        for interactor in interactor_configs
-    ]
-    return interactors
-
-
 class ConcatenateInteraction(Block):
     """
     latent factor interactor for category datas
