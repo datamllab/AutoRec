@@ -19,6 +19,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
+
 def custom_pipeline():
     # set GPU devices
     set_device('cpu:0')
