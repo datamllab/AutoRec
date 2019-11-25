@@ -27,11 +27,18 @@ class TabularPreprocessor(BaseProprocessor):
         super(TabularPreprocessor, self).__init__(config)
 
 
+def dependent_negative_sampling():
+    print("Universal Negative Sampling")
+
+
+def independent_negative_sampling():
+    print()
+
+
 def data_load_from_config(config=None):
     if config is None:
-        config = "./examples/old/configs/data_default_config.yaml"
+        config = "./examples/configs/data_default_config.yaml"
     data_config = load_config(config)["DataOption"]
-    print(data_config)
     data_config["dtype"] = {key: eval(data_config["dtype"][key]) for key in data_config["dtype"]}
     train_X, train_y, val_X, val_y = data_load(**data_config)
     return train_X, train_y, val_X, val_y
@@ -42,7 +49,7 @@ def data_load(dataset="movielens", dataset_path=None, col_names=None, dtype=None
         X, y = data_load_movielens(dataset_path, col_names, used_col_names, dtype)
     else:
         raise ValueError("Embedding_dim should be a string")
-    train_X, train_y, val_X, val_y = data_spilt(X, y, test_size)
+    train_X, train_y, val_X, val_y = data_split(X, y, test_size)
     return train_X, train_y, val_X, val_y
 
 
@@ -56,7 +63,7 @@ def data_load_movielens(dataset_path, col_names, used_col_names=None, dtype=None
     return X, y
 
 
-def data_spilt(X, y, test_size=0.1):
+def data_split(X, y, test_size=0.1):
     train_X, val_X, train_y, val_y = train_test_split(X, y, test_size=test_size, random_state=0)
     return train_X, train_y, val_X, val_y
 
