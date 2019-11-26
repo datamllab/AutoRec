@@ -49,6 +49,7 @@ def custom_pipeline():
                                   embedding_dim=10)(input_node)
 
     innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
+
     mlp_output = InnerProductInteraction()([user_emb_mlp, item_emb_mlp])
 
     final_output = PointWiseOptimizer()([innerproduct_output, mlp_output])
