@@ -26,12 +26,29 @@ class TabularPreprocessor(BaseProprocessor):
         super(TabularPreprocessor, self).__init__(config)
 
 
-def dependent_negative_sampling():
-    print("Universal Negative Sampling")
+def negative_sampling(input_df, num_neg, seed=42):
+    """ Negative sampling without replacement
+    :param input_df: DataFrame user-item interaction
+    :param num_neg: Integer number of negative interaction to sample per user-item interaction
+    :param seed: Integer seed for random sampling
+    :return: DataFrame user-item positive and negative sampling
+    """
+    # Perform negative sampling
+    item_set = set(input_df['item_id'].unique())
+    user_pos_items_series = input_df.groupby('user_id')['item_id'].apply(set)
+    user_neg_items_series = item_set - user_pos_items_series
+    user_sampled_neg_items_series = user_neg_items_series.agg(
+        lambda x: np.random.RandomState(seed=seed).permutation(list(x))[:num_neg * (len(item_set)-len(x))])
 
+    # Convert negative samples to have input format
+    user_sampled_neg_items_df = user_sampled_neg_items_series.to_frame().explode('item_id').dropna()
+    user_sampled_neg_items_df['rating'] = 0
+    user_sampled_neg_items_df.reset_index(inplace=True)
 
-def independent_negative_sampling():
-    print()
+    # Combine positive and negative samples
+    output_df = input_df.append(user_sampled_neg_items_df, ignore_index=True).reset_index(drop=True)
+    output_df = output_df.sort_values(by=['user_id']).reset_index(drop=True)
+    return output_df
 
 
 def data_load_from_config(config=None):
