@@ -51,9 +51,8 @@ class PointWiseOptimizer(Block):
 
     def build(self, hp, inputs=None):
         input_node = tf.concat(inputs, axis=1)
-        output_node = tf.keras.layers.Dense(1)(input_node)
+        output_node = tf.keras.layers.Dense(1, activation='sigmoid')(input_node)
         output_node = tf.reshape(output_node, [-1])
-        output_node - tf.keras.layers.Softmax()( output_node )
         return output_node
 
     @property

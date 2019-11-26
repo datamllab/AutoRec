@@ -95,7 +95,6 @@ class Movielens1MCTRPreprocessor(BaseProprocessor):
         self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
                                                                               random_state=random_state)
 
-
 class TabularPreprocessor(BaseProprocessor):
     def __init__(self, config):
         super(TabularPreprocessor, self).__init__(config)
