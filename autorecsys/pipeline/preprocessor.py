@@ -9,17 +9,39 @@ from autorecsys.utils import load_config
 
 
 class BaseProprocessor(metaclass=ABCMeta):
-    def __init__(self, config, **kwarg):
+
+    @abstractmethod
+    def __init__(self, dataset_path=None, train_path=None, val_path=None,  test_size=None  ):
         super(BaseProprocessor, self).__init__()
-        self.config = config
+        self.dataset_path = dataset_path
+        self.train_path = train_path
+        self.val_path = val_path
 
     @abstractmethod
-    def load_data(self, dataset):
+    def preprocessing(self, **kwargs):
         raise NotImplementedError
 
-    @abstractmethod
-    def get_batch(self):
-        raise NotImplementedError
+
+
+
+class Movielens1MPreprocessor(BaseProprocessor):
+
+    def __init__(self, dataset_path ):
+        super(Movielens1MPreprocessor, self).__init__( dataset_path = dataset_path,   )
+        self.columns_names = [ "user_id", "item_id", "rating", "timestamp"]
+        self.used_columns_names = [ "user_id", "item_id", "rating"]
+        self.dtype_dict = { "user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
+        self._load_data()
+
+    def _load_data(self):
+        pd_data = pd.read_csv(self.dataset_path, sep="::", header=None, names=self.columns_names, dtype=self.dtype_dict)
+        pd_data = pd_data[self.used_columns_names]
+        self.X = pd_data.iloc[::, :-1].values
+        self.y = pd_data.iloc[::, -1].values
+
+    def preprocessing(self, test_size, random_state):
+        self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size, random_state=random_state)
+        # return train_X, train_y, val_X, val_y
 
 
 
@@ -27,7 +49,6 @@ class BaseProprocessor(metaclass=ABCMeta):
 class TabularPreprocessor(BaseProprocessor):
     def __init__(self, config):
         super(TabularPreprocessor, self).__init__(config)
-
 
 
 
@@ -73,7 +94,6 @@ def data_split(X, y, test_size=0.1):
 
 
 
-
 def test():
     # data_load( dataset= "movielens", dataset_path ="./examples/datasets/ml-1m/ratings.dat", col_names = ["user_id", "item_id", "rating", "timestamp"], used_col_names = ["user_id", "item_id", "rating"] ,dtype={"user_id":np.int32, "item_id":np.int32, "rating":np.float32, "timestamp":np.int32}  )
     config_file = "./examples/configs/data_default_config.yaml"
@@ -83,5 +103,14 @@ def test():
     data_load_from_config(config_file)
 
 
+def test_Movielens1MPreprocessor():
+    ml_1m = Movielens1MPreprocessor( "./tests/datasets/ml-1m/ratings.dat" )
+    ml_1m.preprocessing(test_size=0.2, random_state=1314)
+    train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
+    print( train_X.shape )
+    print( train_y.shape )
+    print( val_X.shape )
+    print( val_y.shape )
+
 if __name__ == "__main__":
-    test()
+    test_Movielens1MPreprocessor()
