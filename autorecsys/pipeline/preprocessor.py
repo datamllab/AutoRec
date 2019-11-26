@@ -41,9 +41,6 @@ class Movielens1MPreprocessor(BaseProprocessor):
 
     def preprocessing(self, test_size, random_state):
         self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size, random_state=random_state)
-        # return train_X, train_y, val_X, val_y
-
-
 
 
 class TabularPreprocessor(BaseProprocessor):
