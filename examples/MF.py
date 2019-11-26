@@ -12,7 +12,7 @@ from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocesser import data_load_from_config
+from autorecsys.pipeline.preprocessor import data_load_from_config, Movielens1MPreprocessor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -22,13 +22,13 @@ logger = logging.getLogger(__name__)
 
 def custom_pipeline():
     # set GPU devices
-    set_device('cpu:0')
+    # set_device('cpu:0')
 
-    #config filename
-    config_filename = "./examples/configs/data_default_config.yaml"
+    # # load dataset
+    ml_1m = Movielens1MPreprocessor( "./tests/datasets/ml-1m/ratings.dat" )
+    ml_1m.preprocessing(test_size=0.1, random_state=1314)
+    train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
-    # load dataset
-    train_X, train_y, val_X, val_y = data_load_from_config(config_filename)
 
     # Build the pipeline.
     # input_node = StructuredDataInput(column_names=['user_id', 'item_id'])
