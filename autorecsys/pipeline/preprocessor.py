@@ -5,7 +5,6 @@ from abc import ABCMeta, abstractmethod
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
-from autorecsys.utils import load_config
 
 
 class BaseProprocessor(metaclass=ABCMeta):
@@ -22,7 +21,61 @@ class BaseProprocessor(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class Movielens1MPreprocessor(BaseProprocessor):
+class BaseRatingPredictionProprocessor(BaseProprocessor):
+    """
+    for RatingPrediction recommendation methods, rating prediction for Movielens
+    and can also for the similar dataset for rating prediction task
+    """
+    @abstractmethod
+    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
+        super(BaseProprocessor, self).__init__()
+        self.dataset_path = dataset_path
+        self.train_path = train_path
+        self.val_path = val_path
+
+    @abstractmethod
+    def preprocessing(self, **kwargs):
+        raise NotImplementedError
+
+
+class BasePointWiseProprocessor(BaseProprocessor):
+    """
+    for PointWise recommendation methods, CTR
+    for PointWise recommendation methods, rating prediction for Movielens
+    and can also for the similar dataset
+
+    """
+    @abstractmethod
+    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
+        super(BaseProprocessor, self).__init__()
+        self.dataset_path = dataset_path
+        self.train_path = train_path
+        self.val_path = val_path
+
+    @abstractmethod
+    def preprocessing(self, **kwargs):
+        raise NotImplementedError
+
+
+class BasePairWiseProprocessor(BaseProprocessor):
+    """
+    for PairWise recommendation methods
+    """
+
+    @abstractmethod
+    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
+        super(BaseProprocessor, self).__init__()
+        self.dataset_path = dataset_path
+        self.train_path = train_path
+        self.val_path = val_path
+
+    @abstractmethod
+    def preprocessing(self, **kwargs):
+        raise NotImplementedError
+
+
+
+class Movielens1MPreprocessor(BaseRatingPredictionProprocessor):
 
     def __init__(self, dataset_path):
         super(Movielens1MPreprocessor, self).__init__(dataset_path=dataset_path, )
@@ -43,7 +96,7 @@ class Movielens1MPreprocessor(BaseProprocessor):
                                                                               random_state=random_state)
 
 
-class Movielens1MCTRPreprocessor(BaseProprocessor):
+class Movielens1MCTRPreprocessor(BasePointWiseProprocessor):
 
     def __init__(self, dataset_path):
         super(Movielens1MCTRPreprocessor, self).__init__(dataset_path=dataset_path)
@@ -98,36 +151,3 @@ class Movielens1MCTRPreprocessor(BaseProprocessor):
 class TabularPreprocessor(BaseProprocessor):
     def __init__(self, config):
         super(TabularPreprocessor, self).__init__(config)
-
-
-def test_Movielens1MPreprocessor():
-    ml_1m = Movielens1MPreprocessor("./tests/datasets/ml-1m/ratings.dat")
-    ml_1m.preprocessing(test_size=0.2, random_state=1314)
-    train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
-    print(train_X.shape)
-    print(train_y.shape)
-    print(val_X.shape)
-    print(val_y.shape)
-    print(train_X[:10])
-    print(train_y[:10])
-    print(type(train_X[:20][0][0]))
-    print(type(train_y[:20][0]))
-
-
-def test_Movielens1MCTRPreprocessor():
-    ml_1m = Movielens1MCTRPreprocessor("./tests/datasets/ml-1m/ratings.dat")
-    ml_1m.preprocessing(test_size=0.2, num_neg=10, random_state=1314)
-    train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
-    print(train_X.shape)
-    print(train_y.shape)
-    print(val_X.shape)
-    print(val_y.shape)
-    print(train_X[:20])
-    print(train_y[:20])
-    print(type(train_X[:20][0][0]))
-    print( type( train_y[:20][0] ) )
-
-
-if __name__ == "__main__":
-    test_Movielens1MPreprocessor()
-    test_Movielens1MCTRPreprocessor()

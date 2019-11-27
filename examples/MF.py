@@ -12,7 +12,7 @@ from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocessor import data_load_from_config, Movielens1MPreprocessor
+from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

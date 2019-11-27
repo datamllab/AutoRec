@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+os.environ["CUDA_VISIBLE_DEVICES"]="6"
 import pandas as pd
 import logging
 import numpy as np
@@ -12,7 +13,7 @@ from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer,InnerProductInteraction, PointWiseOptimizer
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocessor import data_load_from_config, Movielens1MPreprocessor, Movielens1MCTRPreprocessor
+from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor, Movielens1MCTRPreprocessor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

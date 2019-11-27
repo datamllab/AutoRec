@@ -27,7 +27,7 @@ class RatingPredictionOptimizer(Block):
 
 class PointWiseOptimizer(Block):
     """
-    latent factor optimizer for cateory datas
+    latent factor optimizer for category data
     """
 
     def build(self, hp, inputs=None):
