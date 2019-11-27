@@ -12,9 +12,8 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-from autorecsys.pipeline.preprocessor import (
-    negative_sampling
-)
+from autorecsys.pipeline.preprocessor import negative_sampling, Movielens1MCTRPreprocessor, Movielens1MPreprocessor
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,3 +51,36 @@ class TestPreprocessors(unittest.TestCase):
         ans_num_pos, ans_num_neg = ans["rating"].value_counts()[1], ans["rating"].value_counts()[0]  # Assert
         assert (ans_num_pos == sol_num_pos) & (ans_num_neg == sol_num_neg) & (type(ans) == sol_type)
 
+
+
+def test_Movielens1MPreprocessor():
+    ml_1m = Movielens1MPreprocessor("./tests/datasets/ml-1m/ratings.dat")
+    ml_1m.preprocessing(test_size=0.2, random_state=1314)
+    train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
+    print(train_X.shape)
+    print(train_y.shape)
+    print(val_X.shape)
+    print(val_y.shape)
+    print(train_X[:10])
+    print(train_y[:10])
+    print(type(train_X[:20][0][0]))
+    print(type(train_y[:20][0]))
+
+
+def test_Movielens1MCTRPreprocessor():
+    ml_1m = Movielens1MCTRPreprocessor("./tests/datasets/ml-1m/ratings.dat")
+    ml_1m.preprocessing(test_size=0.2, num_neg=10, random_state=1314)
+    train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
+    print(train_X.shape)
+    print(train_y.shape)
+    print(val_X.shape)
+    print(val_y.shape)
+    print(train_X[:20])
+    print(train_y[:20])
+    print(type(train_X[:20][0][0]))
+    print( type( train_y[:20][0] ) )
+
+
+if __name__ == "__main__":
+    test_Movielens1MPreprocessor()
+    test_Movielens1MCTRPreprocessor()
