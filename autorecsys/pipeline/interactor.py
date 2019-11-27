@@ -42,6 +42,7 @@ class InnerProductInteraction(Block):
         return output_node
 
 
+
 class MLPInteraction(Block):
     """
     latent factor interactor for cateory data
