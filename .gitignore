@@ -8,3 +8,5 @@
 __pycache__/
 /tests/config/
 /.pytest_cache/
+._*
+test.py
