@@ -35,13 +35,6 @@ def custom_pipeline():
     # input_node = StructuredDataInput(column_names=['user_id', 'item_id'])
     input_node = Input(shape=[2])
     # cpu_num should default to None.
-    user_emb_gmf = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
-                                  embedding_dim=10)(input_node)
-    item_emb_gmf = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
-                                  embedding_dim=10)(input_node)
-
     user_emb_mlp = LatentFactorMapper(feat_column_id=0,
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
@@ -49,11 +42,9 @@ def custom_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
-
     mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 
-    final_output = PointWiseOptimizer()([innerproduct_output, mlp_output])
+    final_output = PointWiseOptimizer()(mlp_output)
 
     # AutoML search and predict.
     cf_searcher = CFRSearch(tuner='random',
