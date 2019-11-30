@@ -7,6 +7,7 @@ import unittest
 
 import numpy as np
 import tensorflow as tf
+from autorecsys.pipeline import Input
 from autorecsys.pipeline.mapper import (
     LatentFactorMapper,
 )
@@ -31,7 +32,8 @@ class TestMappers(unittest.TestCase):
 
     def test_LatentFactorMapper(self):
         # TODO: Anthony
-        self.inp2 = [tf.constant([[1,2,3],[4,5,6]])]
         hp = hp_module.HyperParameters()
         mapper = LatentFactorMapper()
-        check = mapper.build(hp, self.inp2)
+        mapper.set_state(mapper.get_state())
+        check = mapper.build(hp, Input(shape=[2]))
+        assert(tf.shape(check).shape == (2,))

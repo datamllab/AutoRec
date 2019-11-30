@@ -5,7 +5,7 @@ import os
 import logging
 import pytest
 import unittest
-
+from autorecsys.pipeline import Input
 import numpy as np
 import tensorflow as tf
 from autorecsys.pipeline.optimizer import (
@@ -32,8 +32,9 @@ class TestOptimizers(unittest.TestCase):
 
     def test_RatingPredictionOptimizer(self):
         # TODO: Anthony
-        self.inp2 = [tf.constant([[1,2,3],[4,5,6]])]
         hp = hp_module.HyperParameters()
         opt = RatingPredictionOptimizer()
-        check = opt.build(hp, self.inp2)
+        opt.set_state(opt.get_state())
+        check = opt.build(hp, Input(shape=[2]))
+        assert(tf.shape(check).shape == (2,))
         
