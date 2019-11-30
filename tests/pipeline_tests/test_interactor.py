@@ -34,9 +34,10 @@ class TestInteractors(unittest.TestCase):
 
     def test_MLPInteraction(self):
         # TODO: Anthony
+        self.inp2 = [tf.constant([[1,2,3],[4,5,6]]), tf.constant([[1,3,5],[2,4,6]])]
         hp = hp_module.HyperParameters()
         mlp = MLPInteraction()
-        check = mlp.build(hp, self.inputs)
+        check = mlp.build(hp, self.inp2)
 
     def test_concatenate(self):
         """
