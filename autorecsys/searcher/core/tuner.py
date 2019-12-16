@@ -37,7 +37,8 @@ from tensorflow.python.util import nest
 
 METRIC = {'auc': tf.keras.metrics.AUC(),
           'logloss': tf.keras.metrics.CategoricalAccuracy(),
-          'mse': tf.keras.metrics.MeanSquaredError()}
+          'mse': tf.keras.metrics.MeanSquaredError(),
+          'BinaryCrossentropy': tf.keras.metrics.BinaryCrossentropy(), }
 
 # TODO: Add more extensive display.
 LOGGER = logging.getLogger(__name__)
