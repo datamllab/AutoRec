@@ -42,7 +42,11 @@ def custom_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
+    mlp_output = MLPInteraction(units=hp_module.Choice('units', [128, 256]),
+                                num_layers=hp_module.Choice('num_layers', [3, 4], default=3),
+                                use_batchnorm=False,
+                                dropout_rate=hp_module.Choice('dropout_rate',
+                                                              [0.0, 0.1, 0.5]))([user_emb_mlp, item_emb_mlp])
 
     final_output = PointWiseOptimizer()(mlp_output)
 
