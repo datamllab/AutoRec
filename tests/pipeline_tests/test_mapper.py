@@ -35,5 +35,6 @@ class TestMappers(unittest.TestCase):
         hp = hp_module.HyperParameters()
         mapper = LatentFactorMapper()
         mapper.set_state(mapper.get_state())
-        check = mapper.build(hp, Input(shape=[2]))
-        assert(tf.shape(check).shape == (2,))
+        check = mapper.build(hp, Input(shape=[2]).build())
+        #print(check.shape[2])
+        assert(check.shape[2] == 8)

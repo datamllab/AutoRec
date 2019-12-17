@@ -40,8 +40,8 @@ class TestInteractors(unittest.TestCase):
         # initializes mlp block with apropriate hp
         mlp.set_state(mlp.get_state())
         check = mlp.build(hp, Input(shape=[2]).build())
-        print(tf.shape(check))
-        assert(tf.shape(check).shape == (2,))
+        print(check.shape)
+        assert(check.shape[1] == 32)
 
     def test_concatenate(self):
         """

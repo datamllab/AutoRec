@@ -35,6 +35,7 @@ class TestOptimizers(unittest.TestCase):
         hp = hp_module.HyperParameters()
         opt = RatingPredictionOptimizer()
         opt.set_state(opt.get_state())
-        check = opt.build(hp, Input(shape=[2]))
-        assert(tf.shape(check).shape == (2,))
+        check = opt.build(hp, Input(shape=[2]).build())
+        print(check.shape[1])
+        assert(check.shape[1] == 32)
         
