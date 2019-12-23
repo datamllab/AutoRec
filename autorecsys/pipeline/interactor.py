@@ -31,7 +31,7 @@ class ElementwiseAddInteraction(Block):
 
 class InnerProductInteraction(Block):
     """
-    latent factor interactor for category datas
+    inner-product interactor
     """
     def build(self, hp, inputs=None):
         if not isinstance(inputs, list) or len(inputs) != 2:
@@ -45,7 +45,7 @@ class InnerProductInteraction(Block):
 
 class MLPInteraction(Block):
     """
-    latent factor interactor for cateory data
+    multi-layer perceptron interactor
     """
 
     def __init__(self,
@@ -103,4 +103,17 @@ class MLPInteraction(Block):
             output_node = tf.keras.layers.BatchNormalization()(output_node)
         output_node = tf.keras.layers.ReLU()(output_node)
         output_node = tf.keras.layers.Dropout(dropout_rate)(output_node)
+        return output_node
+
+
+class FMInteraction(Block):
+    """
+    factorization machine interactor
+    """
+    def build(self, hp, inputs=None):
+        if not isinstance(inputs, list) or len(inputs) != 2:
+            raise ValueError("Inputs of InnerProductInteraction should be a list of length 2.")
+
+        input_node = inputs
+        output_node = input_node[0] * input_node[1]
         return output_node

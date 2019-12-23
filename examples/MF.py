@@ -7,7 +7,7 @@ import logging
 import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
-from autorecsys.auto_search import CFRSearch
+from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
 
@@ -57,7 +57,7 @@ def custom_pipeline():
     final_output = RatingPredictionOptimizer()(mlp_output2)
 
     # AutoML search and predict.
-    cf_searcher = CFRSearch(tuner='random',
+    cf_searcher = Search(tuner='random',
                             tuner_params={'max_trials': 3, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)
