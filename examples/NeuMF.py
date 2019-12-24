@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def custom_pipeline():
+def neu_mf():
     # set GPU devices
     # set_device('cpu:0')
 
@@ -70,4 +70,4 @@ def custom_pipeline():
 
 
 if __name__ == "__main__":
-    custom_pipeline()
+    neu_mf()
