@@ -85,7 +85,7 @@ class Search(object):
         return tuner
 
     def predict(self, x):
-        x = load_dataframe_input(x)
+        x = load_dataframe_input(x) if self.task == "cf" else x
         return self.best_model.predict(x)
 
     def evaluate(self, x, y_true):
