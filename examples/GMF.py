@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def custom_pipeline():
+def gmf_pipeline():
     # set GPU devices
     # set_device('cpu:0')
 
@@ -54,4 +54,4 @@ def custom_pipeline():
 
 
 if __name__ == "__main__":
-    custom_pipeline()
+    gmf_pipeline()
