@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def custom_pipeline():
     # set GPU devices
-    # set_device('cpu:0')
+    set_device('cpu:0')
 
     # # load dataset
     ml_1m = Movielens1MPreprocessor( "./tests/datasets/ml-1m/ratings.dat" )
