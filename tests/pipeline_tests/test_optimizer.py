@@ -36,6 +36,6 @@ class TestOptimizers(unittest.TestCase):
         opt = RatingPredictionOptimizer()
         opt.set_state(opt.get_state())
         check = opt.build(hp, Input(shape=[2]).build())
-        print(check.shape[1])
-        assert(check.shape[1] == 32)
+        print(check.shape)
+        assert(str(check.shape) == '(?,)')
         
