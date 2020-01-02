@@ -18,9 +18,16 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 
-class CFRSearch(object):
-    def __init__(self, name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
-        self.pipe = CFRecommender(**kwargs)
+class Search(object):
+    def __init__(self, task='cf', name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
+        self.task = task
+        if self.task == 'cf':
+            self.pipe = CFRecommender(**kwargs)
+        elif self.task == 'ctr':
+            self.pipe = CTRRecommender(**kwargs)
+        else:
+            raise ValueError(
+                'Currently we only support "cf" and "ctr" tasks.')
         self.tuner = tuner
         self.tuner_params = tuner_params
         if not name:
@@ -54,19 +61,6 @@ class CFRSearch(object):
         self.best_keras_graph, self.best_model = best_pipe_lists[0]
         self.best_keras_graph.save(tuner.best_keras_graph_path)
         self.logger.info('retrain the best pipeline using whole data set')
-        # Fully train the best model with original callbacks.
-        # TODO: refit the final model on the full dataset
-        # follow https://github.com/keras-team/autokeras/blob/fd4216a75d19d79de17b689f7674798e5203e195/autokeras/tuner.py#L129
-        # if self.need_fully_train or self.fit_on_val_data:
-        #     new_fit_kwargs = copy.copy(fit_kwargs)
-        #     new_fit_kwargs.update(
-        #         dict(zip(inspect.getfullargspec(tf.keras.Model.fit).args, fit_args)))
-        #     tuner._prepare_run(new_fit_kwargs)
-        #     if self.fit_on_val_data:
-        #         new_fit_kwargs['x'] = new_fit_kwargs['x'].concatenate(
-        #             new_fit_kwargs['validation_data'])
-        #     best_model = self.best_keras_graph.build(tuner.best_hp)
-        #     best_model.fit(**new_fit_kwargs)
 
         self.best_model.save_weights(tuner.best_model_path)
         return self.best_model
@@ -91,7 +85,7 @@ class CFRSearch(object):
         return tuner
 
     def predict(self, x):
-        x = load_dataframe_input(x)
+        x = load_dataframe_input(x) if self.task == "cf" else x
         return self.best_model.predict(x)
 
     def evaluate(self, x, y_true):
@@ -101,8 +95,3 @@ class CFRSearch(object):
         y_true = y_true.values.reshape(-1, 1)
         self.logger.info(f'evaluate prediction results using {self.objective}')
         return score_func(y_true, y_pred)
-
-
-class CTRRSearch(object):
-    def __init__(self, name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
-        pass
