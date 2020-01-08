@@ -10,7 +10,7 @@ import numpy as np
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import CFRSearch
 from autorecsys.pipeline import Input, StructuredDataInput, \
-                    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
+                    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, HyperInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -41,24 +41,11 @@ def custom_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    mlp_output1 = MLPInteraction(units=hp_module.Choice('units', [32, 64]),
-                                num_layers=hp_module.Choice('num_layers', [1, 2], default=2),
-                                use_batchnorm=False,
-                                dropout_rate=hp_module.Choice(
-                                            'dropout_rate', [0.0, 0.1, 0.5]),
-                                 )([user_emb, item_emb])
+    # hi_output = HyperInteraction(meta_interator_num = 3)([user_emb, item_emb])
 
-    # mlp_output2 = MLPInteraction(units=hp_module.Choice('units', [128, 256]),
-    #                             num_layers=hp_module.Choice('num_layers', [3, 4], default=3),
-    #                             use_batchnorm=False,
-    #                             dropout_rate=hp_module.Choice('dropout_rate',
-    #                                                           [0.0, 0.1, 0.5])
-    #                              )([mlp_output1])
+    hi_output = MLPInteraction(num_layers = 1)([user_emb, item_emb])
 
-
-    mlp_output2 = MLPInteraction()([mlp_output1])
-
-    final_output = RatingPredictionOptimizer()(mlp_output2)
+    final_output = RatingPredictionOptimizer()(hi_output)
 
     # AutoML search and predict.
     cf_searcher = CFRSearch(tuner='random',

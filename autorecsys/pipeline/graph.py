@@ -403,6 +403,7 @@ def copy(old_instance):
     return instance
 
 
+
 class HyperGraph(Graph):
     """A HyperModel based on connected Blocks and HyperBlocks.
     # Arguments
