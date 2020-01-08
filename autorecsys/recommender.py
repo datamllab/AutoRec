@@ -4,9 +4,8 @@ import tensorflow as tf
 from autorecsys.utils import load_config
 from autorecsys.pipeline.graph import HyperGraph
 from tensorflow.python.util import nest
-
-form autorecsys.pipeline import graph
-form autorecsys.pipeline import base
+from autorecsys.pipeline import graph
+from autorecsys.pipeline import base
 from autorecsys.searcher.core import hyperparameters as hp_module
 
 
@@ -143,17 +142,22 @@ class AutoModel(object):
         # Initialize the hyper_graph.
         self._meta_build(dataset)
 
+
+
         # Initialize the Tuner.
         # The hypermodel needs input_shape, which can only be known after
         # preprocessing. So we preprocess the dataset once to get the input_shape,
         # so that the hypermodel can be built in the initializer of the Tuner, which
         # does not access the dataset.
         hp = hp_module.HyperParameters()
+
         preprocess_graph, keras_graph = self.hyper_graph.build_graphs(hp)
+
         preprocess_graph.preprocess(
             dataset=dataset,
             validation_data=validation_data,
             fit=True)
+
         self.tuner = self.tuner(
             hyper_graph=self.hyper_graph,
             hypermodel=keras_graph,
@@ -309,11 +313,9 @@ class RatingPredictionRecommender(HyperGraph):
 
 
 
-class TopNRecommender(HyperGraph):
+class CFRecommender(HyperGraph):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-
 
 
 class CTRRecommender(HyperGraph):
