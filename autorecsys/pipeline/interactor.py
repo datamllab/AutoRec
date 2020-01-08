@@ -33,7 +33,7 @@ class ElementwiseAddInteraction(Block):
 
 class InnerProductInteraction(Block):
     """
-    latent factor interactor for category datas
+    inner-product interactor
     """
     def build(self, hp, inputs=None):
         if not isinstance(inputs, list) or len(inputs) != 2:
@@ -47,7 +47,7 @@ class InnerProductInteraction(Block):
 
 class MLPInteraction(Block):
     """
-    latent factor interactor for cateory data
+    multi-layer perceptron interactor
     """
     def __init__(self,
                  units=None,
@@ -167,3 +167,47 @@ class HyperInteraction(Block):
                 outputs.append( ElementwiseAddInteraction.build(hp, inputs) )
 
         return tf.keras.layers.Concatenate()(outputs)
+
+class FMInteraction(Block):
+    """
+    factorization machine interactor
+    """
+    def __init__(self,
+                 embedding_dim=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.fixed_params = []
+        self.tunable_candidates = ['embedding_dim']
+        self.embedding_dim = embedding_dim
+
+    def get_state(self):
+        state = super().get_state()
+        state.update(
+            {
+                'embedding_dim': self.embedding_dim,
+            })
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+        self.embedding_dim = state['embedding_dim']
+
+    def build(self, hp, inputs=None):
+
+        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16], default=8)
+
+        # TODO: align embedding_dim if not the same
+        input_node = tf.concat(inputs, axis=1)
+        if len(input_node.shape) != 3:
+            raise ValueError(
+                    "Unexpected inputs dimensions %d, expect to be 3 dimensions" % len(input_node.shape)
+                )
+
+        output_node = input_node
+
+        square_of_sum = tf.square(tf.reduce_sum(output_node, axis=1, keepdims=True))
+        sum_of_square = tf.reduce_sum(output_node * output_node, axis=1, keepdims=True)
+        cross_term = square_of_sum - sum_of_square
+        output_node = 0.5 * tf.reduce_sum(cross_term, axis=2, keepdims=False)
+
+        return output_node
