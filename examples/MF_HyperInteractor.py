@@ -8,7 +8,7 @@ import logging
 import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
-from autorecsys.auto_search import CFRSearch
+from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, HyperInteraction
 
@@ -41,14 +41,14 @@ def custom_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    # hi_output = HyperInteraction(meta_interator_num = 3)([user_emb, item_emb])
+    mlp_output1 = MLPInteraction()([user_emb, item_emb])
 
-    hi_output = MLPInteraction(num_layers = 1)([user_emb, item_emb])
+    hi_output = HyperInteraction()(mlp_output1)
 
     final_output = RatingPredictionOptimizer()(hi_output)
 
     # AutoML search and predict.
-    cf_searcher = CFRSearch(tuner='random',
+    cf_searcher = Search(tuner='random',
                             tuner_params={'max_trials': 3, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)

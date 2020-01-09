@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Search(object):
     def __init__(self, task='cf', name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
+
         self.task = task
         if self.task == 'cf':
             self.pipe = CFRecommender(**kwargs)
@@ -24,6 +25,7 @@ class Search(object):
         else:
             raise ValueError(
                 'Currently we only support "cf" and "ctr" tasks.')
+
         self.tuner = tuner
         self.tuner_params = tuner_params
         if not name:
