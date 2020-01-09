@@ -119,11 +119,6 @@ class HyperInteraction(Block):
         self.meta_interator_num = meta_interator_num
         self.interactor_type = interactor_type
 
-    def get_config(self):
-        config = super().get_config()
-        config.update({'interactor_type': self.interactor_type})
-        return config
-
     def get_state(self):
         state = super().get_state()
         state.update({
@@ -139,10 +134,10 @@ class HyperInteraction(Block):
 
     def build(self, hp, inputs=None):
         inputs = nest.flatten(inputs)
-
         meta_interator_num =  self.meta_interator_num or hp.Choice('meta_interator_num',
                                                                     [1, 2, 3, 4, 5],
                                                                     default=3)
+
         interactors_name = []
         for i in range( meta_interator_num ):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type',
@@ -150,14 +145,15 @@ class HyperInteraction(Block):
                                                                     default='MLPInteraction')
             interactors_name.append(tmp_interactor_type)
 
-
         outputs = []
         for interactor_name in interactors_name:
             if interactor_name == "MLPInteraction":
-                # output_node = tf.concat(inputs, axis=0)
+                ##TODO: support intra block hyperparameter tuning
                 output_node = MLPInteraction().build(hp, inputs)
                 outputs.append(output_node)
+
             if interactor_name == "ConcatenateInteraction":
+                ##TODO: the ConcatenateInteraction may not work correctly
                 output_node = ConcatenateInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
