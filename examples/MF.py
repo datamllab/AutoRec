@@ -2,6 +2,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 import pandas as pd
 import logging
@@ -11,7 +12,7 @@ from autorecsys.searcher.core import hyperparameters as hp_module
 # from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, StructuredDataInput, \
-                    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
+    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -26,10 +27,9 @@ def mf_pipeline():
     # set_device('cpu:0')
 
     # # load dataset
-    ml_1m = Movielens1MPreprocessor( "./tests/datasets/ml-1m/ratings.dat" )
+    ml_1m = Movielens1MPreprocessor("./tests/datasets/ml-1m/ratings.dat")
     ml_1m.preprocessing(test_size=0.1, random_state=1314)
     train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
-
 
     # Build the pipeline.
     # input_node = StructuredDataInput(column_names=['user_id', 'item_id'])
@@ -42,22 +42,22 @@ def mf_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-
     mlp_output1 = MLPInteraction()([user_emb, item_emb])
     mlp_output2 = MLPInteraction(units=256,
-                                num_layers=3,
-                                use_batchnorm=False,
-                                dropout_rate=0.1
+                                 num_layers=3,
+                                 use_batchnorm=False,
+                                 dropout_rate=0.1
                                  )([mlp_output1])
     mlp_output3 = MLPInteraction()([mlp_output2])
+    mlp_output4 = MLPInteraction(units=256)([mlp_output3])
 
-    final_output = RatingPredictionOptimizer()(mlp_output3)
+    final_output = RatingPredictionOptimizer()(mlp_output4)
 
     # AutoML search and predict.
     cf_searcher = Search(tuner='random',
-                            tuner_params={'max_trials': 3, 'overwrite': True},
-                            inputs=input_node,
-                            outputs=final_output)
+                         tuner_params={'max_trials': 3, 'overwrite': True},
+                         inputs=input_node,
+                         outputs=final_output)
 
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=10000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
