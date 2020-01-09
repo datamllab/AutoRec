@@ -150,10 +150,11 @@ class HyperInteraction(Block):
         outputs = []
         for interactor_name in interactors_name:
             if interactor_name == "MLPInteraction":
-                output_node = tf.concat(inputs, axis=0)
+                # output_node = tf.concat(inputs, axis=0)
+                output_node = MLPInteraction().build( hp, inputs )
                 outputs.append(output_node)
             if interactor_name == "ConcatenateInteraction":
-                output_node = tf.concat(inputs, axis=0)
+                output_node = ConcatenateInteraction().build( hp, inputs )
                 outputs.append( output_node )
 
         return tf.concat(inputs, axis=0)
