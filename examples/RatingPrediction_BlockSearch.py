@@ -38,15 +38,12 @@ def custom_pipeline():
                                   id_num=10001,
                                   embedding_dim=10)(input_node)
 
-    # output = MLPInteraction()([user_emb, item_emb])
-    # output = HyperInteraction()(output)
     output = HyperInteraction()([user_emb, item_emb])
-    # output = HyperInteraction( meta_interator_num = 2 )(output)
     final_output = RatingPredictionOptimizer()(output)
 
     # AutoML search and predict.
     cf_searcher = Search(tuner='random',
-                            tuner_params={'max_trials': 10, 'overwrite': True},
+                            tuner_params={'max_trials': 100, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
