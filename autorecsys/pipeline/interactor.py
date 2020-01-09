@@ -10,11 +10,11 @@ class ConcatenateInteraction(Block):
     """
     latent factor interactor for category datas
     """
-
     def build(self, hp, inputs=None):
-        # if not isinstance(inputs, list) or len(inputs) != 2:
-        #     raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
-        output_node = tf.concat(inputs, axis=0)
+        if not isinstance(inputs, list) or len(inputs) != 2:
+            raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
+
+        output_node = tf.concat(inputs, axis=1)
         return output_node
 
 
@@ -83,6 +83,7 @@ class MLPInteraction(Block):
         self.dropout_rate = state['dropout_rate']
 
     def build(self, hp, inputs=None):
+        inputs = nest.flatten(inputs)
         input_node = tf.concat(inputs, axis=1)
         output_node = input_node
         num_layers = self.num_layers or hp.Choice('num_layers', [1, 2, 3], default=2)
@@ -137,15 +138,18 @@ class HyperInteraction(Block):
         self.meta_interator_num = state['meta_interator_num']
 
     def build(self, hp, inputs=None):
-        interactors_name = []
+        inputs = nest.flatten(inputs)
+
         meta_interator_num =  self.meta_interator_num or hp.Choice('meta_interator_num',
                                                                     [1, 2, 3, 4, 5],
                                                                     default=3)
+        interactors_name = []
         for i in range( meta_interator_num ):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type',
-                                                                    ['ConcatenateInteraction', "MLPInteraction"],
+                                                                    [ "MLPInteraction"],
                                                                     default='MLPInteraction')
             interactors_name.append(tmp_interactor_type)
+
 
         outputs = []
         for interactor_name in interactors_name:
@@ -157,10 +161,9 @@ class HyperInteraction(Block):
                 output_node = ConcatenateInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
-        print( "outputs:", outputs )
+        # outputs = MLPInteraction().build(hp, inputs)
+        outputs = nest.flatten(outputs)
         outputs = tf.concat(outputs, axis=1)
-        print("cat outputs:", outputs)
-
         return outputs
 
 
