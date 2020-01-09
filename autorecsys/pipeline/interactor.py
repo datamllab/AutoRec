@@ -6,7 +6,6 @@ from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
 
 
-
 class ConcatenateInteraction(Block):
     """
     latent factor interactor for category datas
@@ -15,7 +14,7 @@ class ConcatenateInteraction(Block):
         if not isinstance(inputs, list) or len(inputs) != 2:
             raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
 
-        output_node = tf.concat(inputs, axis=0)
+        output_node = tf.concat(inputs, axis=1)
         return output_node
 
 
@@ -23,12 +22,14 @@ class ElementwiseAddInteraction(Block):
     """
     latent factor interactor for category datas
     """
+
     def build(self, hp, inputs=None):
         if not isinstance(inputs, list) or len(inputs) != 2:
             raise ValueError("Inputs of ElementwiseAddInteraction should be a list of length 2.")
 
         output_node = tf.add(inputs[0], inputs[1])
         return output_node
+
 
 
 class InnerProductInteraction(Block):
@@ -44,11 +45,11 @@ class InnerProductInteraction(Block):
         return output_node
 
 
-
 class MLPInteraction(Block):
     """
     multi-layer perceptron interactor
     """
+
     def __init__(self,
                  units=None,
                  num_layers=None,
@@ -81,8 +82,8 @@ class MLPInteraction(Block):
         self.use_batchnorm = state['use_batchnorm']
         self.dropout_rate = state['dropout_rate']
 
-
     def build(self, hp, inputs=None):
+        inputs = nest.flatten(inputs)
         input_node = tf.concat(inputs, axis=1)
         output_node = input_node
         num_layers = self.num_layers or hp.Choice('num_layers', [1, 2, 3], default=2)
@@ -107,23 +108,16 @@ class MLPInteraction(Block):
         return output_node
 
 
-
-
 class HyperInteraction(Block):
     """Combination of serveral interactor into one.
     # Arguments
     meta_interator_num: int
     interactor_type: interactor_name
     """
-    def __init__(self, meta_interator_num=None, interactor_type = None, **kwargs):
+    def __init__(self, meta_interator_num=None, interactor_type=None, **kwargs):
         super().__init__(**kwargs)
         self.meta_interator_num = meta_interator_num
         self.interactor_type = interactor_type
-
-    def get_config(self):
-        config = super().get_config()
-        config.update({'interactor_type': self.interactor_type})
-        return config
 
     def get_state(self):
         state = super().get_state()
@@ -138,30 +132,42 @@ class HyperInteraction(Block):
         self.interactor_type = state['interactor_type']
         self.meta_interator_num = state['meta_interator_num']
 
-
     def build(self, hp, inputs=None):
+        inputs = nest.flatten(inputs)
+        meta_interator_num =  self.meta_interator_num or hp.Choice('meta_interator_num',
+                                                                    [1, 2, 3, 4, 5],
+                                                                    default=3)
+
         interactors_name = []
-        for i in range(3):
+        for i in range( meta_interator_num ):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type',
-                                                  [ 'ConcatenateInteraction', "MLPInteraction"],
-                                                  default='MLPInteraction')
-            interactors_name.append( tmp_interactor_type )
+                                                                    [ "MLPInteraction"],
+                                                                    default='MLPInteraction')
+            interactors_name.append(tmp_interactor_type)
 
         outputs = []
         for interactor_name in interactors_name:
             if interactor_name == "MLPInteraction":
-                output_node = tf.concat(inputs, axis=0)
+                ##TODO: support intra block hyperparameter tuning
+                output_node = MLPInteraction().build(hp, inputs)
                 outputs.append(output_node)
-            if interactor_name == "ConcatenateInteraction":
-                output_node = tf.concat(inputs, axis=0)
-                outputs.append( output_node )
 
-        return tf.concat(inputs, axis=0)
+            if interactor_name == "ConcatenateInteraction":
+                ##TODO: the ConcatenateInteraction may not work correctly
+                output_node = ConcatenateInteraction().build(hp, inputs)
+                outputs.append(output_node)
+
+        # outputs = MLPInteraction().build(hp, inputs)
+        outputs = nest.flatten(outputs)
+        outputs = tf.concat(outputs, axis=1)
+        return outputs
+
 
 class FMInteraction(Block):
     """
     factorization machine interactor
     """
+
     def __init__(self,
                  embedding_dim=None,
                  **kwargs):
@@ -183,15 +189,14 @@ class FMInteraction(Block):
         self.embedding_dim = state['embedding_dim']
 
     def build(self, hp, inputs=None):
-
         embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16], default=8)
 
         # TODO: align embedding_dim if not the same
         input_node = tf.concat(inputs, axis=1)
         if len(input_node.shape) != 3:
             raise ValueError(
-                    "Unexpected inputs dimensions %d, expect to be 3 dimensions" % len(input_node.shape)
-                )
+                "Unexpected inputs dimensions %d, expect to be 3 dimensions" % len(input_node.shape)
+            )
 
         output_node = input_node
 
