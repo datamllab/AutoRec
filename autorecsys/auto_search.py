@@ -4,13 +4,9 @@ import os
 import logging
 import tempfile
 import tensorflow as tf
-from copy import deepcopy
-from sklearn.utils import safe_indexing
-from sklearn.model_selection import StratifiedShuffleSplit
 
-from autorecsys.utils.common import to_snake_case, create_directory, preprocess_xy, \
-    get_available_components, load_dataframe_input
-from autorecsys.pipeline.recommender import CFRecommender, CTRRecommender
+from autorecsys.utils.common import to_snake_case, create_directory, get_available_components, load_dataframe_input
+from autorecsys.recommender import CFRecommender,CTRRecommender
 from autorecsys.searcher.core.tuner import PipeTuner, METRIC
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -20,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Search(object):
     def __init__(self, task='cf', name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
+
         self.task = task
         if self.task == 'cf':
             self.pipe = CFRecommender(**kwargs)
@@ -28,6 +25,7 @@ class Search(object):
         else:
             raise ValueError(
                 'Currently we only support "cf" and "ctr" tasks.')
+
         self.tuner = tuner
         self.tuner_params = tuner_params
         if not name:
