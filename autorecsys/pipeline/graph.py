@@ -18,7 +18,6 @@ class Graph(Stateful):
         inputs: A list of input node(s) for the Graph.
         outputs: A list of output node(s) for the Graph.
     """
-
     def __init__(self, inputs, outputs):
         super().__init__()
         # TODO flatten inputs & outputs
