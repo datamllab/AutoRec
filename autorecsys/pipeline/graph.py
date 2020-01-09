@@ -403,6 +403,7 @@ def copy(old_instance):
     return instance
 
 
+
 class HyperGraph(Graph):
     """A HyperModel based on connected Blocks and HyperBlocks.
     # Arguments
@@ -436,6 +437,7 @@ class HyperGraph(Graph):
                                      single_hp.get_config())
         return hps
 
+
     def hyper_build(self, hp):
         """Build a GraphHyperModel with no HyperBlock but only Block."""
         # Make sure get_uid would count from start.
@@ -466,5 +468,5 @@ class HyperGraph(Graph):
         hp = hp.get_value_in_nested_format()
         for block in pipe._blocks:
             if block.name in hp:
-                block.set_state(hp[block.name])
+                pass
         return pipe
