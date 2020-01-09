@@ -294,25 +294,6 @@ class AutoModel(object):
         return model.evaluate(data, **kwargs)
 
 
-
-
-class RatingPredictionRecommender(HyperGraph):
-    """For RatingPrediction task
-
-    # Arguments
-        hyper_graph: HyperGraph. The HyperGraph to be tuned.
-        hypermodel: KerasGraph. The KerasGraph built from the HyperGraph.
-        fit_on_val_data: Boolean. Use the training set and validation set for the
-            final fit of the best model.
-        overwrite: Boolean. default `True`. If `False`, reloads an existing project
-            of the same name if one is found. Otherwise, overwrites the project.
-        **kwargs: The other args supported by KerasTuner.
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-
 class CFRecommender(HyperGraph):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -8,6 +8,7 @@ import logging
 import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
+# from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, StructuredDataInput, \
                     LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
@@ -41,30 +42,23 @@ def mf_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    mlp_output1 = MLPInteraction(units=hp_module.Choice('units', [32, 64]),
-                                num_layers=hp_module.Choice('num_layers', [1, 2], default=2),
-                                use_batchnorm=False,
-                                dropout_rate=hp_module.Choice(
-                                            'dropout_rate', [0.0, 0.1, 0.5]),
-                                 )([user_emb, item_emb])
 
-    mlp_output2 = MLPInteraction(units=hp_module.Choice('units', [128, 256]),
-                                num_layers=hp_module.Choice('num_layers', [3, 4], default=3),
+    mlp_output1 = MLPInteraction()([user_emb, item_emb])
+    mlp_output2 = MLPInteraction(units=256,
+                                num_layers=3,
                                 use_batchnorm=False,
-                                dropout_rate=hp_module.Choice('dropout_rate',
-                                                              [0.0, 0.1, 0.5])
+                                dropout_rate=0.1
                                  )([mlp_output1])
+    mlp_output3 = MLPInteraction()([mlp_output2])
 
-
-    # mlp_output2 = MLPInteraction()([mlp_output1])
-
-    final_output = RatingPredictionOptimizer()(mlp_output2)
+    final_output = RatingPredictionOptimizer()(mlp_output3)
 
     # AutoML search and predict.
     cf_searcher = Search(tuner='random',
                             tuner_params={'max_trials': 3, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)
+
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=10000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
