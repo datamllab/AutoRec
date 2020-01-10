@@ -54,8 +54,13 @@ def mf_pipeline():
     final_output = RatingPredictionOptimizer()(mlp_output4)
 
     # AutoML search and predict.
-    cf_searcher = Search(tuner='random',
-                         tuner_params={'max_trials': 3, 'overwrite': True},
+    # cf_searcher = Search(tuner='random',
+    #                      tuner_params={'max_trials': 3, 'overwrite': True},
+    #                      inputs=input_node,
+    #                      outputs=final_output)
+
+    cf_searcher = Search(tuner='hyperband',
+                         tuner_params={"max_trials": 3},
                          inputs=input_node,
                          outputs=final_output)
 
