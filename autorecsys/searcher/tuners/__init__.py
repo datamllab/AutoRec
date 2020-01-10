@@ -1,9 +1,9 @@
 from .randomsearch import RandomSearch
-# from .hyperband import Hyperband
+from .hyperband import Hyperband
 
 TUNER_CLASSES = {
     'random': RandomSearch,
-    # 'hyperband': Hyperband,
+    'hyperband': Hyperband,
 }
 
 
