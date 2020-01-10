@@ -86,21 +86,3 @@ def preprocess_xy(x, y):
     return x, y
 
 
-# TODO: do we need this?
-def get_available_components(package, directory, base_class):
-    def find_components(_package, _directory, _base_class):
-        components = OrderedDict()
-        for module_loader, module_name, ispkg in pkgutil.iter_modules([_directory]):
-            full_module_name = f"{_package}.{module_name}"
-            if full_module_name is ispkg:
-                continue
-            module = importlib.import_module(full_module_name)
-            for member_name, obj in inspect.getmembers(module):
-                cls_flag = inspect.isclass(obj) and issubclass(obj, _base_class) and obj != _base_class
-                if not cls_flag:
-                    continue
-                components[obj.get_name()] = obj
-        return components
-
-    available_components = find_components(package, directory, base_class)
-    return available_components

@@ -54,12 +54,17 @@ def mf_pipeline():
     final_output = RatingPredictionOptimizer()(mlp_output4)
 
     # AutoML search and predict.
-    cf_searcher = Search(tuner='random',
-                         tuner_params={'max_trials': 3, 'overwrite': True},
+    # cf_searcher = Search(tuner='random',
+    #                      tuner_params={'max_trials': 3, 'overwrite': True},
+    #                      inputs=input_node,
+    #                      outputs=final_output)
+
+    cf_searcher = Search(tuner='hyperband',
+                         tuner_params={"max_trials": 20},
                          inputs=input_node,
                          outputs=final_output)
 
-    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=10000)
+    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
 

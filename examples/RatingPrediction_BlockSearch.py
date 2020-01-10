@@ -42,7 +42,7 @@ def custom_pipeline():
     final_output = RatingPredictionOptimizer()(output)
 
     # AutoML search and predict.
-    cf_searcher = Search(tuner='random',
+    cf_searcher = Search(tuner='hyperband',
                             tuner_params={'max_trials': 100, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)

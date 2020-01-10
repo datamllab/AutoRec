@@ -28,6 +28,8 @@ from autorecsys.utils import display
 from autorecsys.utils.common import create_directory
 from autorecsys.searcher.core import trial as trial_module
 from autorecsys.searcher.core import oracle as oracle_module
+# from autorecsys.searcher.tuners import RandomSearch
+# from autorecsys.searcher.tuners.hyperband import Hyperband
 
 # from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error
 # METRIC = {'auc': roc_auc_score, 'log_loss': log_loss, 'mse': mean_squared_error}
@@ -745,3 +747,5 @@ class PipeTuner(MultiExecutionTuner):
 
         self.hypermodel.save(self._get_save_path(trial, 'keras_graph'))
         self.hypermodel = None
+
+
