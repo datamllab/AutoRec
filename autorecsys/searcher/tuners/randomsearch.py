@@ -16,13 +16,12 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from autorecsys.searcher.core.tuner import PipeTuner
+import random
 
+from autorecsys.searcher.tuners.tuner import PipeTuner
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.searcher.core import oracle as oracle_module
 from autorecsys.searcher.core import trial as trial_lib
-
-import random
 
 
 class RandomSearchOracle(oracle_module.Oracle):
