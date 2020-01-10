@@ -465,9 +465,10 @@ class HyperGraph(Graph):
 
         pipe = PlainGraph(inputs, outputs)
 
-        hp = hp.get_value_in_nested_format()
-        for block in pipe._blocks:
-            if block.name in hp:
-                # block.set_state(hp[block.name])
-                pass
+        # hp = hp.get_value_in_nested_format()
+        # print( "hp:", hp )
+        # for block in pipe._blocks:
+        #     if block.name in hp:
+        #         # block.set_state(hp[block.name])
+        #         pass
         return pipe
