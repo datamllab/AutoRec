@@ -5,7 +5,7 @@ import logging
 import tempfile
 import tensorflow as tf
 
-from autorecsys.utils.common import to_snake_case, create_directory, get_available_components, load_dataframe_input
+from autorecsys.utils.common import to_snake_case, create_directory,  load_dataframe_input
 from autorecsys.recommender import CFRecommender,CTRRecommender
 from autorecsys.searcher.tuners.tuner import METRIC, PipeTuner
 from autorecsys.searcher.tuners.randomsearch import RandomSearch
@@ -66,20 +66,7 @@ class Search(object):
         return self.best_model
 
     def _build_tuner(self, tuner, tuner_params):
-        available_tuners = get_available_components(package=f'{__package__}.searcher.tuners',
-                                                    directory=os.path.join( os.path.split(__file__)[0], 'searcher', 'tuners'),
-                                                    base_class=PipeTuner)
-        print(available_tuners)
-        if tuner is None:
-            tuner_cls = available_tuners.items()[0][0]
-        else:
-            try:
-                tuner_cls = available_tuners[tuner]
-            except Exception:
-                raise Exception(f'currently do not support {tuner}, available tuners: {list(available_tuners.keys())}')
-
-        # tuner_cls = tuners.get_tuner_class( tuner )
-        print( tuner_cls )
+        tuner_cls = tuners.get_tuner_class( tuner )
         hps = self.pipe.get_hyperparameters()
         tuner = tuner_cls(hypergraph=self.pipe,
                           objective=self.objective,
