@@ -48,7 +48,7 @@ def neu_mf():
 
     # AutoML search and predict.
     cf_searcher = Search(tuner='random',
-                         tuner_params={'max_trials': 10, 'overwrite': True},
+                         tuner_params={'max_trials': 100, 'overwrite': True},
                          inputs=input_node,
                          outputs=final_output)
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_BinaryCrossentropy',

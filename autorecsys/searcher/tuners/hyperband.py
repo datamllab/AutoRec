@@ -383,27 +383,3 @@ class Hyperband(PipeTuner):
     def get_name(cls):
         return 'hyperband'
 
-# class RandomSearch(PipeTuner):
-#     def __init__(self,
-#                  hypergraph,
-#                  objective,
-#                  max_trials,
-#                  seed=None,
-#                  hyperparameters=None,
-#                  tune_new_entries=True,
-#                  allow_new_entries=True,
-#                  **kwargs):
-#         self.seed = seed
-#         oracle = RandomSearchOracle(
-#             objective=objective,
-#             max_trials=max_trials,
-#             seed=seed,
-#             hyperparameters=hyperparameters,
-#             tune_new_entries=tune_new_entries,
-#             allow_new_entries=allow_new_entries)
-#         super(RandomSearch, self).__init__(
-#             oracle,
-#             hypergraph,
-#             **kwargs)
-
-

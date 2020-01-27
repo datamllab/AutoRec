@@ -12,7 +12,7 @@ from autorecsys.searcher.core import hyperparameters as hp_module
 # from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, StructuredDataInput, \
-    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, ElementwiseInteraction
+    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -42,11 +42,16 @@ def mf_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct"
-                                        )([user_emb, item_emb])
+    mlp_output1 = MLPInteraction()([user_emb, item_emb])
+    mlp_output2 = MLPInteraction(units=256,
+                                 num_layers=3,
+                                 use_batchnorm=False,
+                                 dropout_rate=0.1
+                                 )([mlp_output1])
+    mlp_output3 = MLPInteraction()([mlp_output2])
+    mlp_output4 = MLPInteraction(units=256)([mlp_output3])
 
-
-    final_output = RatingPredictionOptimizer()(innerproduct)
+    final_output = RatingPredictionOptimizer()(mlp_output4)
 
     # AutoML search and predict.
     # cf_searcher = Search(tuner='random',
