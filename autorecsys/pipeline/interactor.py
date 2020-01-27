@@ -6,6 +6,7 @@ from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
 
 
+
 class ConcatenateInteraction(Block):
     """
     latent factor interactor for category datas
@@ -42,6 +43,50 @@ class InnerProductInteraction(Block):
 
         input_node = inputs
         output_node = input_node[0] * input_node[1]
+        return output_node
+
+
+
+
+class ElementwiseInteraction(Block):
+    """
+    ElementwiseInteraction
+    """
+
+    def __init__(self,
+                 elementwise_type=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.elementwise_type = elementwise_type
+
+    def get_state(self):
+        state = super().get_state()
+        state.update({
+            'elementwise_type': self.elementwise_type})
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+        self.elementwise_type = state['elementwise_type']
+
+
+    def build(self, hp, inputs=None):
+        input_node = nest.flatten(inputs)
+        elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
+                                                                ["sum", "average", "innerporduct" ],
+                                                                default='average')
+
+        print( "elementwise_type", elementwise_type )
+        if elementwise_type == "sum":
+            output_node = tf.add_n( input_node )
+        elif elementwise_type == "average":
+            output_node = tf.reduce_mean(input_node, axis=0)
+        elif elementwise_type == "innerporduct":
+            output_node = tf.reduce_prod( input_node, axis=0 )
+        else:
+            output_node = tf.add_n(input_node)
+
+        print( "output_node", output_node )
         return output_node
 
 
@@ -155,6 +200,11 @@ class HyperInteraction(Block):
             if interactor_name == "ConcatenateInteraction":
                 ##TODO: the ConcatenateInteraction may not work correctly
                 output_node = ConcatenateInteraction().build(hp, inputs)
+                outputs.append(output_node)
+
+            if interactor_name == "FMInteraction":
+                ##TODO: the ConcatenateInteraction may not work correctly
+                output_node = FMInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
         # outputs = MLPInteraction().build(hp, inputs)
