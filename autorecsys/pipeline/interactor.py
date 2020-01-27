@@ -46,8 +46,6 @@ class InnerProductInteraction(Block):
         return output_node
 
 
-
-
 class ElementwiseInteraction(Block):
     """
     ElementwiseInteraction
@@ -72,6 +70,14 @@ class ElementwiseInteraction(Block):
 
     def build(self, hp, inputs=None):
         input_node = nest.flatten(inputs)
+
+        shape_set = set()
+
+        for input in input_node:
+            shape_set.add( input.shape[1] )
+        if  len(shape_set) > 1:
+            raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
+
         elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
                                                                 ["sum", "average", "innerporduct" ],
                                                                 default='average')

@@ -12,7 +12,7 @@ from autorecsys.searcher.core import hyperparameters as hp_module
 # from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, StructuredDataInput, \
-    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
+    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, ElementwiseInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -42,16 +42,21 @@ def mf_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    mlp_output1 = MLPInteraction()([user_emb, item_emb])
-    mlp_output2 = MLPInteraction(units=256,
+    output1 = MLPInteraction()([user_emb, item_emb])
+    output2 = MLPInteraction(units=256,
                                  num_layers=3,
                                  use_batchnorm=False,
                                  dropout_rate=0.1
-                                 )([mlp_output1])
-    mlp_output3 = MLPInteraction()([mlp_output2])
-    mlp_output4 = MLPInteraction(units=256)([mlp_output3])
+                                 )([output1])
+    output3 = MLPInteraction()([output1, output2])
 
-    final_output = RatingPredictionOptimizer()(mlp_output4)
+    output4 = MLPInteraction(units=256)([output1, output2, output3])
+
+    output5 = MLPInteraction(units=256)([output4])
+
+    output = ElementwiseInteraction(elementwise_type = "innerporduct")([output4, output5])
+
+    final_output = RatingPredictionOptimizer()(output)
 
     # AutoML search and predict.
     # cf_searcher = Search(tuner='random',

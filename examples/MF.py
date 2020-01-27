@@ -41,24 +41,13 @@ def mf_pipeline():
     item_emb = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
-
-    innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct"
-                                        )([user_emb, item_emb])
-
-
+    innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb, item_emb])
     final_output = RatingPredictionOptimizer()(innerproduct)
-
-    # AutoML search and predict.
-    # cf_searcher = Search(tuner='random',
-    #                      tuner_params={'max_trials': 3, 'overwrite': True},
-    #                      inputs=input_node,
-    #                      outputs=final_output)
 
     cf_searcher = Search(tuner='hyperband',
                          tuner_params={"max_trials": 20},
                          inputs=input_node,
                          outputs=final_output)
-
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
