@@ -2,49 +2,27 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 from tensorflow.python.util import nest
-
 from autorecsys.pipeline.base import Block
 
 
-
 class ConcatenateInteraction(Block):
-    """
-    latent factor interactor for category datas
-    """
-    def build(self, hp, inputs=None):
-        if not isinstance(inputs, list) or len(inputs) != 2:
-            raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
+        """
+        ConcatenateInteraction
+        """
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
 
-        output_node = tf.concat(inputs, axis=1)
-        return output_node
+        def get_state(self):
+            state = super().get_state()
+            return state
 
+        def set_state(self, state):
+            super().set_state(state)
 
-class ElementwiseAddInteraction(Block):
-    """
-    latent factor interactor for category datas
-    """
-
-    def build(self, hp, inputs=None):
-        if not isinstance(inputs, list) or len(inputs) != 2:
-            raise ValueError("Inputs of ElementwiseAddInteraction should be a list of length 2.")
-
-        output_node = tf.add(inputs[0], inputs[1])
-        return output_node
-
-
-
-class InnerProductInteraction(Block):
-    """
-    inner-product interactor
-    """
-    def build(self, hp, inputs=None):
-        if not isinstance(inputs, list) or len(inputs) != 2:
-            raise ValueError("Inputs of InnerProductInteraction should be a list of length 2.")
-
-        input_node = inputs
-        output_node = input_node[0] * input_node[1]
-        return output_node
-
+        def build(self, hp, inputs=None):
+            input_node = nest.flatten(inputs)
+            output_node = tf.concat(input_node, axis=1)
+            return output_node
 
 class ElementwiseInteraction(Block):
     """
