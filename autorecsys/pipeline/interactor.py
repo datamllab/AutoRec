@@ -21,8 +21,12 @@ class ConcatenateInteraction(Block):
             super().set_state(state)
 
         def build(self, hp, inputs=None):
-            input_node = nest.flatten(inputs)
-            output_node = Concatenate()(input_node)
+            output_node = nest.flatten(inputs)
+            # output_node = Concatenate()(output_node)
+            output_node = tf.concat(output_node, axis=1  )
+            # output_node = tf.reshape(tf.stack(output_node, axis=0), [-1])
+
+            print(output_node)
             return output_node
 
 
@@ -30,7 +34,6 @@ class ElementwiseInteraction(Block):
     """
     ElementwiseInteraction
     """
-
     def __init__(self,
                  elementwise_type=None,
                  **kwargs):
@@ -61,8 +64,6 @@ class ElementwiseInteraction(Block):
         elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
                                                                 ["sum", "average", "innerporduct" ],
                                                                 default='average')
-
-        print( "elementwise_type", elementwise_type )
         if elementwise_type == "sum":
             output_node = tf.add_n( input_node )
         elif elementwise_type == "average":
@@ -163,19 +164,24 @@ class HyperInteraction(Block):
 
     def build(self, hp, inputs=None):
         inputs = nest.flatten(inputs)
+
+
         meta_interator_num =  self.meta_interator_num or hp.Choice('meta_interator_num',
                                                                     [1, 2, 3, 4, 5],
                                                                     default=3)
 
+        # inputs = tf.keras.backend.repeat(inputs, n=meta_interator_num)
+
         interactors_name = []
         for i in range( meta_interator_num ):
-            tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type',
-                                                                    [ "MLPInteraction"],
+            tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(i),
+                                                                    [ "ConcatenateInteraction", "MLPInteraction"],
                                                                     default='MLPInteraction')
             interactors_name.append(tmp_interactor_type)
 
+        # print( "interactors_name", interactors_name )
         outputs = []
-        for interactor_name in interactors_name:
+        for i, interactor_name in enumerate( interactors_name ):
             if interactor_name == "MLPInteraction":
                 ##TODO: support intra block hyperparameter tuning
                 output_node = MLPInteraction().build(hp, inputs)
@@ -184,6 +190,7 @@ class HyperInteraction(Block):
             if interactor_name == "ConcatenateInteraction":
                 ##TODO: the ConcatenateInteraction may not work correctly
                 output_node = ConcatenateInteraction().build(hp, inputs)
+                # output_node = tf.concat(inputs, axis=1)
                 outputs.append(output_node)
 
             if interactor_name == "FMInteraction":
@@ -191,6 +198,7 @@ class HyperInteraction(Block):
                 output_node = FMInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
+        outputs = nest.flatten(outputs)
         outputs = tf.concat(outputs, axis=1)
         return outputs
 
