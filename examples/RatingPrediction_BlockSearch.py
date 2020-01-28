@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+
+
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+
+
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
+
+
 import pandas as pd
 import logging
 import numpy as np
@@ -46,7 +58,7 @@ def custom_pipeline():
                             tuner_params={'max_trials': 100, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)
-    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
+    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=10000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
 

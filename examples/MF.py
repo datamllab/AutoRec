@@ -41,6 +41,7 @@ def mf_pipeline():
     item_emb = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
+
     innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb, item_emb])
     final_output = RatingPredictionOptimizer()(innerproduct)
 
