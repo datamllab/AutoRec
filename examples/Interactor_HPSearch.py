@@ -11,7 +11,8 @@ import numpy as np
 from autorecsys.searcher.core import hyperparameters as hp_module
 # from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, ElementwiseInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, \
+    ElementwiseInteraction, ConcatenateInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -43,17 +44,24 @@ def mf_pipeline():
 
     output1 = MLPInteraction()([user_emb, item_emb])
     output2 = MLPInteraction(units=256,
-                                 num_layers=3,
-                                 use_batchnorm=False,
-                                 dropout_rate=0.1
-                                 )([output1])
+                             num_layers=3,
+                             use_batchnorm=False,
+                             dropout_rate=0.1
+                             )([output1])
     output3 = MLPInteraction()([output1, output2])
 
     output4 = MLPInteraction(units=256)([output1, output2, output3])
 
     output5 = MLPInteraction(units=256)([output4])
 
-    output = ElementwiseInteraction(elementwise_type = "innerporduct")([output4, output5])
+
+    output6 = ElementwiseInteraction(elementwise_type="innerporduct")([output4, output5])
+
+    output7 = ConcatenateInteraction()([output6, output4])
+
+    output8 = ConcatenateInteraction()([output6, output4])
+
+    output = ConcatenateInteraction()([output7, output8])
 
     final_output = RatingPredictionOptimizer()(output)
 

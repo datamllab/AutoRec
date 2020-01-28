@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
+from tensorflow.keras.layers import Dense, Input, Concatenate
 
 
 class ConcatenateInteraction(Block):
@@ -21,8 +22,9 @@ class ConcatenateInteraction(Block):
 
         def build(self, hp, inputs=None):
             input_node = nest.flatten(inputs)
-            output_node = tf.concat(input_node, axis=1)
+            output_node = Concatenate()(input_node)
             return output_node
+
 
 class ElementwiseInteraction(Block):
     """
@@ -69,8 +71,6 @@ class ElementwiseInteraction(Block):
             output_node = tf.reduce_prod( input_node, axis=0 )
         else:
             output_node = tf.add_n(input_node)
-
-        print( "output_node", output_node )
         return output_node
 
 
@@ -187,12 +187,10 @@ class HyperInteraction(Block):
                 outputs.append(output_node)
 
             if interactor_name == "FMInteraction":
-                ##TODO: the ConcatenateInteraction may not work correctly
+                ##TODO: the FMInteraction may not work correctly
                 output_node = FMInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
-        # outputs = MLPInteraction().build(hp, inputs)
-        outputs = nest.flatten(outputs)
         outputs = tf.concat(outputs, axis=1)
         return outputs
 
