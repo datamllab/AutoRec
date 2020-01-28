@@ -6,15 +6,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
-
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
-
-config = ConfigProto()
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
-
-
 import pandas as pd
 import logging
 import numpy as np

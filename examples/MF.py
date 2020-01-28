@@ -32,7 +32,6 @@ def mf_pipeline():
     train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
     # Build the pipeline.
-    # input_node = StructuredDataInput(column_names=['user_id', 'item_id'])
     input_node = Input(shape=[2])
     # cpu_num should default to None.
     user_emb = LatentFactorMapper(feat_column_id=0,
