@@ -9,7 +9,7 @@ import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, MLPInteraction, FMInteraction, PointWiseOptimizer
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, PointWiseOptimizer
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor, Movielens1MCTRPreprocessor

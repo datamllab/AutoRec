@@ -10,12 +10,10 @@ import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, StructuredDataInput, \
-    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, InnerProductInteraction, PointWiseOptimizer, \
-    HyperInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, PointWiseOptimizer, HyperInteraction
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor, Movielens1MCTRPreprocessor
+from autorecsys.pipeline.preprocessor import Movielens1MCTRPreprocessor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

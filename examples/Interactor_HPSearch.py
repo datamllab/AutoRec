@@ -11,8 +11,7 @@ import numpy as np
 from autorecsys.searcher.core import hyperparameters as hp_module
 # from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, StructuredDataInput, \
-    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, ElementwiseInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, ElementwiseInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
