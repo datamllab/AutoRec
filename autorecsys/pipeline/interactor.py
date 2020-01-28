@@ -4,6 +4,34 @@ import tensorflow as tf
 from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
 from tensorflow.keras.layers import Dense, Input, Concatenate
+import random
+
+# numberList = [111,222,333,444,555]
+# print("random item from list is: ", random.choice(numberList))
+
+
+class RandomSelectInteraction(Block):
+        """
+        ConcatenateInteraction
+        """
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+        def get_state(self):
+            state = super().get_state()
+            return state
+
+        def set_state(self, state):
+            super().set_state(state)
+
+        def build(self, hp, inputs=None):
+            output_node = nest.flatten(inputs)
+            # output_node = Concatenate()(output_node)
+            output_node = random.choice(output_node)
+            # output_node = tf.reshape(tf.stack(output_node, axis=0), [-1])
+            return output_node
+
+
 
 
 class ConcatenateInteraction(Block):
@@ -175,11 +203,11 @@ class HyperInteraction(Block):
         interactors_name = []
         for i in range( meta_interator_num ):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(i),
-                                                                    [ "ConcatenateInteraction", "MLPInteraction"],
+                                                                    [ "MLPInteraction"],
                                                                     default='MLPInteraction')
             interactors_name.append(tmp_interactor_type)
 
-        # print( "interactors_name", interactors_name )
+        print( "interactors_name", interactors_name )
         outputs = []
         for i, interactor_name in enumerate( interactors_name ):
             if interactor_name == "MLPInteraction":
@@ -193,10 +221,12 @@ class HyperInteraction(Block):
                 # output_node = tf.concat(inputs, axis=1)
                 outputs.append(output_node)
 
-            if interactor_name == "FMInteraction":
+            if interactor_name == "RandomSelectInteraction":
                 ##TODO: the FMInteraction may not work correctly
-                output_node = FMInteraction().build(hp, inputs)
+                output_node = RandomSelectInteraction().build(hp, inputs)
                 outputs.append(output_node)
+
+
 
         outputs = nest.flatten(outputs)
         outputs = tf.concat(outputs, axis=1)
