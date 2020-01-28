@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+
+
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+
 import pandas as pd
 import logging
 import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, StructuredDataInput, \
-                    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, HyperInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -47,7 +49,7 @@ def custom_pipeline():
                             tuner_params={'max_trials': 100, 'overwrite': True},
                             inputs=input_node,
                             outputs=final_output)
-    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
+    cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=10000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
 

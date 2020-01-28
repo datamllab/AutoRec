@@ -11,8 +11,8 @@ import numpy as np
 from autorecsys.searcher.core import hyperparameters as hp_module
 # from autorecsys.searcher.core.hyperparameters import HyperParameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, StructuredDataInput, \
-    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, ElementwiseInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, \
+    ElementwiseInteraction, ConcatenateInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -32,6 +32,7 @@ def mf_pipeline():
     train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
     # Build the pipeline.
+    # input_node = StructuredDataInput(column_names=['user_id', 'item_id'])
     input_node = Input(shape=[2])
     # cpu_num should default to None.
     user_emb = LatentFactorMapper(feat_column_id=0,
@@ -41,13 +42,40 @@ def mf_pipeline():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb, item_emb])
-    final_output = RatingPredictionOptimizer()(innerproduct)
+    output1 = MLPInteraction()([user_emb, item_emb])
+    output2 = MLPInteraction(units=256,
+                             num_layers=3,
+                             use_batchnorm=False,
+                             dropout_rate=0.1
+                             )([output1])
+    output3 = MLPInteraction()([output1, output2])
+
+    output4 = MLPInteraction(units=256)([output1, output2, output3])
+
+    output5 = MLPInteraction(units=256)([output4])
+
+
+    output6 = ElementwiseInteraction(elementwise_type="innerporduct")([output4, output5])
+
+    output7 = ConcatenateInteraction()([output6, output4])
+
+    output8 = ConcatenateInteraction()([output6, output4])
+
+    output = ConcatenateInteraction()([output7, output8])
+
+    final_output = RatingPredictionOptimizer()(output)
+
+    # AutoML search and predict.
+    # cf_searcher = Search(tuner='random',
+    #                      tuner_params={'max_trials': 3, 'overwrite': True},
+    #                      inputs=input_node,
+    #                      outputs=final_output)
 
     cf_searcher = Search(tuner='hyperband',
                          tuner_params={"max_trials": 20},
                          inputs=input_node,
                          outputs=final_output)
+
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))

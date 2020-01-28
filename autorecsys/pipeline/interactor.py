@@ -2,46 +2,75 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 from tensorflow.python.util import nest
-
 from autorecsys.pipeline.base import Block
+from tensorflow.keras.layers import Dense, Input, Concatenate
 
 
 class ConcatenateInteraction(Block):
+        """
+        ConcatenateInteraction
+        """
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+
+        def get_state(self):
+            state = super().get_state()
+            return state
+
+        def set_state(self, state):
+            super().set_state(state)
+
+        def build(self, hp, inputs=None):
+            input_node = nest.flatten(inputs)
+            output_node = Concatenate()(input_node)
+            return output_node
+
+
+class ElementwiseInteraction(Block):
     """
-    latent factor interactor for category datas
+    ElementwiseInteraction
     """
+
+    def __init__(self,
+                 elementwise_type=None,
+                 **kwargs):
+        super().__init__(**kwargs)
+        self.elementwise_type = elementwise_type
+
+    def get_state(self):
+        state = super().get_state()
+        state.update({
+            'elementwise_type': self.elementwise_type})
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+        self.elementwise_type = state['elementwise_type']
+
+
     def build(self, hp, inputs=None):
-        if not isinstance(inputs, list) or len(inputs) != 2:
-            raise ValueError("Inputs of ConcatenateInteraction should be a list of length 2.")
+        input_node = nest.flatten(inputs)
 
-        output_node = tf.concat(inputs, axis=1)
-        return output_node
+        shape_set = set()
 
+        for input in input_node:
+            shape_set.add( input.shape[1] )
+        if  len(shape_set) > 1:
+            raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
 
-class ElementwiseAddInteraction(Block):
-    """
-    latent factor interactor for category datas
-    """
+        elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
+                                                                ["sum", "average", "innerporduct" ],
+                                                                default='average')
 
-    def build(self, hp, inputs=None):
-        if not isinstance(inputs, list) or len(inputs) != 2:
-            raise ValueError("Inputs of ElementwiseAddInteraction should be a list of length 2.")
-
-        output_node = tf.add(inputs[0], inputs[1])
-        return output_node
-
-
-
-class InnerProductInteraction(Block):
-    """
-    inner-product interactor
-    """
-    def build(self, hp, inputs=None):
-        if not isinstance(inputs, list) or len(inputs) != 2:
-            raise ValueError("Inputs of InnerProductInteraction should be a list of length 2.")
-
-        input_node = inputs
-        output_node = input_node[0] * input_node[1]
+        print( "elementwise_type", elementwise_type )
+        if elementwise_type == "sum":
+            output_node = tf.add_n( input_node )
+        elif elementwise_type == "average":
+            output_node = tf.reduce_mean(input_node, axis=0)
+        elif elementwise_type == "innerporduct":
+            output_node = tf.reduce_prod( input_node, axis=0 )
+        else:
+            output_node = tf.add_n(input_node)
         return output_node
 
 
@@ -157,8 +186,11 @@ class HyperInteraction(Block):
                 output_node = ConcatenateInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
-        # outputs = MLPInteraction().build(hp, inputs)
-        outputs = nest.flatten(outputs)
+            if interactor_name == "FMInteraction":
+                ##TODO: the FMInteraction may not work correctly
+                output_node = FMInteraction().build(hp, inputs)
+                outputs.append(output_node)
+
         outputs = tf.concat(outputs, axis=1)
         return outputs
 

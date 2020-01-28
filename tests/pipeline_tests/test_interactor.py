@@ -10,7 +10,6 @@ import tensorflow as tf
 from autorecsys.pipeline.interactor import (
     ConcatenateInteraction, 
     ElementwiseAddInteraction,
-    InnerProductInteraction,
     MLPInteraction,
 )
 from autorecsys.searcher.core import hyperparameters as hp_module
