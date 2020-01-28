@@ -9,11 +9,10 @@ import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, StructuredDataInput, \
-                    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer,InnerProductInteraction, PointWiseOptimizer
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction,  PointWiseOptimizer, ElementwiseInteraction
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor, Movielens1MCTRPreprocessor
+from autorecsys.pipeline.preprocessor import Movielens1MCTRPreprocessor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -49,7 +48,7 @@ def neu_mf():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
-    innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
+    innerproduct_output = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb_gmf, item_emb_gmf])
 
     mlp_output = MLPInteraction(units=hp_module.Choice('units', [128, 256]),
                                 num_layers=hp_module.Choice('num_layers', [3, 4], default=3),

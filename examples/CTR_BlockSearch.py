@@ -10,12 +10,10 @@ import numpy as np
 
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, StructuredDataInput, \
-    LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, InnerProductInteraction, PointWiseOptimizer, \
-    HyperInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, PointWiseOptimizer, HyperInteraction
 
 from autorecsys.utils.common import set_device
-from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor, Movielens1MCTRPreprocessor
+from autorecsys.pipeline.preprocessor import Movielens1MCTRPreprocessor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -48,7 +46,7 @@ def neu_mf():
 
     # AutoML search and predict.
     cf_searcher = Search(tuner='random',
-                         tuner_params={'max_trials': 10, 'overwrite': True},
+                         tuner_params={'max_trials': 100, 'overwrite': True},
                          inputs=input_node,
                          outputs=final_output)
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_BinaryCrossentropy',
