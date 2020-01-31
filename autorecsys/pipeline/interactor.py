@@ -204,15 +204,7 @@ class HyperInteraction(Block):
                                                                     [ "MLPInteraction", "ConcatenateInteraction"],
                                                                     default='ConcatenateInteraction')
             interactors_name.append(tmp_interactor_type)
-
-        print( "interactors_name", interactors_name )
-
-        # outputs = []
-        # for i in range(5):
-        #     output_node = tf.concat(inputs, axis=1)
-        #     outputs.append(output_node)
-        # outputs = tf.concat(outputs, axis=1)
-
+            
         outputs = []
         for i, interactor_name in enumerate( interactors_name ):
             if interactor_name == "MLPInteraction":
@@ -221,9 +213,7 @@ class HyperInteraction(Block):
                 outputs.append(output_node)
 
             if interactor_name == "ConcatenateInteraction":
-                ##TODO: the ConcatenateInteraction may not work correctly
                 output_node = ConcatenateInteraction().build(hp, inputs)
-                # output_node = tf.concat(inputs, axis=1)
                 outputs.append(output_node)
 
             if interactor_name == "RandomSelectInteraction":
