@@ -4,6 +4,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+
+import tensorflow as tf
+gpus = tf.config.experimental.list_physical_devices('GPU')
+print( gpus )
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
 import pandas as pd
 import logging
 import numpy as np
@@ -40,6 +47,7 @@ def neu_mf():
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
 
+    #TODO: The HyperInteraction here may cause a graph cicle bug here
     output = HyperInteraction(meta_interator_num = 4)([user_emb, item_emb])
 
     final_output = PointWiseOptimizer()(output)
