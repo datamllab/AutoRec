@@ -5,8 +5,11 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 import tensorflow as tf
+
+import tensorflow as tf
 gpus = tf.config.experimental.list_physical_devices('GPU')
 print( gpus )
+
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
@@ -40,9 +43,11 @@ def custom_pipeline():
                                   id_num=10001,
                                   embedding_dim=10)(input_node)
 
-    output1 = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
-    # TODO: The HyperInteraction here may cause a graph cicle bug here, must have output1
-    output = HyperInteraction()([output1, user_emb, item_emb])
+    # output1 = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
+    output1 = HyperInteraction()([ user_emb, item_emb])
+    output2 = HyperInteraction()([output1, user_emb, item_emb])
+    output3 = HyperInteraction()([output1, output2,  user_emb, item_emb])
+    output = HyperInteraction()([output1, output2,  output3, user_emb, item_emb])
 
     final_output = RatingPredictionOptimizer()(output)
 
@@ -51,6 +56,7 @@ def custom_pipeline():
                          tuner_params={'max_trials': 100, 'overwrite': True},
                          inputs=input_node,
                          outputs=final_output)
+
 
     # cf_searcher = Search(tuner='hyperband',
     #                         tuner_params={'max_trials': 100, 'overwrite': True},
