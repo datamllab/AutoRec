@@ -41,9 +41,9 @@ def custom_pipeline():
                                   embedding_dim=10)(input_node)
 
     output1 = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
+    # TODO: The HyperInteraction here may cause a graph cicle bug here, must have output1
     output = HyperInteraction()([output1, user_emb, item_emb])
 
-    # ConcatenateInteraction
     final_output = RatingPredictionOptimizer()(output)
 
     # AutoML search and predict.
