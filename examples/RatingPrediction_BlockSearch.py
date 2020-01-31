@@ -2,15 +2,17 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
-import pandas as pd
+import tensorflow as tf
+gpus = tf.config.experimental.list_physical_devices('GPU')
+print( gpus )
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
 import logging
-import numpy as np
-
-from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, ConcatenateInteraction, ElementwiseInteraction
 
 from autorecsys.utils.common import set_device
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
@@ -33,14 +35,16 @@ def custom_pipeline():
     input_node = Input(shape=[2])
     user_emb = LatentFactorMapper(feat_column_id=0,
                                   id_num=10001,
-                                  embedding_dim=20)(input_node)
+                                  embedding_dim=10)(input_node)
     item_emb = LatentFactorMapper(feat_column_id=1,
                                   id_num=10001,
-                                  embedding_dim=20)(input_node)
+                                  embedding_dim=10)(input_node)
 
-    output = HyperInteraction(meta_interator_num = 5)([user_emb, item_emb])
+    output1 = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
+    output = HyperInteraction()([output1, user_emb, item_emb])
+
+    # ConcatenateInteraction
     final_output = RatingPredictionOptimizer()(output)
-
 
     # AutoML search and predict.
     cf_searcher = Search(tuner='random',
