@@ -54,14 +54,15 @@ def mf_pipeline():
 
     output5 = MLPInteraction(units=256)([output4])
 
-
     output6 = ElementwiseInteraction(elementwise_type="innerporduct")([output4, output5])
 
     output7 = ConcatenateInteraction()([output6, output4])
 
     output8 = ConcatenateInteraction()([output6, output4])
 
-    output = ConcatenateInteraction()([output7, output8])
+    output9 = ConcatenateInteraction()([output6, output4])
+
+    output = ConcatenateInteraction()([output7, output8, output9])
 
     final_output = RatingPredictionOptimizer()(output)
 

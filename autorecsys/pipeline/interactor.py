@@ -29,6 +29,13 @@ class RandomSelectInteraction(Block):
             # output_node = Concatenate()(output_node)
             output_node = random.choice(output_node)
             # output_node = tf.reshape(tf.stack(output_node, axis=0), [-1])
+
+            outputs = []
+            for i in range(5):
+                    output_node = tf.concat(inputs, axis=1)
+                    outputs.append(output_node)
+            output_node = tf.concat( outputs, axis=1 )
+
             return output_node
 
 
@@ -50,11 +57,7 @@ class ConcatenateInteraction(Block):
 
         def build(self, hp, inputs=None):
             output_node = nest.flatten(inputs)
-            # output_node = Concatenate()(output_node)
-            output_node = tf.concat(output_node, axis=1  )
-            # output_node = tf.reshape(tf.stack(output_node, axis=0), [-1])
-
-            print(output_node)
+            output_node = tf.concat(output_node, axis=1)
             return output_node
 
 
@@ -83,7 +86,6 @@ class ElementwiseInteraction(Block):
         input_node = nest.flatten(inputs)
 
         shape_set = set()
-
         for input in input_node:
             shape_set.add( input.shape[1] )
         if  len(shape_set) > 1:
@@ -107,7 +109,6 @@ class MLPInteraction(Block):
     """
     multi-layer perceptron interactor
     """
-
     def __init__(self,
                  units=None,
                  num_layers=None,
@@ -192,22 +193,26 @@ class HyperInteraction(Block):
 
     def build(self, hp, inputs=None):
         inputs = nest.flatten(inputs)
-
-
         meta_interator_num =  self.meta_interator_num or hp.Choice('meta_interator_num',
                                                                     [1, 2, 3, 4, 5],
                                                                     default=3)
-
         # inputs = tf.keras.backend.repeat(inputs, n=meta_interator_num)
-
+        # interactors_name = ["MLPInteraction"]
         interactors_name = []
         for i in range( meta_interator_num ):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(i),
-                                                                    [ "MLPInteraction"],
-                                                                    default='MLPInteraction')
+                                                                    [ "MLPInteraction", "ConcatenateInteraction"],
+                                                                    default='ConcatenateInteraction')
             interactors_name.append(tmp_interactor_type)
 
         print( "interactors_name", interactors_name )
+
+        # outputs = []
+        # for i in range(5):
+        #     output_node = tf.concat(inputs, axis=1)
+        #     outputs.append(output_node)
+        # outputs = tf.concat(outputs, axis=1)
+
         outputs = []
         for i, interactor_name in enumerate( interactors_name ):
             if interactor_name == "MLPInteraction":
@@ -226,9 +231,6 @@ class HyperInteraction(Block):
                 output_node = RandomSelectInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
-
-
-        outputs = nest.flatten(outputs)
         outputs = tf.concat(outputs, axis=1)
         return outputs
 
@@ -269,7 +271,6 @@ class FMInteraction(Block):
             )
 
         output_node = input_node
-
         square_of_sum = tf.square(tf.reduce_sum(output_node, axis=1, keepdims=True))
         sum_of_square = tf.reduce_sum(output_node * output_node, axis=1, keepdims=True)
         cross_term = square_of_sum - sum_of_square
