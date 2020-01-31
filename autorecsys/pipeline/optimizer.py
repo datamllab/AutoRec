@@ -8,6 +8,8 @@ class RatingPredictionOptimizer(Block):
     """
     latent factor optimizer for cateory datas
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def build(self, hp, inputs=None):
         input_node = tf.concat(inputs, axis=1)

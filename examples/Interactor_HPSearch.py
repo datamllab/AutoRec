@@ -35,6 +35,7 @@ def mf_pipeline():
     # input_node = StructuredDataInput(column_names=['user_id', 'item_id'])
     input_node = Input(shape=[2])
     # cpu_num should default to None.
+
     user_emb = LatentFactorMapper(feat_column_id=0,
                                   id_num=10000,
                                   embedding_dim=10)(input_node)
@@ -54,14 +55,15 @@ def mf_pipeline():
 
     output5 = MLPInteraction(units=256)([output4])
 
-
     output6 = ElementwiseInteraction(elementwise_type="innerporduct")([output4, output5])
 
     output7 = ConcatenateInteraction()([output6, output4])
 
     output8 = ConcatenateInteraction()([output6, output4])
 
-    output = ConcatenateInteraction()([output7, output8])
+    output9 = ConcatenateInteraction()([output6, output4])
+
+    output = ConcatenateInteraction()([output7, output8, output9])
 
     final_output = RatingPredictionOptimizer()(output)
 
