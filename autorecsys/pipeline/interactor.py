@@ -216,6 +216,53 @@ class HyperInteraction(Block):
         return outputs
 
 
+
+class CrossNetInteraction(Block):
+    """
+
+    """
+    def __init__(self, layer_num=2, l2_reg=0, seed=1024, **kwargs):
+        self.layer_num = layer_num
+        self.l2_reg = l2_reg
+        self.seed = seed
+        super().__init__(**kwargs)
+
+    def get_state(self):
+        state = super().get_state()
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+
+
+    def build(self, hp, inputs=None):
+        input_node = tf.concat(inputs, axis=1)
+        if len(input_node.shape) != 2:
+            raise ValueError(
+                "Unexpected inputs dimensions %d, expect to be 2 dimensions" % len(input_node.shape))
+
+        dim = int(input_node.shape[-1])
+        self.kernels = [self.add_weight(name='kernel' + str(i),
+                                        shape=(dim, 1),
+                                        initializer=glorot_normal(
+                                            seed=self.seed),
+                                        regularizer=l2(self.l2_reg),
+                                        trainable=True) for i in range(self.layer_num)]
+        self.bias = [self.add_weight(name='bias' + str(i),
+                                     shape=(dim, 1),
+                                     initializer=Zeros(),
+                                     trainable=True) for i in range(self.layer_num)]
+        output_node = input_node
+        x_0 = tf.expand_dims(input_node, axis=2)
+        x_l = x_0
+        for i in range(self.layer_num):
+            xl_w = tf.tensordot(x_l, self.kernels[i], axes=(1, 0))
+            dot_ = tf.matmul(x_0, xl_w)
+            x_l = dot_ + self.bias[i] + x_l
+        output_node = tf.squeeze(x_l, axis=2)
+        return output_node 
+
+
 class FMInteraction(Block):
     """
     factorization machine interactor
