@@ -635,6 +635,7 @@ class MultiExecutionTuner(Tuner):
             callbacks.append(model_checkpoint)
 
             model = self.hypermodel.build(trial.hyperparameters)
+            # model.summary()
             history = model.fit(*fit_args, **fit_kwargs, callbacks=callbacks)
 
             for metric, epoch_values in history.history.items():

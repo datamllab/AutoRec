@@ -48,7 +48,6 @@ def custom_pipeline():
     output2 = HyperInteraction()([output1, user_emb, item_emb])
     output3 = HyperInteraction()([output1, output2,  user_emb, item_emb])
     output = HyperInteraction()([output1, output2,  output3, user_emb, item_emb])
-
     final_output = RatingPredictionOptimizer()(output)
 
     # AutoML search and predict.
@@ -57,7 +56,6 @@ def custom_pipeline():
                          inputs=input_node,
                          outputs=final_output)
 
-
     # cf_searcher = Search(tuner='hyperband',
     #                         tuner_params={'max_trials': 100, 'overwrite': True},
     #                         inputs=input_node,
@@ -65,7 +63,6 @@ def custom_pipeline():
     cf_searcher.search(x=train_X, y=train_y, x_val=val_X, y_val=val_y, objective='val_mse', batch_size=1000)
     logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
-
 
 if __name__ == "__main__":
     custom_pipeline()
