@@ -257,7 +257,7 @@ class HyperInteraction(Block):
     def build(self, hp, inputs=None):
         inputs = nest.flatten(inputs)
         meta_interator_num =  self.meta_interator_num or hp.Choice('meta_interator_num',
-                                                                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                                                    [1, 2, 3, 4, 5, 6],
                                                                     default=3)
         # inputs = tf.keras.backend.repeat(inputs, n=meta_interator_num)
         # interactors_name = ["MLPInteraction"]
