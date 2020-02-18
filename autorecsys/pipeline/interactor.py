@@ -93,6 +93,80 @@ class ElementwiseInteraction(Block):
             output_node = tf.add_n(input_node)
         return output_node
 
+class InteractingLayer(Layer):
+    """
+    """
+
+    def __init__(self, att_embedding_size=8, head_num=2, use_res=True, seed=1024, **kwargs):
+        if head_num <= 0:
+            raise ValueError('head_num must be a int > 0')
+        self.att_embedding_size = att_embedding_size
+        self.head_num = head_num
+        self.use_res = use_res
+        self.seed = seed
+        super(InteractingLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        if len(input_shape) != 3:
+            raise ValueError(
+                "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (len(input_shape)))
+        embedding_size = int(input_shape[-1])
+        self.W_Query = self.add_weight(name='query', shape=[embedding_size, self.att_embedding_size * self.head_num],
+                                       dtype=tf.float32,
+                                       initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed))
+        self.W_key = self.add_weight(name='key', shape=[embedding_size, self.att_embedding_size * self.head_num],
+                                     dtype=tf.float32,
+                                     initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed + 1))
+        self.W_Value = self.add_weight(name='value', shape=[embedding_size, self.att_embedding_size * self.head_num],
+                                       dtype=tf.float32,
+                                       initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed + 2))
+        if self.use_res:
+            self.W_Res = self.add_weight(name='res', shape=[embedding_size, self.att_embedding_size * self.head_num],
+                                         dtype=tf.float32,
+                                         initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed))
+
+        # Be sure to call this somewhere!
+        super(InteractingLayer, self).build(input_shape)
+
+    def call(self, inputs, **kwargs):
+        if K.ndim(inputs) != 3:
+            raise ValueError(
+                "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (K.ndim(inputs)))
+
+        querys = tf.tensordot(inputs, self.W_Query,
+                              axes=(-1, 0))  # None F D*head_num
+        keys = tf.tensordot(inputs, self.W_key, axes=(-1, 0))
+        values = tf.tensordot(inputs, self.W_Value, axes=(-1, 0))
+
+        # head_num None F D
+        querys = tf.stack(tf.split(querys, self.head_num, axis=2))
+        keys = tf.stack(tf.split(keys, self.head_num, axis=2))
+        values = tf.stack(tf.split(values, self.head_num, axis=2))
+
+        inner_product = tf.matmul(
+            querys, keys, transpose_b=True)  # head_num None F F
+        self.normalized_att_scores = softmax(inner_product)
+
+        result = tf.matmul(self.normalized_att_scores,
+                           values)  # head_num None F D
+        result = tf.concat(tf.split(result, self.head_num, ), axis=-1)
+        result = tf.squeeze(result, axis=0)  # None F D*head_num
+
+        if self.use_res:
+            result += tf.tensordot(inputs, self.W_Res, axes=(-1, 0))
+        result = tf.nn.relu(result)
+
+        return result
+
+    def compute_output_shape(self, input_shape):
+
+        return (None, input_shape[1], self.att_embedding_size * self.head_num)
+
+    def get_config(self, ):
+        config = {'att_embedding_size': self.att_embedding_size, 'head_num': self.head_num, 'use_res': self.use_res,
+                  'seed': self.seed}
+        base_config = super(InteractingLayer, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
 class MLPInteraction(Block):
     """
