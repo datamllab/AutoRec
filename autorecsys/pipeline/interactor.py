@@ -5,10 +5,8 @@ from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
 from tensorflow.keras.layers import Dense, Input, Concatenate
 import random
-
-# numberList = [111,222,333,444,555]
-# print("random item from list is: ", random.choice(numberList))
-
+import tensorflow as tf
+import numpy as np
 
 class RandomSelectInteraction(Block):
         """
@@ -73,6 +71,8 @@ class ElementwiseInteraction(Block):
 
     def build(self, hp, inputs=None):
         input_node = nest.flatten(inputs)
+        print( "input_node shape:", len( input_node ) )
+        input_node = tf.keras.preprocessing.sequence.pad_sequences(input_node, padding='post', truncating='post', value=0)
 
         shape_set = set()
         for input in input_node:
@@ -81,7 +81,7 @@ class ElementwiseInteraction(Block):
             raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
 
         elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
-                                                                ["sum", "average", "innerporduct" ],
+                                                                ["sum", "average", "innerporduct", "max", "min" ],
                                                                 default='average')
         if elementwise_type == "sum":
             output_node = tf.add_n( input_node )
@@ -89,8 +89,13 @@ class ElementwiseInteraction(Block):
             output_node = tf.reduce_mean(input_node, axis=0)
         elif elementwise_type == "innerporduct":
             output_node = tf.reduce_prod( input_node, axis=0 )
+        elif elementwise_type == "max":
+            output_node = tf.reduce_max(input_node, axis=[0])
+        elif elementwise_type == "min":
+            output_node = tf.reduce_min(input_node, axis=[0])
         else:
             output_node = tf.add_n(input_node)
+        print( "output_node.shape", output_node.shape )
         return output_node
 
 
@@ -190,7 +195,7 @@ class HyperInteraction(Block):
         interactors_name = []
         for i in range( meta_interator_num ):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(i),
-                                                                    [ "MLPInteraction", "ConcatenateInteraction", "RandomSelectInteraction"],
+                                                                    [ "MLPInteraction", "ConcatenateInteraction", "RandomSelectInteraction", "ElementwiseInteraction"],
                                                                     default='ConcatenateInteraction')
             interactors_name.append(tmp_interactor_type)
 
@@ -209,6 +214,10 @@ class HyperInteraction(Block):
 
             if interactor_name == "RandomSelectInteraction":
                 output_node = RandomSelectInteraction().build(hp, inputs)
+                outputs.append(output_node)
+
+            if interactor_name == "ElementwiseInteraction":
+                output_node = ElementwiseInteraction().build(hp, inputs)
                 outputs.append(output_node)
 
         outputs = tf.concat(outputs, axis=1)
