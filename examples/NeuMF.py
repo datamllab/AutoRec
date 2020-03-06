@@ -26,7 +26,7 @@ def neu_mf():
 
     # # load dataset
     ml_1m = Movielens1MCTRPreprocessor( "./tests/datasets/ml-1m/ratings.dat" )
-    ml_1m.preprocessing(test_size=0.1, random_state=1314, num_neg=10)
+    ml_1m.preprocessing(test_size=0.1, random_state=1314, num_neg=10, mult=2)
     train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
 
@@ -50,11 +50,7 @@ def neu_mf():
 
     innerproduct_output = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb_gmf, item_emb_gmf])
 
-    mlp_output = MLPInteraction(units=hp_module.Choice('units', [128, 256]),
-                                num_layers=hp_module.Choice('num_layers', [3, 4], default=3),
-                                use_batchnorm=False,
-                                dropout_rate=hp_module.Choice('dropout_rate',
-                                                              [0.0, 0.1, 0.5]))([user_emb_mlp, item_emb_mlp])
+    mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 
     final_output = PointWiseOptimizer()([innerproduct_output, mlp_output])
 
