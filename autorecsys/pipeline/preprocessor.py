@@ -118,25 +118,38 @@ class Movielens1MCTRPreprocessor(BasePointWiseProprocessor):
                                    dtype=self.dtype_dict)
         self.pd_data = self.pd_data[self.used_columns_names]
 
-    def _negative_sampling(self, input_df, num_neg):
+    def _negative_sampling(self, input_df, num_neg, mult=1):
         """ Add a column of negative item IDs to the input DataFrame
         :param input_df: DataFrame user-item interactions with columns=[user_id, item_id, rating]
-        :param num_neg: Integer number of negative interaction to sample per user-item interaction
+        :param num_neg: Integer number of negative interaction to sample per user-item interaction (cannot be 0)
+        :param mult: Integer multiplier for boosting the rank of negative item candidates in case of deficiency
         :return: DataFrame user-item interactions with columns=[user_id, item_id, rating, neg_item_ids]
+        TODO: proper mult should be calculated by program and not asking user to specify
+        TODO: notice a positive relation may receive duplicated negatively sampled items; consider this universal but may require attention
         """
-        # Find candidate items for negative sampling
-        items = set(input_df['item_id'].unique())
-        pos_items = input_df.groupby('user_id')['item_id'].apply(set)
-        neg_items = items - pos_items
-        input_df['neg_item_ids'] = input_df['user_id'].map(neg_items)
+        # Find candidate negative items (CNI) for each user
+        item_set = set(input_df['item_id'].unique())
+        u_pi_series = input_df.groupby('user_id')['item_id'].apply(set)  # series where index=user & data=positive items
+        u_cni_series = item_set - u_pi_series  # series where index=user & data=candidate negative items
 
-        # Find negative relations by negative sampling
-        input_df['neg_item_ids'] = input_df['neg_item_ids'].agg(lambda x: np.random.permutation(list(x))[:num_neg])
+        # Find sampled negative items (SNI) for each user
+        u_sni_series = u_cni_series.agg(  # series where index=user & data=sampled negative items
+            lambda x: np.random.RandomState().permutation(list(x)*num_neg*mult)[:num_neg * (len(item_set) - len(x))])
+
+        # Distribute SNI to positive user-item interactions by chunk
+        u_snic_series = u_sni_series.agg(  # series where index=user & data=sampled negative item chunks (SNIC)
+            lambda x: [x[i*num_neg: (i+1)*num_neg] for i in range(int(len(x)/num_neg))])
+
+        # Distribute SNIC to users
+        u_snic_df = u_snic_series.to_frame().apply(pd.Series.explode).reset_index()
+
+        # Add SNI to input DataFrame
+        input_df["neg_item_ids"] = u_snic_df["item_id"]
 
         return input_df
 
-    def preprocessing(self, test_size, num_neg, random_state):
-        compact_data = self._negative_sampling(self.pd_data, num_neg=num_neg)
+    def preprocessing(self, test_size, num_neg, random_state, mult):
+        compact_data = self._negative_sampling(self.pd_data, num_neg=num_neg, mult=mult)
         compact_X = compact_data.loc[:, compact_data.columns != 'rating']
         compact_y = compact_data[['rating']]
         compact_train_X, compact_val_X, compact_train_y, compact_val_y = train_test_split(compact_X, compact_y,
