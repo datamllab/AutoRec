@@ -27,7 +27,7 @@ def mf_pipeline():
     # set_device('cpu:0')
 
     # # load dataset
-    ml_1m = Movielens1MPreprocessor("./tests/datasets/ml-1m/ratings.dat")
+    ml_1m = Movielens1MPreprocessor("./examples/datasets/ml-1m/ratings.dat")
     ml_1m.preprocessing(test_size=0.1, random_state=1314)
     train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
@@ -36,12 +36,13 @@ def mf_pipeline():
     # cpu_num should default to None.
     user_emb = LatentFactorMapper(feat_column_id=0,
                                   id_num=10000,
-                                  embedding_dim=10)(input_node)
+                                  embedding_dim=128)(input_node)
     item_emb = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
-                                  embedding_dim=10)(input_node)
+                                  embedding_dim=128)(input_node)
 
-    innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb, item_emb])
+    # innerproduct = ElementwiseInteraction(elementwise_type = "innerporduct")([user_emb, item_emb])
+    innerproduct = ElementwiseInteraction(elementwise_type="max")([user_emb, item_emb])
     final_output = RatingPredictionOptimizer()(innerproduct)
 
     cf_searcher = Search(tuner='hyperband',
