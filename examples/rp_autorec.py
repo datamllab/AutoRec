@@ -7,7 +7,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import logging
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction
-from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
+from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # Load dataset
-ml_1m = Movielens1MPreprocessor("./examples/datasets/ml-1m/ratings.dat")
+ml_1m = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
 ml_1m.preprocessing(test_size=0.1, random_state=1314)
 train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
@@ -34,7 +34,7 @@ output4 = HyperInteraction()([output1, output2, output3, user_emb, item_emb])
 output = RatingPredictionOptimizer()(output4)
 
 # AutoML search and predict.
-cf_searcher = Search(tuner='random',
+cf_searcher = Search(tuner='random', ## hyperband, bayesian
                      tuner_params={'max_trials': 100, 'overwrite': True},
                      inputs=input,
                      outputs=output)

@@ -80,19 +80,20 @@ class BasePairWiseProprocessor(BaseProprocessor):
         raise NotImplementedError
 
 
-class Movielens1MPreprocessor(BaseRatingPredictionProprocessor):
+class MovielensPreprocessor(BaseRatingPredictionProprocessor):
 
     used_columns_names: List[str]
 
-    def __init__(self, dataset_path):
-        super(Movielens1MPreprocessor, self).__init__(dataset_path=dataset_path, )
+    def __init__(self, dataset_path, sep='::'):
+        super(MovielensPreprocessor, self).__init__(dataset_path=dataset_path, )
         self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
         self.used_columns_names = ["user_id", "item_id", "rating"]
         self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
+        self.sep = sep
         self._load_data()
 
     def _load_data(self):
-        self.pd_data = pd.read_csv(self.dataset_path, sep="::", header=None, names=self.columns_names,
+        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
                                    dtype=self.dtype_dict)
         self.pd_data = self.pd_data[self.used_columns_names]
 
@@ -103,17 +104,18 @@ class Movielens1MPreprocessor(BaseRatingPredictionProprocessor):
                                                                               random_state=random_state)
 
 
-class Movielens1MCTRPreprocessor(BasePointWiseProprocessor):
+class MovielensCTRPreprocessor(BasePointWiseProprocessor):
 
-    def __init__(self, dataset_path):
-        super(Movielens1MCTRPreprocessor, self).__init__(dataset_path=dataset_path)
+    def __init__(self, dataset_path, sep='::'):
+        super(MovielensCTRPreprocessor, self).__init__(dataset_path=dataset_path)
         self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
         self.used_columns_names = ["user_id", "item_id", "rating"]
         self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
+        self.sep = sep
         self._load_data()
 
     def _load_data(self):
-        self.pd_data = pd.read_csv(self.dataset_path, sep="::", header=None, names=self.columns_names,
+        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
                                    dtype=self.dtype_dict)
         self.pd_data = self.pd_data[self.used_columns_names]
 
@@ -185,8 +187,3 @@ class Movielens1MCTRPreprocessor(BasePointWiseProprocessor):
         expanded_val_data = expand(compact_val_X, compact_val_y)
         self.val_X = (expanded_val_data.loc[:, expanded_val_data.columns != 'rating']).values
         self.val_y = expanded_val_data['rating'].values
-
-
-class TabularPreprocessor(BaseProprocessor):
-    def __init__(self, config):
-        super(TabularPreprocessor, self).__init__(config)
