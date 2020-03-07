@@ -72,7 +72,7 @@ class ElementwiseInteraction(Block):
     def build(self, hp, inputs=None):
         input_node = nest.flatten(inputs)
         print( "input_node shape:", len( input_node ) )
-        input_node = tf.keras.preprocessing.sequence.pad_sequences(input_node, padding='post', truncating='post', value=0)
+        # input_node = tf.keras.preprocessing.sequence.pad_sequences(input_node, padding='post', truncating='post', value=0)
 
         shape_set = set()
         for input in input_node:

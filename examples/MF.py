@@ -45,7 +45,7 @@ def mf_pipeline():
     innerproduct = ElementwiseInteraction(elementwise_type="max")([user_emb, item_emb])
     final_output = RatingPredictionOptimizer()(innerproduct)
 
-    cf_searcher = Search(tuner='hyperband',
+    cf_searcher = Search(tuner='bayesian',
                          tuner_params={"max_trials": 20},
                          inputs=input_node,
                          outputs=final_output)

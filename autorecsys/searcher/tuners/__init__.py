@@ -1,9 +1,11 @@
 from .randomsearch import RandomSearch
 from .hyperband import Hyperband
+from .bayesian import BayesianOptimization
 
 TUNER_CLASSES = {
     'random': RandomSearch,
     'hyperband': Hyperband,
+    'bayesian': BayesianOptimization,
 }
 
 

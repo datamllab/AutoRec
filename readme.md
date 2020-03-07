@@ -21,7 +21,7 @@ from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction
 from autorecsys.pipeline.preprocessor import Movielens1MPreprocessor
 
-# load dataset
+# Load dataset
 ml_1m = Movielens1MPreprocessor( "./examples/datasets/ml-1m/ratings.dat" )
 ml_1m.preprocessing(test_size=0.1, random_state=1314)
 train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
