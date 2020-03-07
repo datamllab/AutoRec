@@ -133,7 +133,6 @@ The following models are benchmarked:
 |Hp search|0.0000|0.0000|0.0000|
 |Block Search|0.0000|0.0000|0.0000|
 
-
 Accuary and NDCG are the Accuary and Normalized Discounted Cumulative Gain.
 
 Time, for the baseline model, is the total training time; for the automated model, is the total search and training time.
