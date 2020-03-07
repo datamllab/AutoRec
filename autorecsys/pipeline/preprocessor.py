@@ -49,7 +49,6 @@ class BasePointWiseProprocessor(BaseProprocessor):
     for PointWise recommendation methods, CTR
     for PointWise recommendation methods, rating prediction for Movielens
     and can also for the similar dataset
-
     """
 
     @abstractmethod
