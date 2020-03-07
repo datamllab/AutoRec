@@ -13,9 +13,9 @@ The statistics of the dataset are as follow:
 
 |Dataset|#user|#item|#interaction|
 |---|---:|---:|---:|
-|[Movelens100k](#Movelens100k)|10000|10000|10000|
-|[Movelens1m](#ml1m)|10000|10000|10000|
-|[Movelens_latest](#mllatest)|10000|10000|10000|
+|[Movelens1m](#Movelens100k)|6,040|3,900|1,000,209|
+|[Movelens10m](#Movelens10M)|71,567|10,681|10,000,054|
+|[Movelens_latest](#Movelens_latest)|283,228|58,098|27,753,444|
 |[Netflix](#netflix)|10000|10000|10000|
 
 
@@ -38,7 +38,7 @@ this allows fair comparisons between different models.
 
 The following models are benchmarked:
 
-## Movelens100k
+## Movelens1M
 |Movelens100k|MSE|MAE|Time(s)|
 |---|---:|---:|---:|
 |MF|0.0000|0.0000|0.0000|
@@ -50,7 +50,7 @@ The following models are benchmarked:
 |AutoRec_hyperband|0.0000|0.0000|0.0000|
 
 
-## Movelens1M
+## Movelens10M
 |Movelens1M|MSE|MAE|Time(s)|
 |---|---:|---:|---:|
 |MF|0.0000|0.0000|0.0000|

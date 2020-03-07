@@ -7,7 +7,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 import logging
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, PointWiseOptimizer, ElementwiseInteraction
-from autorecsys.pipeline.preprocessor import Movielens1MCTRPreprocessor
+from autorecsys.pipeline.preprocessor import MovielensCTRPreprocessor
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # load dataset
-ml_1m = Movielens1MCTRPreprocessor("./examples/datasets/ml-1m/ratings.dat")
+ml_1m = MovielensCTRPreprocessor("./examples/datasets/ml-1m/ratings.dat")
 ml_1m.preprocessing(test_size=0.1, random_state=1314, num_neg=10, mult=2)
 train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
