@@ -21,7 +21,7 @@ train_X = [mini_criteo['X_int'].astype(np.float32), mini_criteo['X_cat'].astype(
 train_y = mini_criteo['y']
 val_X, val_y = train_X, train_y
 
-# Build the pipeline.
+# build the pipeline.
 dense_input_node = Input(shape=[13])
 sparse_input_node = Input(shape=[26])
 dense_feat_emb = DenseFeatureMapper(
