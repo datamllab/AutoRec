@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # # load dataset
 ml_1m = Movielens1MCTRPreprocessor("./examples/datasets/ml-1m/ratings.dat")
-ml_1m.preprocessing(test_size=0.1, random_state=1314, num_neg=10)
+ml_1m.preprocessing(test_size=0.1, random_state=1314, num_neg=10, mult=2)
 train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
 # Build the pipeline.
@@ -28,11 +28,7 @@ user_emb_mlp = LatentFactorMapper(feat_column_id=0,
 item_emb_mlp = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
                                   embedding_dim=10)(input)
-output = MLPInteraction(units=hp_module.Choice('units', [128, 256]),
-                        num_layers=hp_module.Choice('num_layers', [3, 4], default=3),
-                        use_batchnorm=False,
-                        dropout_rate=hp_module.Choice('dropout_rate',
-                                                      [0.0, 0.1, 0.5]))([user_emb_mlp, item_emb_mlp])
+output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 output = PointWiseOptimizer()(output)
 
 # AutoML search and predict

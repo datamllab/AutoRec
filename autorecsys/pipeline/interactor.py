@@ -169,7 +169,7 @@ class MLPInteraction(Block):
 
 
 class HyperInteraction(Block):
-    """Module for selecting different block. This block includes can select different blcok in the interactor from the setting.
+    """Module for selecting different block. This block includes can select different blocks in the interactor.
     # Attributes:
         meta_interator_num (str). The total number of the meta interoctor block.
         interactor_type (str).  The type of interactor used in this block.
@@ -223,7 +223,6 @@ class HyperInteraction(Block):
             if interactor_name == "ElementwiseInteraction":
                 output_node = ElementwiseInteraction().build(hp, inputs)
                 outputs.append(output_node)
-
         outputs = tf.concat(outputs, axis=1)
         return outputs
 
