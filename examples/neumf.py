@@ -48,6 +48,6 @@ cf_searcher.search(x=train_X,
                    x_val=val_X,
                    y_val=val_y,
                    objective='val_BinaryCrossentropy',
-                   batch_size=10000)
+                   batch_size=256)
 logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
 logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))

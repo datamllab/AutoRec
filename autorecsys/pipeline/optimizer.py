@@ -5,8 +5,9 @@ from autorecsys.pipeline.base import Block
 
 
 class RatingPredictionOptimizer(Block):
-    """
-    latent factor optimizer for cateory datas
+    """Module for rating prediction task.
+    # Attributes:
+        None.
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -28,10 +29,10 @@ class RatingPredictionOptimizer(Block):
 
 
 class PointWiseOptimizer(Block):
+    """Module for click through rate prediction.
+    # Attributes:
+        None.
     """
-    latent factor optimizer for category data
-    """
-
     def build(self, hp, inputs=None):
         input_node = tf.concat(inputs, axis=1)
         output_node = tf.keras.layers.Dense(1, activation='sigmoid')(input_node)
