@@ -27,7 +27,6 @@ class RatingPredictionOptimizer(Block):
         return tf.keras.losses.MeanSquaredError(name='mse')
 
 
-
 class PointWiseOptimizer(Block):
     """Module for click through rate prediction.
     # Attributes:

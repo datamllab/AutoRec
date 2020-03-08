@@ -110,7 +110,7 @@ class MLPInteraction(Block):
     """Module for MLP operation. This block can seted as MLP with different layer, unit, and other setting .
     # Attributes:
         units (int). The units of all layer in the MLP block.
-        num_layers (int). The number of the layers in the MLP blck
+        num_layers (int). The number of the layers in the MLP block
         use_batchnorm (Boolean). Use batch normalization or not.
         dropout_rate(float). The value of drop out in the last layer of MLP.
     """
