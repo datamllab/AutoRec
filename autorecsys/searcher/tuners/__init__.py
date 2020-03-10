@@ -1,9 +1,11 @@
 from .randomsearch import RandomSearch
 from .bayesian import BayesianOptimization
+from .greedy import Greedy
 
 TUNER_CLASSES = {
     'random': RandomSearch,
     'bayesian': BayesianOptimization,
+    "greedy": Greedy
 }
 
 
