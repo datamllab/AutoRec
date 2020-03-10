@@ -2,12 +2,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 import logging
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, PointWiseOptimizer, ElementwiseInteraction
 from autorecsys.pipeline.preprocessor import MovielensCTRPreprocessor
+from autorecsys.recommender import CTRRecommender
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -29,12 +31,12 @@ item_emb = LatentFactorMapper(feat_column_id=1,
                               embedding_dim=128)(input)
 output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
 output = PointWiseOptimizer()(output)
+model = CTRRecommender(inputs=input, outputs=output)
 
 # AutoML search and predict
-cf_searcher = Search(tuner='bayesian',
-                     tuner_params={"max_trials": 20},
-                     inputs=input,
-                     outputs=output)
+cf_searcher = Search(model=model,
+                     tuner='bayesian',
+                     tuner_params={"max_trials": 20})
 cf_searcher.search(x=train_X,
                    y=train_y,
                    x_val=val_X,

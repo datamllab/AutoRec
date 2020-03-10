@@ -1,5 +1,4 @@
 from .randomsearch import RandomSearch
-from .hyperband import Hyperband
 from .bayesian import BayesianOptimization
 
 TUNER_CLASSES = {
@@ -13,5 +12,4 @@ def get_tuner_class(tuner):
         return TUNER_CLASSES.get(tuner)
     else:
         raise ValueError('The value {tuner} passed for argument tuner is invalid, '
-                         'expected one of "random", "hyperband", '
-                         '"bayesian".'.format(tuner=tuner))
+                         'expected one of "random","bayesian".'.format(tuner=tuner))

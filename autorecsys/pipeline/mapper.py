@@ -45,14 +45,16 @@ class LatentFactorMapper(Block):
     def build(self, hp, inputs=None):
         input_node = inputs
         id_num = self.id_num or hp.Choice('id_num', [10000], default=10000)
-        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16, 32], default=8)
+        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16, 32, 64, 128], default=32)
         output_node = tf.keras.layers.Embedding(id_num, embedding_dim)(input_node[0][:, self.feat_column_id])
         return output_node
 
 
 class DenseFeatureMapper(Block):
-    """
-    dense feature mapper for dense type features
+    """Mapper for dense feature that can map dense feature to embedding.
+    # Attributes:
+        num_of_fields (int): the number of feature fields.
+        embedding_dim (int): The embedding size of the latent factor.
     """
 
     def __init__(self,
@@ -89,8 +91,11 @@ class DenseFeatureMapper(Block):
 
 
 class SparseFeatureMapper(Block):
-    """
-    sparse feature mapper for categorical type features
+    """Mapper for sparse feature  that can map categorical features to embedding.
+    # Attributes:
+        num_of_fields (int): the number of feature fields.
+        hash_size (int): size for every feature.
+        embedding_dim (int): The embedding size of the latent factor.
     """
 
     def __init__(self,
