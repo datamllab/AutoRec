@@ -102,7 +102,6 @@ class ElementwiseInteraction(Block):
             output_node = tf.reduce_min(input_node, axis=[0])
         else:
             output_node = tf.add_n(input_node)
-        print("output_node.shape", output_node.shape)
         return output_node
 
 
@@ -122,10 +121,16 @@ class MLPInteraction(Block):
                  dropout_rate=None,
                  **kwargs):
         super().__init__(**kwargs)
+        # self.fixed_params = []
+        # self.tunable_candidates = ['units', 'num_layers', 'use_batchnorm', 'dropout_rate']
+        # self.params = ['units', 'num_layers', 'use_batchnorm', 'dropout_rate']
         self.units = units
         self.num_layers = num_layers
         self.use_batchnorm = use_batchnorm
         self.dropout_rate = dropout_rate
+
+        # self._check_fixed()
+        # self._hyperparameters = self._get_hyperparameters()
 
     def get_state(self):
         state = super().get_state()
@@ -144,6 +149,7 @@ class MLPInteraction(Block):
         self.dropout_rate = state['dropout_rate']
 
     def build(self, hp, inputs=None):
+        print( "mlp hp:", hp )
         inputs = nest.flatten(inputs)
         input_node = tf.concat(inputs, axis=1)
         output_node = input_node
@@ -179,6 +185,7 @@ class HyperInteraction(Block):
         super().__init__(**kwargs)
         self.meta_interator_num = meta_interator_num
         self.interactor_type = interactor_type
+
 
     def get_state(self):
         state = super().get_state()

@@ -91,7 +91,6 @@ def build_autorec():
 
 
 if __name__ == '__main__':
-
     # parse args
     parser = argparse.ArgumentParser()
     parser.add_argument('-model', type=str, help='input a model name')
@@ -99,6 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('-data_path', type=str, help='dataset path')
     parser.add_argument('-search', type=str, help='input a search method name')
     parser.add_argument('-batch_size', type=int, help='batch size')
+    parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
     print("args:", args)
 
@@ -124,7 +124,7 @@ if __name__ == '__main__':
 
     # search and predict.
     cf_searcher = Search(tuner=args.search,  ## hyperband, bayesian
-                         tuner_params={'max_trials': 10, 'overwrite': True},
+                         tuner_params={'max_trials': args.trials, 'overwrite': True},
                          inputs=input,
                          outputs=output)
     cf_searcher.search(x=train_X,

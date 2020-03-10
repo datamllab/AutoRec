@@ -33,8 +33,8 @@ output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item
 output = RatingPredictionOptimizer()(output)
 
 # AutoML search and predict
-cf_searcher = Search(tuner='bayesian',
-                     tuner_params={"max_trials": 20},
+cf_searcher = Search(tuner='bayesian', #hyperband
+                     tuner_params={"max_trials": 5},
                      inputs=input,
                      outputs=output)
 cf_searcher.search(x=train_X,
@@ -42,6 +42,6 @@ cf_searcher.search(x=train_X,
                    x_val=val_X,
                    y_val=val_y,
                    objective='val_mse',
-                   batch_size=1024)
+                   batch_size=10240)
 logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
 logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
