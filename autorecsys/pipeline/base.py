@@ -145,6 +145,7 @@ class Block(HyperModel, Stateful):
     #             raise ValueError(f'{fixed_param_name} can not be set as hyper-parameters in the '
     #                              f'{self.__class__.__name__}, it must be fixed')
     #
+
     # def _get_hyperparameters(self):
     #     if self.tunable_candidates is None or self.fixed_params is None:
     #         raise TypeError('tunable_candidates and fixed_params can not be None, it should '
@@ -155,6 +156,14 @@ class Block(HyperModel, Stateful):
     #         if not isinstance(param_val, hp_module.HyperParameter):
     #             param_val = hp_module.Fixed(param_name, param_val)
     #         hyperparameters[param_name] = param_val
+    #     return hyperparameters
+
+    # def _get_hyperparameters(self):
+    #     hyperparameters = {}
+    #     for param_name in self.params:
+    #         param_val = getattr(self, param_name)
+    #         if param_val is None:
+    #             hyperparameters[param_name] = param_val
     #     return hyperparameters
 
 

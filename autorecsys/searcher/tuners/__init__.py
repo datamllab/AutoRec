@@ -4,7 +4,6 @@ from .bayesian import BayesianOptimization
 
 TUNER_CLASSES = {
     'random': RandomSearch,
-    'hyperband': Hyperband,
     'bayesian': BayesianOptimization,
 }
 

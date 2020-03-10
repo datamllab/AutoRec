@@ -431,6 +431,7 @@ class HyperGraph(Graph):
         hps = hp_module.HyperParameters()
         for block in self._blocks:
             params_dict = block.hyperparameters
+            print( "params_dict：", params_dict )
             if params_dict:
                 with hps.name_scope(block.name):
                     for param_name, single_hp in params_dict.items():

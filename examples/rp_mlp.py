@@ -31,8 +31,10 @@ output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 output = RatingPredictionOptimizer()(output)
 
 # AutoML search and predict
-cf_searcher = Search(tuner='random',
-                     tuner_params={'max_trials': 10, 'overwrite': True},
+
+
+cf_searcher = Search(tuner='random', #bayesian, random
+                     tuner_params={'max_trials': 2, 'overwrite': True},
                      inputs=input,
                      outputs=output)
 cf_searcher.search(x=train_X,

@@ -50,11 +50,13 @@ class Search(object):
         # overwrite the objective
         self.objective = objective or 'mse'
         tuner = self._build_tuner(self.tuner, self.tuner_params)
+
+        print( "tuner:", tuner )
         # show the search space
-        tuner.search_space_summary()
 
         # TODO search on a small piece of train data, currently it uses whole train data
         tuner.search(x=x, y=y, x_val=x_val, y_val=y_val, batch_size=batch_size)
+        tuner.search_space_summary()
         tuner.results_summary()
         best_pipe_lists = tuner.get_best_models(1)
         # len(best_pipe_lists) == 0 means that this pipeline does not have tunable parameters
@@ -68,11 +70,14 @@ class Search(object):
     def _build_tuner(self, tuner, tuner_params):
         tuner_cls = tuners.get_tuner_class( tuner )
         hps = self.pipe.get_hyperparameters()
+        print( "hps:", hps )
+        print("hps len:", len(hps.space))
         tuner = tuner_cls(hypergraph=self.pipe,
                           objective=self.objective,
                           hyperparameters=hps,
                           directory=self.dir,
                           **tuner_params)
+        print( "tuner:", tuner )
         return tuner
 
     def predict(self, x):
