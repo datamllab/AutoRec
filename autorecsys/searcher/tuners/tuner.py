@@ -272,8 +272,6 @@ class BaseTuner(trial_module.Stateful):
         """
         display.section('Search space summary')
         hp = self.oracle.get_space()
-        print( "self.oracle.get_space hp:", hp )
-        print("self.oracle.get_space len hp:", len(hp.space))
         display.display_setting(
             'Default search space size: %d' % len(hp.space))
         for p in hp.space:

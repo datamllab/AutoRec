@@ -55,7 +55,6 @@ def set_device(device_name):
         tf.config.experimental.set_visible_devices(gpus[gpu_idx], 'GPU')
 
 
-# TODO: do we need this?
 def load_dataframe_input(x):
     if x is None:
         return None
@@ -73,16 +72,5 @@ def load_dataframe_input(x):
     if isinstance(res, pd.DataFrame):
         res.columns = res.columns.astype('str')
     return res
-
-
-# TODO: do we need this?
-def preprocess_xy(x, y):
-    x = load_dataframe_input(x)
-    y = load_dataframe_input(y)
-    if x is not None and y is not None:
-        n_instance = y.shape[0]
-        if x.shape[0] != n_instance:
-            raise ValueError('Input in x should have equal #instance with y')
-    return x, y
 
 

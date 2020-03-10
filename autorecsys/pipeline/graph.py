@@ -5,7 +5,6 @@ import functools
 from autorecsys.searcher.core.trial import Stateful
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.pipeline import base
-from autorecsys.pipeline import compiler
 
 import tensorflow as tf
 from tensorflow.python.util import nest
@@ -431,7 +430,6 @@ class HyperGraph(Graph):
         hps = hp_module.HyperParameters()
         for block in self._blocks:
             params_dict = block.hyperparameters
-            print( "params_dict：", params_dict )
             if params_dict:
                 with hps.name_scope(block.name):
                     for param_name, single_hp in params_dict.items():
