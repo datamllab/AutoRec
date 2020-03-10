@@ -43,7 +43,7 @@ model = RPRecommender(inputs=input, outputs=output)
 
 # AutoML search and predict
 cf_searcher = Search(model=model,
-                     tuner='bayesian',  # hyperband, random
+                     tuner='greedy',  # random, greedy
                      tuner_params={"max_trials": 5, 'overwrite': True}
                      )
 cf_searcher.search(x=train_X,
