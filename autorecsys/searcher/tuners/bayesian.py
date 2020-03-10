@@ -318,14 +318,13 @@ class BayesianOptimization(PipeTuner):
                  tune_new_entries=True,
                  allow_new_entries=True,
                  **kwargs):
-        oracle = BayesianOptimizationOracle(
-            objective=objective,
-            max_trials=max_trials,
-            num_initial_points=num_initial_points,
-            seed=seed,
-            hyperparameters=hyperparameters,
-            tune_new_entries=tune_new_entries,
-            allow_new_entries=allow_new_entries)
+        oracle = BayesianOptimizationOracle(objective=objective,
+                                            max_trials=max_trials,
+                                            num_initial_points=num_initial_points,
+                                            seed=seed,
+                                            hyperparameters=hyperparameters,
+                                            tune_new_entries=tune_new_entries,
+                                            allow_new_entries=allow_new_entries)
         super(BayesianOptimization, self, ).__init__(oracle,
                                                      hypergraph,
                                                      **kwargs)

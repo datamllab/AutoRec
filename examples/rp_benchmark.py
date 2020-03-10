@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 import logging
@@ -10,6 +11,7 @@ from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
     ElementwiseInteraction
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
+from autorecsys.recommender import RPRecommender
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -27,7 +29,8 @@ def build_mf():
                                   embedding_dim=128)(input)
     output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
-    return input, output
+    model = RPRecommender(inputs=input, outputs=output)
+    return model
 
 
 def build_gmf():
@@ -40,7 +43,8 @@ def build_gmf():
                                   embedding_dim=10)(input)
     output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
-    return input, output
+    model = RPRecommender(inputs=input, outputs=output)
+    return model
 
 
 def build_mlp():
@@ -53,7 +57,9 @@ def build_mlp():
                                       embedding_dim=10)(input)
     output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
     output = RatingPredictionOptimizer()(output)
-    return input, output
+    model = RPRecommender(inputs=input, outputs=output)
+    return model
+
 
 def build_neumf():
     input = Input(shape=[2])
@@ -74,7 +80,8 @@ def build_neumf():
     mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 
     output = RatingPredictionOptimizer()([innerproduct_output, mlp_output])
-    return input, output
+    model = RPRecommender(inputs=input, outputs=output)
+    return model
 
 
 def build_autorec():
@@ -87,11 +94,11 @@ def build_autorec():
                                   embedding_dim=10)(input)
     output = HyperInteraction()([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
-    return input, output
+    model = RPRecommender(inputs=input, outputs=output)
+    return model
 
 
 if __name__ == '__main__':
-
     # parse args
     parser = argparse.ArgumentParser()
     parser.add_argument('-model', type=str, help='input a model name')
@@ -99,6 +106,7 @@ if __name__ == '__main__':
     parser.add_argument('-data_path', type=str, help='dataset path')
     parser.add_argument('-search', type=str, help='input a search method name')
     parser.add_argument('-batch_size', type=int, help='batch size')
+    parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
     print("args:", args)
 
@@ -112,21 +120,21 @@ if __name__ == '__main__':
 
     # select model
     if args.model == 'mf':
-        input, output = build_mf()
+        model = build_mf()
     if args.model == 'mlp':
-        input, output = build_mlp()
+        model = build_mlp()
     if args.model == 'gmf':
-        input, output = build_gmf()
+        model = build_gmf()
     if args.model == 'neumf':
-        input, output = build_neumf()
+        model = build_neumf()
     if args.model == 'autorec':
-        input, output = build_autorec()
+        model = build_autorec()
 
     # search and predict.
-    cf_searcher = Search(tuner=args.search,  ## hyperband, bayesian
-                         tuner_params={'max_trials': 10, 'overwrite': True},
-                         inputs=input,
-                         outputs=output)
+    cf_searcher = Search(model=model,
+                         tuner=args.search,  ## hyperband, bayesian
+                         tuner_params={'max_trials': args.trials, 'overwrite': False}
+                         )
     cf_searcher.search(x=train_X,
                        y=train_y,
                        x_val=val_X,

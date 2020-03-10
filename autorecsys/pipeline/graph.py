@@ -5,7 +5,6 @@ import functools
 from autorecsys.searcher.core.trial import Stateful
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.pipeline import base
-from autorecsys.pipeline import compiler
 
 import tensorflow as tf
 from tensorflow.python.util import nest

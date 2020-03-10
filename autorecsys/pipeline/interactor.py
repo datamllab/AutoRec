@@ -102,7 +102,6 @@ class ElementwiseInteraction(Block):
             output_node = tf.reduce_min(input_node, axis=[0])
         else:
             output_node = tf.add_n(input_node)
-        print("output_node.shape", output_node.shape)
         return output_node
 
 
@@ -179,6 +178,7 @@ class HyperInteraction(Block):
         super().__init__(**kwargs)
         self.meta_interator_num = meta_interator_num
         self.interactor_type = interactor_type
+
 
     def get_state(self):
         state = super().get_state()

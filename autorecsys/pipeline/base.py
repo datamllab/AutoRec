@@ -136,27 +136,6 @@ class Block(HyperModel, Stateful):
         if 'name' in state:
             self.name = state['name']
 
-    # def _check_fixed(self):
-    #     if self.fixed_params is None:
-    #         raise TypeError('fixed_params can not be None, it should be a list of parameters which are fixed')
-    #     for fixed_param_name in self.fixed_params:
-    #         param = getattr(self, fixed_param_name)
-    #         if (not isinstance(param, hp_module.Fixed)) and (isinstance(param, hp_module.HyperParameter)):
-    #             raise ValueError(f'{fixed_param_name} can not be set as hyper-parameters in the '
-    #                              f'{self.__class__.__name__}, it must be fixed')
-    #
-    # def _get_hyperparameters(self):
-    #     if self.tunable_candidates is None or self.fixed_params is None:
-    #         raise TypeError('tunable_candidates and fixed_params can not be None, it should '
-    #                         'be a list of parameters which are tunable')
-    #     hyperparameters = {}
-    #     for param_name in self.tunable_candidates + self.fixed_params:
-    #         param_val = getattr(self, param_name)
-    #         if not isinstance(param_val, hp_module.HyperParameter):
-    #             param_val = hp_module.Fixed(param_name, param_val)
-    #         hyperparameters[param_name] = param_val
-    #     return hyperparameters
-
 
 class HyperBlock(Block):
     """HyperBlock uses hyperparameters to decide inner Block graph.
