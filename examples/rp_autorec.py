@@ -2,7 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 import logging

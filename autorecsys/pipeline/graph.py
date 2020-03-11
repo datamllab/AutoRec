@@ -343,10 +343,11 @@ class KerasGraph(Graph, base.HyperModel):
         optimizer = hp.Choice('optimizer',
                               ['adam',
                                # 'adadelta',
-                               "Adagrad",
-                               "RMSprop",
-                                "AdaMax",
-                               'sgd'])
+                               # "Adagrad",
+                               # "RMSprop",
+                               #  "AdaMax",
+                               # 'sgd'
+                               ])
 
         model.compile(optimizer=optimizer,
                       metrics=self._get_metrics(),

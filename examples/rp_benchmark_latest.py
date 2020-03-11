@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 import logging
 from autorecsys.auto_search import Search
@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 def build_mf():
     input = Input(shape=[2])
     user_emb = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+                                  id_num=300000,
                                   embedding_dim=64)(input)
     item_emb = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+                                  id_num=200000,
                                   embedding_dim=64)(input)
     output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
@@ -35,10 +35,10 @@ def build_mf():
 def build_gmf():
     input = Input(shape=[2])
     user_emb = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+                                  id_num=300000,
                                   embedding_dim=64)(input)
     item_emb = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+                                  id_num=200000,
                                   embedding_dim=64)(input)
     output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
@@ -49,10 +49,10 @@ def build_gmf():
 def build_mlp():
     input = Input(shape=[2])
     user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                      id_num=10000,
+                                      id_num=300000,
                                       embedding_dim=64)(input)
     item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                      id_num=10000,
+                                      id_num=200000,
                                       embedding_dim=64)(input)
     output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
     output = RatingPredictionOptimizer()(output)
@@ -63,18 +63,18 @@ def build_mlp():
 def build_neumf():
     input = Input(shape=[2])
     user_emb_gmf = LatentFactorMapper(feat_column_id=0,
-                                      id_num=10000,
+                                      id_num=300000,
                                       embedding_dim=64)(input)
     item_emb_gmf = LatentFactorMapper(feat_column_id=1,
-                                      id_num=10000,
+                                      id_num=200000,
                                       embedding_dim=64)(input)
     innerproduct_output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb_gmf, item_emb_gmf])
 
     user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                      id_num=10000,
+                                      id_num=300000,
                                       embedding_dim=64)(input)
     item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                      id_num=10000,
+                                      id_num=200000,
                                       embedding_dim=64)(input)
     mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 
@@ -86,21 +86,22 @@ def build_neumf():
 def build_autorec():
     input = Input(shape=[2])
     user_emb_1 = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+                                  id_num=300000,
                                   embedding_dim=64)(input)
     item_emb_1 = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+                                  id_num=200000,
                                   embedding_dim=64)(input)
 
     user_emb_2 = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+                                  id_num=300000,
                                   embedding_dim=64)(input)
     item_emb_2 = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+                                  id_num=200000,
                                   embedding_dim=64)(input)
 
-    output = HyperInteraction()([user_emb_1, item_emb_1, user_emb_2, item_emb_2])
-    output = HyperInteraction()([output, user_emb_1, item_emb_1, user_emb_2, item_emb_2])
+    output_1 = HyperInteraction()([user_emb_1, item_emb_1])
+    output_2 = HyperInteraction()([user_emb_2, item_emb_2])
+    output = HyperInteraction()([output_1, output_2])
     output = RatingPredictionOptimizer()(output)
     model = RPRecommender(inputs=input, outputs=output)
     return model

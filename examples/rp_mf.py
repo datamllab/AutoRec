@@ -29,7 +29,7 @@ user_emb = LatentFactorMapper(feat_column_id=0,
                               embedding_dim=64)(input)
 item_emb = LatentFactorMapper(feat_column_id=1,
                               id_num=10000,
-                              embedding_dim=64)(input)
+                              embedding_dim=28)(input)
 output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
 output = RatingPredictionOptimizer()(output)
 model = RPRecommender(inputs=input, outputs=output)

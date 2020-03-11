@@ -80,12 +80,19 @@ class ElementwiseInteraction(Block):
 
     def build(self, hp, inputs=None):
         input_node = nest.flatten(inputs)
+        print("input_node1:", input_node )
         # input_node = tf.keras.preprocessing.sequence.pad_sequences(input_node, padding='post', truncating='post', value=0)
         shape_set = set()
         for input in input_node:
             shape_set.add(input.shape[1])
         if len(shape_set) > 1:
-            raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
+            # raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
+            input_node_tmp = []
+            min_len = min( shape_set )
+            for input in input_node:
+                input = input[:, -(min_len):]
+                input_node_tmp.append( input )
+            input_node = input_node_tmp
 
         elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
                                                               ["sum", "average", "innerporduct", "max", "min"],
@@ -202,7 +209,7 @@ class HyperInteraction(Block):
         for i in range(meta_interator_num):
             tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(i),
                                                                     ["MLPInteraction", "ConcatenateInteraction",
-                                                                     "RandomSelectInteraction"],
+                                                                     "RandomSelectInteraction", "ElementwiseInteraction"],
                                                                     default='ConcatenateInteraction')
             interactors_name.append(tmp_interactor_type)
 
