@@ -131,15 +131,16 @@ if __name__ == '__main__':
         model = build_autorec()
 
     # search and predict.
-    cf_searcher = Search(model=model,
-                         tuner=args.search,  ## hyperband, bayesian
-                         tuner_params={'max_trials': args.trials, 'overwrite': False}
-                         )
-    cf_searcher.search(x=train_X,
-                       y=train_y,
-                       x_val=val_X,
-                       y_val=val_y,
-                       objective='val_mse',
-                       batch_size=args.batch_size)
-    logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
-    logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
+    searcher = Search(model=model,
+                      tuner=args.search,  ## hyperband, bayesian
+                      tuner_params={'max_trials': args.trials, 'overwrite': False}
+                      )
+    searcher.search(x=train_X,
+                    y=train_y,
+                    x_val=val_X,
+                    y_val=val_y,
+                    objective='val_mse',
+                    batch_size=args.batch_size)
+    print( "args:", args )
+    logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
+    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))

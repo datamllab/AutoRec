@@ -38,7 +38,6 @@ searcher = Search(model=model,
                   tuner='bayesian',  # hyperband
                   tuner_params={"max_trials": 5}
                   )
-
 searcher.search(x=train_X,
                 y=train_y,
                 x_val=val_X,

@@ -16,7 +16,7 @@ The statistics of the dataset are as follow:
 |[Movelens1m](#Movelens100k)|6,040|3,900|1,000,209|
 |[Movelens10m](#Movelens10M)|71,567|10,681|10,000,054|
 |[Movelens_latest](#Movelens_latest)|283,228|58,098|27,753,444|
-|[Netflix](#netflix)|10000|10000|10000|
+|[Netflix](#netflix)|480189|480189|100480507|
 
 
 Some popular model for rating prediction:
@@ -41,12 +41,12 @@ The following models are benchmarked:
 ## Movelens1M
 |Movelens100k|MSE|MAE|Time(s)|
 |---|---:|---:|---:|
-|MF|0.0000|0.0000|0.0000|
+|MF|0.9045155644416809|0.0000|0.0000|
 |MLP|0.0000|0.0000|0.0000|
 |GMF|0.0000|0.0000|0.0000|
 |NeuMF|0.0000|0.0000|0.0000|
-|AutoRec_random|0.0000|0.0000|0.0000|
-|AutoRec_bayesian|0.0000|0.0000|0.0000|
+|AutoRec_random|0.8153873085975647|0.0000|0.0000|
+|AutoRec_bayesian|0.8220072388648987|0.0000|0.0000|
 |AutoRec_hyperband|0.0000|0.0000|0.0000|
 
 

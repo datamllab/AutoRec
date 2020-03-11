@@ -2,7 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 import logging
@@ -36,15 +35,15 @@ output = RatingPredictionOptimizer()(output)
 model = RPRecommender(inputs=input, outputs=output)
 
 # AutoML search and predict
-cf_searcher = Search(model=model,
-                     tuner='greedy',  # hyperband, greedy, bayesian
-                     tuner_params={"max_trials": 5}
-                     )
-cf_searcher.search(x=train_X,
-                   y=train_y,
-                   x_val=val_X,
-                   y_val=val_y,
-                   objective='val_mse',
-                   batch_size=1024)
-logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
-logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
+searcher = Search(model=model,
+                  tuner='greedy',  # hyperband, greedy, bayesian
+                  tuner_params={"max_trials": 5}
+                  )
+searcher.search(x=train_X,
+                y=train_y,
+                x_val=val_X,
+                y_val=val_y,
+                objective='val_mse',
+                batch_size=1024)
+logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
+logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
