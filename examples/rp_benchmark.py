@@ -100,7 +100,6 @@ def build_autorec():
                                   embedding_dim=64)(input)
 
     output = HyperInteraction()([user_emb_1, item_emb_1, user_emb_2, item_emb_2])
-    output = HyperInteraction()([output, user_emb_1, item_emb_1, user_emb_2, item_emb_2])
     output = RatingPredictionOptimizer()(output)
     model = RPRecommender(inputs=input, outputs=output)
     return model

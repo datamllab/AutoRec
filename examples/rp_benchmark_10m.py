@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 import logging
 from autorecsys.auto_search import Search
@@ -99,9 +99,7 @@ def build_autorec():
                                   id_num=75000,
                                   embedding_dim=64)(input)
 
-    output_1 = HyperInteraction()([user_emb_1, item_emb_1])
-    output_2 = HyperInteraction()([user_emb_2, item_emb_2])
-    output = HyperInteraction()([output_1, output_2])
+    output = HyperInteraction()([user_emb_1, item_emb_1, user_emb_2, item_emb_2])
     output = RatingPredictionOptimizer()(output)
     model = RPRecommender(inputs=input, outputs=output)
     return model
