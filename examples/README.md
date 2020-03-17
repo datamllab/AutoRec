@@ -60,7 +60,7 @@ The following models are benchmarked:
 
 ## Movelens10M
 |Movelens10M|MSE|Time(s)|
-|---|---:|---:|---:|
+|---|---:|---:|
 |MF_random|0.8333620429039001|--|
 |MF_greedy|0.8311187624931335|113.6271460056305|
 |MF_bayesian|0.8149698376655579|--|
