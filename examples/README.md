@@ -40,7 +40,7 @@ The following models are benchmarked:
 
 ## Movelens1M
 |Movelens1M|MSE|Time(s)|
-|---|---:|---:|---:|
+|---|---:|---:|
 |MF_random|0.9589793682098389|19.953986644744873|
 |MF_greedy|0.9606391191482544|21.724135398864746|
 |MF_bayesian|0.9533846974372864|227.0287356376648|
@@ -81,7 +81,7 @@ The following models are benchmarked:
 
 ## Movelens_latest
 |Movelens_latest|MSE|Time(s)|
-|---|---:|---:|---:|
+|---|---:|---:|
 |MF_random|0.7918405532836914|0.0000|
 |MF_greedy|0.7755653262138367|2124.1722569465637|
 |MF_bayesian|0.7719935774803162|0.0000|
@@ -100,15 +100,15 @@ The following models are benchmarked:
 
 
 ## Netflix
-|Netflix|MSE|MAE|Time(s)|
-|---|---:|---:|---:|
-|MF|0.0000|0.0000|0.0000|
-|MLP|0.0000|0.0000|0.0000|
-|GMF|0.0000|0.0000|0.0000|
-|NeuMF|0.0000|0.0000|0.0000|
-|AutoRec_random|0.0000|0.0000|0.0000|
-|AutoRec_bayesian|0.0000|0.0000|0.0000|
-|AutoRec_hyperband|0.0000|0.0000|0.0000|
+|Netflix|MSE|Time(s)|
+|---|---:|---:|
+|MF|0.0000|0.0000|
+|MLP|0.0000|0.0000|
+|GMF|0.0000|0.0000|
+|NeuMF|0.0000|0.0000|
+|AutoRec_random|0.0000|0.0000|
+|AutoRec_bayesian|0.0000|0.0000|
+|AutoRec_hyperband|0.0000|0.0000|
 
 
 MSE and MAE are the mean square error and mean abslute error.
