@@ -2,7 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-
 os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import logging
@@ -46,16 +45,16 @@ output = PointWiseOptimizer()(output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
 
 # AutoML search and predict.
-cf_searcher = Search(model=model,
-                     tuner='random',
-                     tuner_params={'max_trials': 2, 'overwrite': True},
-                     )
-cf_searcher.search(x=train_X,
-                   y=train_y,
-                   x_val=val_X,
-                   y_val=val_y,
-                   objective='val_BinaryCrossentropy',
-                   batch_size=10000
-                   )
-logger.info('First 10 Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)[:10]))
-logger.info('Predicting Accuracy (logloss): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
+searcher = Search(model=model,
+                  tuner='random',
+                  tuner_params={'max_trials': 2, 'overwrite': True},
+                  )
+searcher.search(x=train_X,
+                y=train_y,
+                x_val=val_X,
+                y_val=val_y,
+                objective='val_BinaryCrossentropy',
+                batch_size=10000
+                )
+logger.info('First 10 Predicted Ratings: {}'.format(searcher.predict(x=val_X)[:10]))
+logger.info('Predicting Accuracy (logloss): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))

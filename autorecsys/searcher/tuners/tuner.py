@@ -37,6 +37,7 @@ from autorecsys.searcher.core import oracle as oracle_module
 METRIC = {'auc': tf.keras.metrics.AUC(),
           'logloss': tf.keras.metrics.CategoricalAccuracy(),
           'mse': tf.keras.metrics.MeanSquaredError(),
+          'mae': tf.keras.metrics.MeanAbsoluteError(),
           'BinaryCrossentropy': tf.keras.metrics.BinaryCrossentropy(), }
 
 # TODO: Add more extensive display.

@@ -8,6 +8,7 @@ import tensorflow as tf
 from autorecsys.utils.common import to_snake_case, create_directory,  load_dataframe_input
 from autorecsys.searcher.tuners.tuner import METRIC, PipeTuner
 from autorecsys.searcher import tuners
+from autorecsys.recommender import CTRRecommender, RPRecommender
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -66,6 +67,8 @@ class Search(object):
         return tuner
 
     def predict(self, x):
+        if isinstance (self.pipe, RPRecommender):
+            x = load_dataframe_input(x)
         return self.best_model.predict(x)
 
     def evaluate(self, x, y_true):

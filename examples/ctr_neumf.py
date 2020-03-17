@@ -2,7 +2,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 import logging
@@ -25,32 +24,32 @@ train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1
 input = Input(shape=[2])
 user_emb_gmf = LatentFactorMapper(feat_column_id=0,
                                   id_num=10000,
-                                  embedding_dim=10)(input)
+                                  embedding_dim=64)(input)
 item_emb_gmf = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
-                                  embedding_dim=10)(input)
+                                  embedding_dim=64)(input)
 
 user_emb_mlp = LatentFactorMapper(feat_column_id=0,
                                   id_num=10000,
-                                  embedding_dim=10)(input)
+                                  embedding_dim=64)(input)
 item_emb_mlp = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
-                                  embedding_dim=10)(input)
+                                  embedding_dim=64)(input)
 innerproduct_output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb_gmf, item_emb_gmf])
 mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 output = PointWiseOptimizer()([innerproduct_output, mlp_output])
-model = CTRRecommender( inputs=input, outputs=output )
+model = CTRRecommender(inputs=input, outputs=output)
 
 # AutoML search and predict.
-cf_searcher = Search(model=model,
-                     tuner='random',
-                     tuner_params={'max_trials': 10, 'overwrite': True},
-                     )
-cf_searcher.search(x=train_X,
-                   y=train_y,
-                   x_val=val_X,
-                   y_val=val_y,
-                   objective='val_BinaryCrossentropy',
-                   batch_size=256)
-logger.info('Predicted Ratings: {}'.format(cf_searcher.predict(x=val_X)))
-logger.info('Predicting Accuracy (mse): {}'.format(cf_searcher.evaluate(x=val_X, y_true=val_y)))
+searcher = Search(model=model,
+                  tuner='random',
+                  tuner_params={'max_trials': 10, 'overwrite': True},
+                  )
+searcher.search(x=train_X,
+                y=train_y,
+                x_val=val_X,
+                y_val=val_y,
+                objective='val_BinaryCrossentropy',
+                batch_size=256)
+logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
+logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
