@@ -86,7 +86,11 @@ class RandomSearchOracle(oracle_module.Oracle):
             # Generate a set of random values.
             values = {}
             if all(isinstance(p, hp_module.Fixed) for p in self.hyperparameters.space):
+<<<<<<< HEAD
                  break
+=======
+                break
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c
             for p in self.hyperparameters.space:
                 values[p.name] = p.random_sample(self._seed_state)
                 self._seed_state += 1
@@ -158,6 +162,7 @@ class RandomSearch(PipeTuner):
                  allow_new_entries=True,
                  **kwargs):
         self.seed = seed
+<<<<<<< HEAD
         oracle = RandomSearchOracle(
             objective=objective,
             max_trials=max_trials,
@@ -169,6 +174,17 @@ class RandomSearch(PipeTuner):
             oracle,
             hypergraph,
             **kwargs)
+=======
+        oracle = RandomSearchOracle(objective=objective,
+                                    max_trials=max_trials,
+                                    seed=seed,
+                                    hyperparameters=hyperparameters,
+                                    tune_new_entries=tune_new_entries,
+                                    allow_new_entries=allow_new_entries)
+        super(RandomSearch, self).__init__(oracle,
+                                           hypergraph,
+                                           **kwargs)
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c
 
     @classmethod
     def get_name(cls):

@@ -6,10 +6,9 @@ import tempfile
 import tensorflow as tf
 
 from autorecsys.utils.common import to_snake_case, create_directory,  load_dataframe_input
-from autorecsys.recommender import CFRecommender,CTRRecommender
 from autorecsys.searcher.tuners.tuner import METRIC, PipeTuner
-from autorecsys.searcher.tuners.randomsearch import RandomSearch
 from autorecsys.searcher import tuners
+from autorecsys.recommender import CTRRecommender, RPRecommender
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -17,17 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class Search(object):
-    def __init__(self, task='cf', name=None, tuner=None, tuner_params=None, directory='.', overwrite=True, **kwargs):
-
-        self.task = task
-        if self.task == 'cf':
-            self.pipe = CFRecommender(**kwargs)
-        elif self.task == 'ctr':
-            self.pipe = CTRRecommender(**kwargs)
-        else:
-            raise ValueError(
-                'Currently we only support "cf" and "ctr" tasks.')
-
+    def __init__(self, model=None, name=None, tuner=None, tuner_params=None, directory='.', overwrite=True):
+        self.pipe = model
         self.tuner = tuner
         self.tuner_params = tuner_params
         if not name:
@@ -50,11 +40,11 @@ class Search(object):
         # overwrite the objective
         self.objective = objective or 'mse'
         tuner = self._build_tuner(self.tuner, self.tuner_params)
-        # show the search space
-        tuner.search_space_summary()
-
         # TODO search on a small piece of train data, currently it uses whole train data
         tuner.search(x=x, y=y, x_val=x_val, y_val=y_val, batch_size=batch_size)
+        # show the search space
+        tuner.search_space_summary()
+        # show the search results
         tuner.results_summary()
         best_pipe_lists = tuner.get_best_models(1)
         # len(best_pipe_lists) == 0 means that this pipeline does not have tunable parameters
@@ -76,7 +66,8 @@ class Search(object):
         return tuner
 
     def predict(self, x):
-        x = load_dataframe_input(x) if self.task == "cf" else x
+       if isinstance (self.pipe, RPRecommender):
+            x = load_dataframe_input(x)
         return self.best_model.predict(x)
 
     def evaluate(self, x, y_true):

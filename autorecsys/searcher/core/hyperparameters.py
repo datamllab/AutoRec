@@ -1,6 +1,10 @@
 import random
 import math
 import contextlib
+<<<<<<< HEAD
+=======
+import numpy as np
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c
 from tensorflow import keras
 from autorecsys.searcher.core.utils import check_valid_params
 
@@ -665,6 +669,78 @@ def _log_sample(x, min_value, max_value):
     """Applies log scale to a value in range [0, 1]."""
     return min_value * math.pow(max_value / min_value, x)
 
+<<<<<<< HEAD
 
 def _uniform_sample(x, min_value, max_value):
     return min_value + (max_value - min_value) * x
+=======
+def _uniform_sample(x, min_value, max_value):
+    return min_value + (max_value - min_value) * x
+
+def cumulative_prob_to_value(prob, hp):
+    """Convert a value from [0, 1] to a hyperparameter value."""
+    if isinstance(hp, Fixed):
+        return hp.value
+    elif isinstance(hp, Boolean):
+        return bool(prob >= 0.5)
+    elif isinstance(hp, Choice):
+        ele_prob = 1 / len(hp.values)
+        index = int(math.floor(prob / ele_prob))
+        # Can happen when `prob` is very close to 1.
+        if index == len(hp.values):
+            index = index - 1
+        return hp.values[index]
+    elif isinstance(hp, (Int, Float)):
+        sampling = hp.sampling or 'linear'
+        if sampling == 'linear':
+            value = prob * (hp.max_value - hp.min_value) + hp.min_value
+        elif sampling == 'log':
+            value = hp.min_value * math.pow(hp.max_value / hp.min_value, prob)
+        elif sampling == 'reverse_log':
+            value = (hp.max_value + hp.min_value -
+                     hp.min_value * math.pow(hp.max_value / hp.min_value, 1 - prob))
+        else:
+            raise ValueError('Unrecognized sampling value: {}'.format(sampling))
+
+        if hp.step is not None:
+            values = np.arange(hp.min_value, hp.max_value + 1e-7, step=hp.step)
+            closest_index = np.abs(values - value).argmin()
+            value = values[closest_index]
+
+        if isinstance(hp, Int):
+            return int(value)
+        return value
+    else:
+        raise ValueError('Unrecognized HyperParameter type: {}'.format(hp))
+
+
+def value_to_cumulative_prob(value, hp):
+    """Convert a hyperparameter value to [0, 1]."""
+    if isinstance(hp, Fixed):
+        return 0.5
+    if isinstance(hp, Boolean):
+        # Center the value in its probability bucket.
+        if value:
+            return 0.75
+        return 0.25
+    elif isinstance(hp, Choice):
+        ele_prob = 1 / len(hp.values)
+        index = hp.values.index(value)
+        # Center the value in its probability bucket.
+        return (index + 0.5) * ele_prob
+    elif isinstance(hp, (Int, Float)):
+        sampling = hp.sampling or 'linear'
+        if sampling == 'linear':
+            return (value - hp.min_value) / (hp.max_value - hp.min_value)
+        elif sampling == 'log':
+            return (math.log(value / hp.min_value) /
+                    math.log(hp.max_value / hp.min_value))
+        elif sampling == 'reverse_log':
+            return (
+                1. - math.log((hp.max_value + hp.min_value - value) / hp.min_value) /
+                math.log(hp.max_value / hp.min_value))
+        else:
+            raise ValueError('Unrecognized sampling value: {}'.format(sampling))
+    else:
+        raise ValueError('Unrecognized HyperParameter type: {}'.format(hp))
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c

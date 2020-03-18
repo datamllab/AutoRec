@@ -55,7 +55,10 @@ def set_device(device_name):
         tf.config.experimental.set_visible_devices(gpus[gpu_idx], 'GPU')
 
 
+<<<<<<< HEAD
 # TODO: do we need this?
+=======
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c
 def load_dataframe_input(x):
     if x is None:
         return None
@@ -75,6 +78,7 @@ def load_dataframe_input(x):
     return res
 
 
+<<<<<<< HEAD
 # TODO: do we need this?
 def preprocess_xy(x, y):
     x = load_dataframe_input(x)
@@ -86,3 +90,5 @@ def preprocess_xy(x, y):
     return x, y
 
 
+=======
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c

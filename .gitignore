@@ -9,4 +9,12 @@ __pycache__/
 /tests/config/
 /.pytest_cache/
 ._*
+<<<<<<< HEAD
 test.py
+=======
+test.py
+*.sh
+*.log.txt
+_rp_benchmark_latest.py
+_rp_benchmark_10m.py
+>>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c

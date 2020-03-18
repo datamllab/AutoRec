@@ -5,8 +5,9 @@ from autorecsys.pipeline.base import Block
 
 
 class RatingPredictionOptimizer(Block):
-    """
-    latent factor optimizer for cateory datas
+   """Module for rating prediction task.
+    # Attributes:
+        None.
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

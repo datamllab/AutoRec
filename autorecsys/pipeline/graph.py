@@ -5,8 +5,6 @@ import functools
 from autorecsys.searcher.core.trial import Stateful
 from autorecsys.searcher.core import hyperparameters as hp_module
 from autorecsys.pipeline import base
-from autorecsys.pipeline import compiler
-
 import tensorflow as tf
 from tensorflow.python.util import nest
 
@@ -344,10 +342,11 @@ class KerasGraph(Graph, base.HyperModel):
         optimizer = hp.Choice('optimizer',
                               ['adam',
                                # 'adadelta',
-                               "Adagrad",
-                               "RMSprop",
-                                "AdaMax",
-                               'sgd'])
+                              # "Adagrad",
+                               # "RMSprop",
+                               #  "AdaMax",
+                               # 'sgd'
+                               ])
 
         model.compile(optimizer=optimizer,
                       metrics=self._get_metrics(),

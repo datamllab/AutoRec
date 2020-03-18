@@ -5,8 +5,11 @@ from autorecsys.pipeline.base import Block
 
 
 class LatentFactorMapper(Block):
-    """
-    latent factor mapper for single categorical feature
+    """Module for mapping the user/item id to the laten factor.
+    # Attributes:
+        feat_column_id (int): the id of the used feateure.
+        id_num (int): The total number of the user/item id.
+        embedding_dim (int): The embedding size of the latent factor.
     """
 
     def __init__(self,
@@ -14,14 +17,16 @@ class LatentFactorMapper(Block):
                  id_num=None,
                  embedding_dim=None,
                  **kwargs):
+        """Constructor LatentFactorMapper.
+        # Args:
+            feat_column_id (int): the id of the used feateure.
+            id_num (int): The total number of the user/item id.
+            embedding_dim (int): The embedding size of the latent factor.
+        """
         super().__init__(**kwargs)
-        self.fixed_params = ['feat_column_id', 'id_num']
-        self.tunable_candidates = ['embedding_dim']
         self.feat_column_id = feat_column_id
         self.id_num = id_num
         self.embedding_dim = embedding_dim
-        self._check_fixed()
-        self._hyperparameters = self._get_hyperparameters()
 
     def get_state(self):
         state = super().get_state()
@@ -40,17 +45,16 @@ class LatentFactorMapper(Block):
     def build(self, hp, inputs=None):
         input_node = inputs
         id_num = self.id_num or hp.Choice('id_num', [10000], default=10000)
-        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16], default=8)
-
-        ## TODO: cause bug here, cause computational graph have a cicle bug
+        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16, 32, 64, 128], default=32)
         output_node = tf.keras.layers.Embedding(id_num, embedding_dim)(input_node[0][:, self.feat_column_id])
-        # output_node = tf.keras.layers.Embedding(id_num, embedding_dim)(input_node)
         return output_node
 
 
 class DenseFeatureMapper(Block):
-    """
-    dense feature mapper for dense type features
+    """Mapper for dense feature that can map dense feature to embedding.
+    # Attributes:
+        num_of_fields (int): the number of feature fields.
+        embedding_dim (int): The embedding size of the latent factor.
     """
 
     def __init__(self,
@@ -58,12 +62,8 @@ class DenseFeatureMapper(Block):
                  embedding_dim=None,
                  **kwargs):
         super().__init__(**kwargs)
-        self.fixed_params = ['num_of_fields']
-        self.tunable_candidates = ['embedding_dim']
         self.num_of_fields = num_of_fields
         self.embedding_dim = embedding_dim
-        self._check_fixed()
-        self._hyperparameters = self._get_hyperparameters()
 
     def get_state(self):
         state = super().get_state()
@@ -91,8 +91,11 @@ class DenseFeatureMapper(Block):
 
 
 class SparseFeatureMapper(Block):
-    """
-    sparse feature mapper for categorical type features
+    """Mapper for sparse feature  that can map categorical features to embedding.
+    # Attributes:
+        num_of_fields (int): the number of feature fields.
+        hash_size (int): size for every feature.
+        embedding_dim (int): The embedding size of the latent factor.
     """
 
     def __init__(self,
@@ -101,13 +104,9 @@ class SparseFeatureMapper(Block):
                  embedding_dim=None,
                  **kwargs):
         super().__init__(**kwargs)
-        self.fixed_params = ['num_of_fields', 'hash_size']
-        self.tunable_candidates = ['embedding_dim']
         self.num_of_fields = num_of_fields
         self.hash_size = hash_size
         self.embedding_dim = embedding_dim
-        self._check_fixed()
-        self._hyperparameters = self._get_hyperparameters()
 
     def get_state(self):
         state = super().get_state()
