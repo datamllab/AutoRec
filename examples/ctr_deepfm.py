@@ -27,7 +27,7 @@ dense_input_node = Input(shape=[13])
 sparse_input_node = Input(shape=[26])
 dense_feat_emb = DenseFeatureMapper(
     num_of_fields=13,
-    embedding_dim=16)(dense_input_node)
+    embedding_dim=2)(dense_input_node)
 
 # TODO: preprocess data to get sparse hash_size
 sparse_feat_emb = SparseFeatureMapper(
@@ -39,9 +39,9 @@ sparse_feat_emb = SparseFeatureMapper(
         2017, 4, 172322, 18, 16, 56456,
         86, 43356
     ],
-    embedding_dim=16)(sparse_input_node)
+    embedding_dim=2)(sparse_input_node)
 
-fm_output = FMInteraction(embedding_dim=16)([sparse_feat_emb])
+fm_output = FMInteraction()([sparse_feat_emb])
 bottom_mlp_output = MLPInteraction()([dense_feat_emb])
 top_mlp_output = MLPInteraction()([fm_output, bottom_mlp_output])
 

@@ -41,10 +41,9 @@ sparse_feat_emb = SparseFeatureMapper(
     ],
     embedding_dim=16)(sparse_input_node)
 
-sparse_feat_top_output = HyperInteraction(meta_interator_num=2)([sparse_feat_emb])
-dense_feat_top_output =HyperInteraction(meta_interator_num=2)([dense_feat_emb])
-top_mlp_output = HyperInteraction(meta_interator_num=2)([sparse_feat_top_output, dense_feat_top_output])
-top_mlp_output = HyperInteraction(meta_interator_num=2)([sparse_feat_top_output, dense_feat_top_output])
+sparse_feat_bottom_output = HyperInteraction(meta_interator_num=2)([sparse_feat_emb])
+dense_feat_bottom_output =HyperInteraction(meta_interator_num=2)([dense_feat_emb])
+top_mlp_output = HyperInteraction(meta_interator_num=2)([sparse_feat_bottom_output, dense_feat_bottom_output])
 
 output = PointWiseOptimizer()(top_mlp_output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)

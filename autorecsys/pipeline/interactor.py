@@ -26,8 +26,8 @@ class RandomSelectInteraction(Block):
         super().set_state(state)
 
     def build(self, hp, inputs=None):
-        output_node = nest.flatten(inputs)
-        output_node = random.choice(output_node)
+        input_node = nest.flatten(inputs)
+        output_node = random.choice(input_node)
         return output_node
 
 
@@ -48,10 +48,8 @@ class ConcatenateInteraction(Block):
         super().set_state(state)
 
     def build(self, hp, inputs=None):
-        inputs = nest.flatten(inputs)
-        inputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in inputs]
-
-        output_node = tf.concat(inputs, axis=1)
+        input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
+        output_node = tf.concat(input_node, axis=1)
         return output_node
 
 
@@ -81,20 +79,17 @@ class ElementwiseInteraction(Block):
         self.elementwise_type = state['elementwise_type']
 
     def build(self, hp, inputs=None):
-        input_node = nest.flatten(inputs)
-        inputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in inputs]
+        input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
 
         shape_set = set()
-        for input in input_node:
-            shape_set.add(input.shape[1])
+        for node in input_node:
+            shape_set.add(node.shape[1])
         if len(shape_set) > 1:
             # raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
-            input_node_tmp = []
             min_len = min( shape_set )
-            for input in input_node:
-                input = input[:, -(min_len):]
-                input_node_tmp.append( input )
-            input_node = input_node_tmp
+
+            input_node = [tf.keras.layers.Dense(min_len)(node) 
+                        if node.shape[1] != min_len  else node for node in input_node]
 
         elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
                                                               ["sum", "average", "innerporduct", "max", "min"],
@@ -152,11 +147,8 @@ class MLPInteraction(Block):
         self.dropout_rate = state['dropout_rate']
 
     def build(self, hp, inputs=None):
-        inputs = nest.flatten(inputs)
-        inputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in inputs]
-
-        input_node = tf.concat(inputs, axis=1)
-        output_node = input_node
+        input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
+        output_node = tf.concat(input_node, axis=1)
         num_layers = self.num_layers or hp.Choice('num_layers', [1, 2, 3], default=2)
         use_batchnorm = self.use_batchnorm
         if use_batchnorm is None:
@@ -205,7 +197,7 @@ class HyperInteraction(Block):
         self.meta_interator_num = state['meta_interator_num']
 
     def build(self, hp, inputs=None):
-        inputs = nest.flatten(inputs)
+        input_node = nest.flatten(inputs)
         meta_interator_num = self.meta_interator_num or hp.Choice('meta_interator_num',
                                                                   [1, 2, 3, 4, 5, 6],
                                                                   default=3)
@@ -220,19 +212,19 @@ class HyperInteraction(Block):
         outputs = []
         for i, interactor_name in enumerate(interactors_name):
             if interactor_name == "MLPInteraction":
-                output_node = MLPInteraction().build(hp, inputs)
+                output_node = MLPInteraction().build(hp, input_node)
                 outputs.append(output_node)
 
             if interactor_name == "ConcatenateInteraction":
-                output_node = ConcatenateInteraction().build(hp, inputs)
+                output_node = ConcatenateInteraction().build(hp, input_node)
                 outputs.append(output_node)
 
             if interactor_name == "RandomSelectInteraction":
-                output_node = RandomSelectInteraction().build(hp, inputs)
+                output_node = RandomSelectInteraction().build(hp, input_node)
                 outputs.append(output_node)
 
             if interactor_name == "ElementwiseInteraction":
-                output_node = ElementwiseInteraction().build(hp, inputs)
+                output_node = ElementwiseInteraction().build(hp, input_node)
                 outputs.append(output_node)
 
         # DO WE REALLY NEED TO CAT THEM?
@@ -267,30 +259,27 @@ class FMInteraction(Block):
         self.embedding_dim = state['embedding_dim']
 
     def build(self, hp, inputs=None):
-        inputs = nest.flatten(inputs)
+        input_node = nest.flatten(inputs)
 
         # expland all the tensors to 3D tensor 
-        for idx, node in enumerate(inputs):
+        for idx, node in enumerate(input_node):
             if len(node.shape) == 1:
-                inputs[idx] = tf.expand_dims(tf.expand_dims(node, -1), -1)
+                input_node[idx] = tf.expand_dims(tf.expand_dims(node, -1), -1)
             elif len(node.shape) == 2:
-                inputs[idx] = tf.expand_dims(node, 1) 
+                input_node[idx] = tf.expand_dims(node, 1) 
             elif len(node.shape) > 3:
                 raise ValueError(
                     "Unexpected inputs dimensions %d, expect to be smaller than 3" % len(node.shape)
                 )
 
-
-        # TODO QQ: align embedding_dim if not the same
+        # align the embedding_dim of input nodes if they're not the same
         embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [4, 8, 16], default=8)
 
+        output_node = [tf.keras.layers.Dense(embedding_dim)(node) 
+                        if node.shape[2] != embedding_dim  else node for node in input_node]
 
-        inputs = []
+        output_node = tf.concat(output_node, axis=1)
 
-
-        input_node = tf.concat(inputs, axis=1)
-
-        output_node = input_node
         square_of_sum = tf.square(tf.reduce_sum(output_node, axis=1, keepdims=True))
         sum_of_square = tf.reduce_sum(output_node * output_node, axis=1, keepdims=True)
         cross_term = square_of_sum - sum_of_square
