@@ -152,7 +152,7 @@ We benchmark all models with a minibatch size of 256; this allows fair compariso
 The following models are benchmarked:
 
 ## Movielens
-|Movielens|Acc|NDCG|Time(s)|
+|Movielens|logloss|AUC|Time(s)|
 |---|---:|---:|---:|
 |MF|0.0000|0.0000|0.0000|
 |GMF|0.0000|0.0000|0.0000|
@@ -163,7 +163,7 @@ The following models are benchmarked:
 |AutoRec_hyperband|0.0000|0.0000|0.0000|
 
 ## Criteo
-|Criteo|Acc|NDCG|Time(s)|
+|Criteo|logloss|AUC|Time(s)|
 |---|---:|---:|---:|
 |FM|0.0000|0.0000|0.0000|
 |AutoRec_random|0.0000|0.0000|0.0000|
@@ -172,13 +172,13 @@ The following models are benchmarked:
 
 
 ## Avazu
-|Avazu|Acc|NDCG|Time(s)|
+|Avazu|logloss|AUC|Time(s)|
 |---|---:|---:|---:|
 |FM|0.0000|0.0000|0.0000|
 |AutoRec_random|0.0000|0.0000|0.0000|
 |AutoRec_bayesian|0.0000|0.0000|0.0000|
 |AutoRec_hyperband|0.0000|0.0000|0.0000|
 
-Accuary and NDCG are the Accuary and Normalized Discounted Cumulative Gain.
+Logloss and AUC are the binary cross-entropy loss and Area Under the Receiver Operating Characteristic Curve Score.
 
 Time, for the baseline model, is the total training time; for the automated model, is the total search and training time.
