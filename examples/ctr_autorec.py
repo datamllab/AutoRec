@@ -7,7 +7,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 import logging
 import numpy as np
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, PointWiseOptimizer
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, HyperInteraction, PointWiseOptimizer
 from autorecsys.recommender import CTRRecommender
 
 # logging setting
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # load dataset
-mini_criteo = np.load("./examples/datasets/criteo_1000.npz")
+mini_criteo = np.load("./examples/datasets/criteo/criteo_2M.npz")
 # TODO: preprocess train val split
 train_X = [mini_criteo['X_int'].astype(np.float32), mini_criteo['X_cat'].astype(np.float32)]
 train_y = mini_criteo['y']
@@ -27,7 +27,7 @@ dense_input_node = Input(shape=[13])
 sparse_input_node = Input(shape=[26])
 dense_feat_emb = DenseFeatureMapper(
     num_of_fields=13,
-    embedding_dim=2)(dense_input_node)
+    embedding_dim=16)(dense_input_node)
 
 # TODO: preprocess data to get sparse hash_size
 sparse_feat_emb = SparseFeatureMapper(
@@ -39,9 +39,14 @@ sparse_feat_emb = SparseFeatureMapper(
         2017, 4, 172322, 18, 16, 56456,
         86, 43356
     ],
-    embedding_dim=2)(sparse_input_node)
-output = FMInteraction(embedding_dim=2)([dense_feat_emb, sparse_feat_emb])
-output = PointWiseOptimizer()(output)
+    embedding_dim=16)(sparse_input_node)
+
+sparse_feat_top_output = HyperInteraction(meta_interator_num=2)([sparse_feat_emb])
+dense_feat_top_output =HyperInteraction(meta_interator_num=2)([dense_feat_emb])
+top_mlp_output = HyperInteraction(meta_interator_num=2)([sparse_feat_top_output, dense_feat_top_output])
+top_mlp_output = HyperInteraction(meta_interator_num=2)([sparse_feat_top_output, dense_feat_top_output])
+
+output = PointWiseOptimizer()(top_mlp_output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
 
 # AutoML search and predict.

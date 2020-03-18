@@ -49,6 +49,8 @@ class ConcatenateInteraction(Block):
 
     def build(self, hp, inputs=None):
         inputs = nest.flatten(inputs)
+        inputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in inputs]
+
         output_node = tf.concat(inputs, axis=1)
         return output_node
 
@@ -80,6 +82,8 @@ class ElementwiseInteraction(Block):
 
     def build(self, hp, inputs=None):
         input_node = nest.flatten(inputs)
+        inputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in inputs]
+
         shape_set = set()
         for input in input_node:
             shape_set.add(input.shape[1])
@@ -149,6 +153,8 @@ class MLPInteraction(Block):
 
     def build(self, hp, inputs=None):
         inputs = nest.flatten(inputs)
+        inputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in inputs]
+
         input_node = tf.concat(inputs, axis=1)
         output_node = input_node
         num_layers = self.num_layers or hp.Choice('num_layers', [1, 2, 3], default=2)
@@ -228,6 +234,9 @@ class HyperInteraction(Block):
             if interactor_name == "ElementwiseInteraction":
                 output_node = ElementwiseInteraction().build(hp, inputs)
                 outputs.append(output_node)
+
+        # DO WE REALLY NEED TO CAT THEM?
+        outputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in outputs]
         outputs = tf.concat(outputs, axis=1)
         return outputs
 
@@ -258,14 +267,29 @@ class FMInteraction(Block):
         self.embedding_dim = state['embedding_dim']
 
     def build(self, hp, inputs=None):
-        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [8, 16], default=8)
+        inputs = nest.flatten(inputs)
 
-        # TODO: align embedding_dim if not the same
+        # expland all the tensors to 3D tensor 
+        for idx, node in enumerate(inputs):
+            if len(node.shape) == 1:
+                inputs[idx] = tf.expand_dims(tf.expand_dims(node, -1), -1)
+            elif len(node.shape) == 2:
+                inputs[idx] = tf.expand_dims(node, 1) 
+            elif len(node.shape) > 3:
+                raise ValueError(
+                    "Unexpected inputs dimensions %d, expect to be smaller than 3" % len(node.shape)
+                )
+
+
+        # TODO QQ: align embedding_dim if not the same
+        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [4, 8, 16], default=8)
+
+
+        inputs = []
+
+
         input_node = tf.concat(inputs, axis=1)
-        if len(input_node.shape) != 3:
-            raise ValueError(
-                "Unexpected inputs dimensions %d, expect to be 3 dimensions" % len(input_node.shape)
-            )
+
         output_node = input_node
         square_of_sum = tf.square(tf.reduce_sum(output_node, axis=1, keepdims=True))
         sum_of_square = tf.reduce_sum(output_node * output_node, axis=1, keepdims=True)
