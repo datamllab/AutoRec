@@ -7,9 +7,6 @@ from typing import List
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
-import time
-import os
-from joblib import Parallel, delayed
 
 
 class BaseProprocessor(metaclass=ABCMeta):
@@ -49,10 +46,6 @@ class BasePointWiseProprocessor(BaseProprocessor):
     for PointWise recommendation methods, CTR
     for PointWise recommendation methods, rating prediction for Movielens
     and can also for the similar dataset
-<<<<<<< HEAD
-
-=======
->>>>>>> a2016bff64c0aac2bec78c28c2273be59b94717c
     """
 
     @abstractmethod
@@ -191,4 +184,3 @@ class MovielensCTRPreprocessor(BasePointWiseProprocessor):
         expanded_val_data = expand(compact_val_X, compact_val_y)
         self.val_X = (expanded_val_data.loc[:, expanded_val_data.columns != 'rating']).values
         self.val_y = expanded_val_data['rating'].values
-
