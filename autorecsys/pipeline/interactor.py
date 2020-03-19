@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
+from autorecsys.pipeline.utils import Bias
 from tensorflow.keras.layers import Dense, Input, Concatenate
 import random
 import tensorflow as tf
@@ -181,7 +182,14 @@ class HyperInteraction(Block):
         super().__init__(**kwargs)
         self.meta_interator_num = meta_interator_num
         self.interactor_type = interactor_type
-
+        self.name2interactor = {
+            "MLPInteraction": MLPInteraction,
+            "ConcatenateInteraction": ConcatenateInteraction,
+            "RandomSelectInteraction": RandomSelectInteraction,
+            "ElementwiseInteraction": ElementwiseInteraction,
+            "FMInteraction": FMInteraction, 
+            "CrossNetInteraction": CrossNetInteraction,
+        }
 
     def get_state(self):
         state = super().get_state()
@@ -202,30 +210,14 @@ class HyperInteraction(Block):
                                                                   [1, 2, 3, 4, 5, 6],
                                                                   default=3)
         interactors_name = []
-        for i in range(meta_interator_num):
-            tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(i),
-                                                                    ["MLPInteraction", "ConcatenateInteraction",
-                                                                     "RandomSelectInteraction", "ElementwiseInteraction"],
+        for idx in range(meta_interator_num):
+            tmp_interactor_type = self.interactor_type or hp.Choice('interactor_type_' + str(idx),
+                                                                    list(self.name2interactor.keys()),
                                                                     default='ConcatenateInteraction')
             interactors_name.append(tmp_interactor_type)
 
-        outputs = []
-        for i, interactor_name in enumerate(interactors_name):
-            if interactor_name == "MLPInteraction":
-                output_node = MLPInteraction().build(hp, input_node)
-                outputs.append(output_node)
-
-            if interactor_name == "ConcatenateInteraction":
-                output_node = ConcatenateInteraction().build(hp, input_node)
-                outputs.append(output_node)
-
-            if interactor_name == "RandomSelectInteraction":
-                output_node = RandomSelectInteraction().build(hp, input_node)
-                outputs.append(output_node)
-
-            if interactor_name == "ElementwiseInteraction":
-                output_node = ElementwiseInteraction().build(hp, input_node)
-                outputs.append(output_node)
+        outputs = [self.name2interactor[interactor_name]().build(hp, input_node) 
+                                for interactor_name in interactors_name]
 
         # DO WE REALLY NEED TO CAT THEM?
         outputs = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in outputs]
@@ -285,3 +277,109 @@ class FMInteraction(Block):
         cross_term = square_of_sum - sum_of_square
         output_node = 0.5 * tf.reduce_sum(cross_term, axis=2, keepdims=False)
         return output_node
+
+
+
+
+class CrossNetInteraction(Block):
+    """Module for crossnet layer in deep & cross network
+    """
+    def __init__(self, 
+                layer_num=None, 
+                **kwargs):
+
+        super().__init__(**kwargs)
+        self.layer_num = layer_num
+
+    def get_state(self):
+        state = super().get_state()
+        state.update(
+            {
+                'layer_num': self.layer_num,
+            })
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+        self.layer_num = state['layer_num']
+
+
+    def build(self, hp, inputs=None):
+
+        input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
+        input_node = tf.concat(input_node, axis=1)
+
+        layer_num = self.layer_num or hp.Choice('layer_num', [1, 2, 3, 4], default=1)
+        embedding_dim = input_node.shape[-1]
+
+        output_node = input_node
+        for layer_idx in range(layer_num):
+            pre_output_emb = tf.keras.layers.Dense(1, use_bias=False)(output_node) 
+            cross_dot = tf.math.multiply(input_node, pre_output_emb)
+            output_node = cross_dot + output_node
+            output_node = Bias(embedding_dim)(output_node)
+
+        return output_node 
+
+
+
+# class InteractingLayer(Layer):
+#     """
+#     """
+#     def __init__(self, att_embedding_size=8, head_num=2, use_res=True, seed=1024, **kwargs):
+#         if head_num <= 0:
+#             raise ValueError('head_num must be a int > 0')
+#         self.att_embedding_size = att_embedding_size
+#         self.head_num = head_num
+#         self.use_res = use_res
+#         self.seed = seed
+#         super(InteractingLayer, self).__init__(**kwargs)
+#     def build(self, input_shape):
+#         if len(input_shape) != 3:
+#             raise ValueError(
+#                 "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (len(input_shape)))
+#         embedding_size = int(input_shape[-1])
+#         self.W_Query = self.add_weight(name='query', shape=[embedding_size, self.att_embedding_size * self.head_num],
+#                                        dtype=tf.float32,
+#                                        initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed))
+#         self.W_key = self.add_weight(name='key', shape=[embedding_size, self.att_embedding_size * self.head_num],
+#                                      dtype=tf.float32,
+#                                      initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed + 1))
+#         self.W_Value = self.add_weight(name='value', shape=[embedding_size, self.att_embedding_size * self.head_num],
+#                                        dtype=tf.float32,
+#                                        initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed + 2))
+#         if self.use_res:
+#             self.W_Res = self.add_weight(name='res', shape=[embedding_size, self.att_embedding_size * self.head_num],
+#                                          dtype=tf.float32,
+#                                          initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed))
+#         # Be sure to call this somewhere!
+#         super(InteractingLayer, self).build(input_shape)
+#     def call(self, inputs, **kwargs):
+#         if K.ndim(inputs) != 3:
+#             raise ValueError(
+#                 "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (K.ndim(inputs)))
+#         querys = tf.tensordot(inputs, self.W_Query,
+#                               axes=(-1, 0))  # None F D*head_num
+#         keys = tf.tensordot(inputs, self.W_key, axes=(-1, 0))
+#         values = tf.tensordot(inputs, self.W_Value, axes=(-1, 0))
+#         # head_num None F D
+#         querys = tf.stack(tf.split(querys, self.head_num, axis=2))
+#         keys = tf.stack(tf.split(keys, self.head_num, axis=2))
+#         values = tf.stack(tf.split(values, self.head_num, axis=2))
+#         inner_product = tf.matmul(
+#             querys, keys, transpose_b=True)  # head_num None F F
+#         self.normalized_att_scores = softmax(inner_product)
+#         result = tf.matmul(self.normalized_att_scores,
+#                            values)  # head_num None F D
+#         result = tf.concat(tf.split(result, self.head_num, ), axis=-1)
+#         result = tf.squeeze(result, axis=0)  # None F D*head_num
+#         if self.use_res:
+#             result += tf.tensordot(inputs, self.W_Res, axes=(-1, 0))
+#         result = tf.nn.relu(result)
+#         return result
+#     def compute_output_shape(self, input_shape):
+#         return (None, input_shape[1], self.att_embedding_size * self.head_num)
+#     def get_config(self, )        config = {'att_embedding_size': self.att_embedding_size, 'head_num': self.head_num, 'use_res': self.use_res,
+#                   'seed': self.seed}
+#         base_config = super(InteractingLayer, self).get_config()
+#         return dict(list(base_config.items()) + list(config.items()))
