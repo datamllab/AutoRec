@@ -14,3 +14,4 @@ test.py
 *.log.txt
 _rp_benchmark_latest.py
 _rp_benchmark_10m.py
+search_1/

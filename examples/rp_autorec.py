@@ -8,6 +8,7 @@ import logging
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
+from autorecsys.recommender import RPRecommender
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -32,12 +33,12 @@ output2 = HyperInteraction()([output1, user_emb, item_emb])
 output3 = HyperInteraction()([output1, output2, user_emb, item_emb])
 output4 = HyperInteraction()([output1, output2, output3, user_emb, item_emb])
 output = RatingPredictionOptimizer()(output4)
+model = RPRecommender(inputs=input, outputs=output)
 
 # AutoML search and predict.
-searcher = Search(tuner='random',  ## hyperband, bayesian
-                  tuner_params={'max_trials': 100, 'overwrite': True},
-                  inputs=input,
-                  outputs=output)
+searcher = Search(model=model,
+                  tuner='random',  ## hyperband, bayesian
+                  tuner_params={'max_trials': 100, 'overwrite': True},)
 searcher.search(x=train_X,
                 y=train_y,
                 x_val=val_X,
