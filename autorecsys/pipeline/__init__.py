@@ -4,6 +4,7 @@ from autorecsys.pipeline.interactor import MLPInteraction,  \
                                         FMInteraction, \
                                         ElementwiseInteraction, \
                                         CrossNetInteraction, \
+                                        SelfAttentionInteraction, \
                                         HyperInteraction
 
 from autorecsys.pipeline.optimizer import RatingPredictionOptimizer, PointWiseOptimizer

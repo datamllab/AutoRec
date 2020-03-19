@@ -10,7 +10,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import logging
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, DenseFeatureMapper, SparseFeatureMapper, \
-                        ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, HyperInteraction, \
+                        ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, \
+                        CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, \
                         PointWiseOptimizer
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import CTRRecommender
@@ -22,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 def build_dlrm(emb_dict):
-
     if 'user' in emb_dict or 'item' in emb_dict:
         emb_list = [emb for _, emb in emb_dict.items()]
         output = MLPInteraction(num_layers=2)(emb_list)
@@ -34,7 +34,6 @@ def build_dlrm(emb_dict):
 
 
 def build_deepfm(emb_dict):
-
     if 'user' in emb_dict or 'item' in emb_dict:
         emb_list = [emb for _, emb in emb_dict.items()]
         fm_output = [FMInteraction()(emb_list)]
@@ -44,7 +43,32 @@ def build_deepfm(emb_dict):
         fm_output = [FMInteraction()( [emb_dict['sparse']] )] if 'sparse' in emb_dict else []
         bottom_mlp_output = [MLPInteraction()( [emb_dict['dense']] )] if 'dense' in emb_dict else []
         output = MLPInteraction(num_layers=2)(fm_output + bottom_mlp_output)
+    return output
 
+
+def build_crossnet(emb_dict):
+    if 'user' in emb_dict or 'item' in emb_dict:
+        emb_list = [emb for _, emb in emb_dict.items()]
+        fm_output = [CrossNetInteraction()(emb_list)]
+        bottom_mlp_output = [MLPInteraction(num_layers=2)(emb_list)]
+        output = MLPInteraction(num_layers=2)(fm_output + bottom_mlp_output)
+    else:
+        fm_output = [CrossNetInteraction()( [emb_dict['sparse']] )] if 'sparse' in emb_dict else []
+        bottom_mlp_output = [MLPInteraction()( [emb_dict['dense']] )] if 'dense' in emb_dict else []
+        output = MLPInteraction(num_layers=2)(fm_output + bottom_mlp_output)
+    return output
+
+
+def build_autoint(emb_dict):
+    if 'user' in emb_dict or 'item' in emb_dict:
+        emb_list = [emb for _, emb in emb_dict.items()]
+        fm_output = [SelfAttentionInteraction()(emb_list)]
+        bottom_mlp_output = [MLPInteraction(num_layers=2)(emb_list)]
+        output = MLPInteraction(num_layers=2)(fm_output + bottom_mlp_output)
+    else:
+        fm_output = [SelfAttentionInteraction()( [emb_dict['sparse']] )] if 'sparse' in emb_dict else []
+        bottom_mlp_output = [MLPInteraction()( [emb_dict['dense']] )] if 'dense' in emb_dict else []
+        output = MLPInteraction(num_layers=2)(fm_output + bottom_mlp_output)
     return output
 
 
@@ -57,7 +81,6 @@ def build_neumf(emb_dict):
 
 
 def build_autorec(emb_dict):
-
     if 'user' in emb_dict or 'item' in emb_dict:
         emb_list = [emb for _, emb in emb_dict.items()]
         output = HyperInteraction()(emb_list)
@@ -135,8 +158,12 @@ if __name__ == '__main__':
         output = build_dlrm(emb_dict)
     if args.model == 'deepfm':
         output = build_deepfm(emb_dict)
-    if args.model == 'neumf':
+    if args.model == 'crossnet':
         output = build_neumf(emb_dict)
+    if args.model == 'autoint':
+        output = build_autorec(emb_dict)
+    if args.model == 'neumf':
+        output = build_autorec(emb_dict)
     if args.model == 'autorec':
         output = build_autorec(emb_dict)
 

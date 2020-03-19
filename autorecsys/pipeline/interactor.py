@@ -4,7 +4,6 @@ import tensorflow as tf
 from tensorflow.python.util import nest
 from autorecsys.pipeline.base import Block
 from autorecsys.pipeline.utils import Bias
-from tensorflow.keras.layers import Dense, Input, Concatenate
 import random
 import tensorflow as tf
 import numpy as np
@@ -189,6 +188,7 @@ class HyperInteraction(Block):
             "ElementwiseInteraction": ElementwiseInteraction,
             "FMInteraction": FMInteraction, 
             "CrossNetInteraction": CrossNetInteraction,
+            "SelfAttentionInteraction": SelfAttentionInteraction,
         }
 
     def get_state(self):
@@ -266,10 +266,8 @@ class FMInteraction(Block):
 
         # align the embedding_dim of input nodes if they're not the same
         embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [4, 8, 16], default=8)
-
         output_node = [tf.keras.layers.Dense(embedding_dim)(node) 
                         if node.shape[2] != embedding_dim  else node for node in input_node]
-
         output_node = tf.concat(output_node, axis=1)
 
         square_of_sum = tf.square(tf.reduce_sum(output_node, axis=1, keepdims=True))
@@ -313,7 +311,7 @@ class CrossNetInteraction(Block):
         embedding_dim = input_node.shape[-1]
 
         output_node = input_node
-        for layer_idx in range(layer_num):
+        for _ in range(layer_num):
             pre_output_emb = tf.keras.layers.Dense(1, use_bias=False)(output_node) 
             cross_dot = tf.math.multiply(input_node, pre_output_emb)
             output_node = cross_dot + output_node
@@ -323,63 +321,110 @@ class CrossNetInteraction(Block):
 
 
 
-# class InteractingLayer(Layer):
-#     """
-#     """
-#     def __init__(self, att_embedding_size=8, head_num=2, use_res=True, seed=1024, **kwargs):
-#         if head_num <= 0:
-#             raise ValueError('head_num must be a int > 0')
-#         self.att_embedding_size = att_embedding_size
-#         self.head_num = head_num
-#         self.use_res = use_res
-#         self.seed = seed
-#         super(InteractingLayer, self).__init__(**kwargs)
-#     def build(self, input_shape):
-#         if len(input_shape) != 3:
-#             raise ValueError(
-#                 "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (len(input_shape)))
-#         embedding_size = int(input_shape[-1])
-#         self.W_Query = self.add_weight(name='query', shape=[embedding_size, self.att_embedding_size * self.head_num],
-#                                        dtype=tf.float32,
-#                                        initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed))
-#         self.W_key = self.add_weight(name='key', shape=[embedding_size, self.att_embedding_size * self.head_num],
-#                                      dtype=tf.float32,
-#                                      initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed + 1))
-#         self.W_Value = self.add_weight(name='value', shape=[embedding_size, self.att_embedding_size * self.head_num],
-#                                        dtype=tf.float32,
-#                                        initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed + 2))
-#         if self.use_res:
-#             self.W_Res = self.add_weight(name='res', shape=[embedding_size, self.att_embedding_size * self.head_num],
-#                                          dtype=tf.float32,
-#                                          initializer=tf.keras.initializers.TruncatedNormal(seed=self.seed))
-#         # Be sure to call this somewhere!
-#         super(InteractingLayer, self).build(input_shape)
-#     def call(self, inputs, **kwargs):
-#         if K.ndim(inputs) != 3:
-#             raise ValueError(
-#                 "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (K.ndim(inputs)))
-#         querys = tf.tensordot(inputs, self.W_Query,
-#                               axes=(-1, 0))  # None F D*head_num
-#         keys = tf.tensordot(inputs, self.W_key, axes=(-1, 0))
-#         values = tf.tensordot(inputs, self.W_Value, axes=(-1, 0))
-#         # head_num None F D
-#         querys = tf.stack(tf.split(querys, self.head_num, axis=2))
-#         keys = tf.stack(tf.split(keys, self.head_num, axis=2))
-#         values = tf.stack(tf.split(values, self.head_num, axis=2))
-#         inner_product = tf.matmul(
-#             querys, keys, transpose_b=True)  # head_num None F F
-#         self.normalized_att_scores = softmax(inner_product)
-#         result = tf.matmul(self.normalized_att_scores,
-#                            values)  # head_num None F D
-#         result = tf.concat(tf.split(result, self.head_num, ), axis=-1)
-#         result = tf.squeeze(result, axis=0)  # None F D*head_num
-#         if self.use_res:
-#             result += tf.tensordot(inputs, self.W_Res, axes=(-1, 0))
-#         result = tf.nn.relu(result)
-#         return result
-#     def compute_output_shape(self, input_shape):
-#         return (None, input_shape[1], self.att_embedding_size * self.head_num)
-#     def get_config(self, )        config = {'att_embedding_size': self.att_embedding_size, 'head_num': self.head_num, 'use_res': self.use_res,
-#                   'seed': self.seed}
-#         base_config = super(InteractingLayer, self).get_config()
-#         return dict(list(base_config.items()) + list(config.items()))
+class SelfAttentionInteraction(Block):
+    """Module for crossnet layer in deep & cross network
+    """
+    def __init__(self, 
+                  embedding_dim=None, 
+                  att_embedding_dim=None, 
+                  head_num=None, 
+                  residual=None, 
+                  **kwargs):
+        super(SelfAttentionInteraction, self).__init__(**kwargs)
+
+        self.embedding_dim = embedding_dim
+        self.att_embedding_dim = embedding_dim
+        self.head_num = head_num
+        self.residual = residual
+
+    def get_state(self):
+        state = super().get_state()
+        state.update(
+            {
+                'embedding_dim': self.embedding_dim,
+                'att_embedding_dim': self.att_embedding_dim,
+                'head_num': self.head_num,
+                'residual': self.residual,
+            })
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+        self.embedding_dim = state['embedding_dim']
+        self.att_embedding_dim = state['att_embedding_dim']
+        self.head_num = state['head_num']
+        self.residual = state['residual']
+
+    def _scaled_dot_product_attention(self, q, k, v):
+        """Calculate the attention weights.
+        q, k, v must have matching leading dimensions.
+        k, v must have matching penultimate dimension, i.e.: seq_len_k = seq_len_v.
+        The mask has different shapes depending on its type(padding or look ahead) 
+        but it must be broadcastable for addition.
+        
+        Args:
+          q: query shape == (..., seq_len_q, depth)
+          k: key shape == (..., seq_len_k, depth)
+          v: value shape == (..., seq_len_v, depth_v)
+          
+        Returns:
+          output, attention_weights
+        """
+
+        matmul_qk = tf.matmul(q, k, transpose_b=True)  # (..., seq_len_q, seq_len_k)
+        
+        # scale matmul_qk
+        dk = tf.cast(tf.shape(k)[-1], tf.float32)
+        scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)
+
+        # softmax is normalized on the last axis (seq_len_k) so that the scores
+        # add up to 1.
+        attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)  # (..., seq_len_q, seq_len_k)
+
+        output = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
+
+        return output
+
+    def build(self, hp, inputs=None):
+        input_node = nest.flatten(inputs)
+
+        # expland all the tensors to 3D tensor 
+        for idx, node in enumerate(input_node):
+            if len(node.shape) == 1:
+                input_node[idx] = tf.expand_dims(tf.expand_dims(node, -1), -1)
+            elif len(node.shape) == 2:
+                input_node[idx] = tf.expand_dims(node, 1) 
+            elif len(node.shape) > 3:
+                raise ValueError(
+                    "Unexpected inputs dimensions %d, expect to be smaller than 3" % len(node.shape)
+                )
+
+        # align the embedding_dim of input nodes if they're not the same
+        embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [4, 8, 16], default=8)
+        output_node = [tf.keras.layers.Dense(embedding_dim)(node) 
+                        if node.shape[2] != embedding_dim  else node for node in input_node]
+        output_node = tf.concat(output_node, axis=1)
+
+
+        att_embedding_dim = self.att_embedding_dim or hp.Choice('att_embedding_dim', [4, 8, 16], default=8)
+        head_num = self.head_num or hp.Choice('head_num', [1, 2, 3, 4], default=2)
+        residual = self.residual or hp.Choice('residual', [True, False], default=True)
+
+        outputs = []
+        for _ in range(head_num):
+            query = tf.keras.layers.Dense(att_embedding_dim, use_bias=False)(output_node) 
+            key = tf.keras.layers.Dense(att_embedding_dim, use_bias=False)(output_node) 
+            value = tf.keras.layers.Dense(att_embedding_dim, use_bias=False)(output_node) 
+          
+            outputs.append(
+                            self._scaled_dot_product_attention(query, key, value)
+                          )
+
+        outputs = tf.concat(outputs, axis=2)
+
+        if self.residual:
+            outputs += tf.keras.layers.Dense(att_embedding_dim * head_num, use_bias=False)(output_node)
+                  
+        return output_node
+
+
