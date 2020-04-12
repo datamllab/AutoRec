@@ -5,9 +5,15 @@ from abc import ABCMeta, abstractmethod
 from typing import List
 
 from sklearn.model_selection import train_test_split
+from collections import defaultdict
+
 import pandas as pd
 import numpy as np
+import sys
 import time
+import gc
+import psutil
+import os
 
 
 class BaseProprocessor(metaclass=ABCMeta):
@@ -26,8 +32,24 @@ class BaseProprocessor(metaclass=ABCMeta):
 
 class BaseRatingPredictionProprocessor(BaseProprocessor):
     """
-    for RatingPrediction recommendation methods, rating prediction for Movielens
-    and can also for the similar dataset for rating prediction task
+    for rating prediction recommendation methods
+    """
+
+    @abstractmethod
+    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
+        super(BaseProprocessor, self).__init__()
+        self.dataset_path = dataset_path
+        self.train_path = train_path
+        self.val_path = val_path
+
+    @abstractmethod
+    def preprocessing(self, **kwargs):
+        raise NotImplementedError
+
+
+class BaseCTRPreprocessor(BaseProprocessor):
+    """
+    for click-through rate (CTR) recommendation methods
     """
 
     @abstractmethod
@@ -76,6 +98,117 @@ class BasePairWiseProprocessor(BaseProprocessor):
     @abstractmethod
     def preprocessing(self, **kwargs):
         raise NotImplementedError
+
+
+class CriteoPreprocessor(BaseCTRPreprocessor):
+
+    def __init__(self, dataset_path, save_path):
+        super(CriteoPreprocessor, self).__init__(dataset_path=dataset_path, )
+        self.save_path = save_path
+        self.label_num = 1
+        self.numer_num = 13
+        self.categ_num = 26
+        self.categ_filter = 10
+
+        self.label_names = ["l" + str(i) for i in range(self.label_num)]
+        self.numer_names = ["d" + str(i) for i in range(self.numer_num)]
+        self.categ_names = ["c" + str(i) for i in range(self.categ_num)]
+
+        self.columns_names = self.label_names + self.numer_names + self.categ_names
+        self.used_columns_names = self.label_names + self.numer_names + self.categ_names
+        self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
+
+        self._load_data()
+
+    def _load_data(self):
+
+        """
+        :return:
+
+        Criteo dataset has 40 features per line, where [0] = label, [1-13] = numerical, and [14-39] = categorical
+        """
+        label_ll = [list() for _ in range(self.label_num)]  # list of label data
+        numer_ll = [list() for _ in range(self.numer_num)]  # list of each numerical feature's data
+        categ_ll = [list() for _ in range(self.categ_num)]  # list of each categorical feature's data
+        # Define dictionary where key="feature index" & val="dictionary" where key="category" & val="count".
+        categ_count_dict = defaultdict(lambda: defaultdict(int))
+
+
+        # Step 1: Load label, numerical, and categorical features
+        with open(self.dataset_path, 'r') as ld:
+            label_start = 0
+            numer_start = 0 + self.label_num
+            categ_start = 0 + self.label_num + self.numer_num
+
+            for line in ld:
+                line = [v if v != "" else -1 for v in line.strip('\n').split('\t')]  # replace missing value with -1
+
+                for i in range(self.label_num):  # record label feature data
+                    label_ll[i].append(int(line[label_start + i]))
+                for i in range(self.numer_num):  # record numerical feature data
+                    numer_ll[i].append(int(line[numer_start + i]))
+                for i in range(self.categ_num):  # record categorical feature data
+                    categ_ll[i].append(line[categ_start + i])
+                    categ_count_dict[i][line[categ_start + i]] += 1  # count category occurrences
+
+        # Step 2: Generate dictionary for renumbering categories.
+        # Define dictionary where key="feature index" & val="dictionary" where key="category" & val="index".
+        categ_index_dict = defaultdict(lambda: defaultdict(int))
+
+        for feat_index, categ_dict in categ_count_dict.items():
+            categ_index = 1  # reserve 0 for filtered infrequent categories, which will be indexed later
+            for categ, count in categ_dict.items():
+                if count >= self.categ_filter:
+                    categ_index_dict[feat_index][categ] = categ_index
+                    categ_index += 1
+
+        del categ_count_dict  # release memory
+        gc.collect()
+
+        # Step 3: Reindex categories and obtain hash statistics.
+        for i in range(self.categ_num):
+            categ_ll[i] = [categ_index_dict[i][c] for c in categ_ll[i]]  # filtered categories will be indexed 0
+
+        self.hash_sizes = [len(categ_index_dict[i].values())+1 for i in range(self.categ_num)]  # +1 compensates index 0
+
+        del categ_index_dict  # release memory
+        gc.collect()
+
+        # Step 4: Format data.
+        array_data = np.concatenate((np.asarray(label_ll).T, np.asarray(numer_ll).T, np.asarray(categ_ll).T), axis=1)
+
+        del label_ll  # release memory
+        del numer_ll
+        del categ_ll
+        gc.collect()
+
+        # TODO: Support save/load preprocessed data.
+        np.save(self.save_path, array_data)
+
+        self.pd_data = pd.DataFrame(array_data, columns=self.used_columns_names)
+        del array_data
+        gc.collect()
+
+        for col_name, dtype in self.dtype_dict.items():
+            self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
+
+    def preprocessing(self, test_size, random_state):
+        self.X = self.pd_data.iloc[::, 1:].values
+        self.y = self.pd_data.iloc[::, 1].values
+
+        train_X, val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
+                                                                              random_state=random_state)
+        # Reformat numerical features and categorical features.
+        self.train_X = [train_X[:, :self.numer_num], train_X[:, self.numer_num:]]
+
+        del train_X  # release memory
+        gc.collect()
+
+        self.val_X = [val_X[:, :self.numer_num], val_X[:, self.numer_num:]]
+
+        del val_X  # release memory
+        gc.collect()
+
 
 
 class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
