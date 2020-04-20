@@ -14,6 +14,7 @@ import time
 import gc
 import psutil
 import os
+import math
 
 
 class BaseProprocessor(metaclass=ABCMeta):
@@ -100,29 +101,60 @@ class BasePairWiseProprocessor(BaseProprocessor):
         raise NotImplementedError
 
 
+class AvazuPreprocessor(BaseCTRPreprocessor):
+
+    def __init__(self, dataset_path, save_path):
+        super(AvazuPreprocessor, self).__init__(dataset_path=dataset_path, )
+        self.save_path = save_path
+        self.categ_filter = 10
+
+        self.columns_names = ["id", "click", "hour", "C1", "banner_pos", "site_id", "site_domain", "site_category",
+                              "app_id", "app_domain", "app_category", "device_id", "device_ip", "device_model",
+                              "device_type", "device_conn_type", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21"]
+        self.used_columns_names = self.columns_names
+        self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
+
+        self._load_data()
+
+    def _load_data(self):
+        raise NotImplementedError
+
+    def preprocessing(self, test_size, random_state):
+        raise NotImplementedError
+
+
 class CriteoPreprocessor(BaseCTRPreprocessor):
 
     def __init__(self, dataset_path, save_path):
         super(CriteoPreprocessor, self).__init__(dataset_path=dataset_path, )
-        self.save_path = save_path
+        self.save_path = save_path  # TODO: put the member variable into base class
         self.label_num = 1
         self.numer_num = 13
         self.categ_num = 26
         self.categ_filter = 10
 
+        self.label_indices = np.arange(self.label_num)
+        self.numer_indices = np.arange(self.numer_num) + self.label_num
+        self.categ_indices = np.arange(self.categ_num) + self.label_num + self.numer_num
+
         self.label_names = ["l" + str(i) for i in range(self.label_num)]
-        self.numer_names = ["d" + str(i) for i in range(self.numer_num)]
+        self.numer_names = ["n" + str(i) for i in range(self.numer_num)]
         self.categ_names = ["c" + str(i) for i in range(self.categ_num)]
 
         self.columns_names = self.label_names + self.numer_names + self.categ_names
         self.used_columns_names = self.label_names + self.numer_names + self.categ_names
+        # Set data type of all columns as integer:
+        #   1) The label feature is binary and thus expressible in floats.
+        #   2) The numerical features are expressible in floats.
+        #   3) The categorical features are indexed as numerical values and thus expressible in floats.
         self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
 
         self._load_data()
 
     def _load_data(self):
 
-        """
+        """ Load raw Criteo data, in progress setting self.hash_sizes (from categorical data) and self.pd_data (from
+            all data).
         :return:
 
         Criteo dataset has 40 features per line, where [0] = label, [1-13] = numerical, and [14-39] = categorical
@@ -133,48 +165,53 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         # Define dictionary where key="feature index" & val="dictionary" where key="category" & val="count".
         categ_count_dict = defaultdict(lambda: defaultdict(int))
 
-
         # Step 1: Load label, numerical, and categorical features
         with open(self.dataset_path, 'r') as ld:
-            label_start = 0
-            numer_start = 0 + self.label_num
-            categ_start = 0 + self.label_num + self.numer_num
 
             for line in ld:
-                line = [v if v != "" else -1 for v in line.strip('\n').split('\t')]  # replace missing value with -1
+                # Using zero "0" as substitute for missing values in:
+                #   1) Numerical feature may corrupt data because 0 is numerical, e.g., use "99" will change the result.
+                #   2) Categorical feature will not corrupt data because the string "0" actually starts a new category.
+                # TODO: Need a principled way to determine missing values for numerical features.
+                line = [v if v != "" else "0" for v in line.strip('\n').split('\t')]
 
-                for i in range(self.label_num):  # record label feature data
-                    label_ll[i].append(int(line[label_start + i]))
-                for i in range(self.numer_num):  # record numerical feature data
-                    numer_ll[i].append(int(line[numer_start + i]))
-                for i in range(self.categ_num):  # record categorical feature data
-                    categ_ll[i].append(line[categ_start + i])
-                    categ_count_dict[i][line[categ_start + i]] += 1  # count category occurrences
+                for i, j in enumerate(self.label_indices):  # record label feature data
+                    label_ll[i].append(float(line[j]))  # typecast from string saves memory
+                for i, j in enumerate(self.numer_indices):  # record numerical feature data
+                    numer_ll[i].append(float(line[j]))  # typecast from string saves memory
+                for i, j in enumerate(self.categ_indices):  # record categorical feature data
+                    categ_ll[i].append(line[j])  # cannot typecast string data
+                    categ_count_dict[i][line[j]] += 1  # count category occurrences
 
-        # Step 2: Generate dictionary for renumbering categories.
+        # Step 2: Create dictionary for indexing categories.
         # Define dictionary where key="feature index" & val="dictionary" where key="category" & val="index".
         categ_index_dict = defaultdict(lambda: defaultdict(int))
 
         for feat_index, categ_dict in categ_count_dict.items():
-            categ_index = 1  # reserve 0 for filtered infrequent categories, which will be indexed later
+            categ_index = 0
             for categ, count in categ_dict.items():
-                if count >= self.categ_filter:
+                if count >= self.categ_filter:  # index filtered categories at a later stage
                     categ_index_dict[feat_index][categ] = categ_index
                     categ_index += 1
 
         del categ_count_dict  # release memory
         gc.collect()
 
-        # Step 3: Reindex categories and obtain hash statistics.
-        for i in range(self.categ_num):
-            categ_ll[i] = [categ_index_dict[i][c] for c in categ_ll[i]]  # filtered categories will be indexed 0
+        # Step 3: Index categories.
+        for i, categ_l in enumerate(categ_ll):
+            for j, c in enumerate(categ_l):
+                if c in categ_index_dict[i]:
+                    categ_ll[i][j] = categ_index_dict[i][c]  # index in-place
+                else:  # index filtered categories as the end index
+                    categ_ll[i][j] = len(categ_index_dict[i])
 
-        self.hash_sizes = [len(categ_index_dict[i].values())+1 for i in range(self.categ_num)]  # +1 compensates index 0
+        # Step 4: Obtain hash statistics.
+        self.hash_sizes = [len(set(categ_l)) for categ_l in categ_ll]
 
         del categ_index_dict  # release memory
         gc.collect()
 
-        # Step 4: Format data.
+        # Step 5: Format data.
         array_data = np.concatenate((np.asarray(label_ll).T, np.asarray(numer_ll).T, np.asarray(categ_ll).T), axis=1)
 
         del label_ll  # release memory
@@ -186,15 +223,26 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         np.save(self.save_path, array_data)
 
         self.pd_data = pd.DataFrame(array_data, columns=self.used_columns_names)
-        del array_data
-        gc.collect()
 
         for col_name, dtype in self.dtype_dict.items():
             self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
 
+    def scale_numerical_data(self):
+
+        # TODO: Designated transformation functions to specified place.
+        def scale_by_natural_log(num):
+            # TODO: 1) Explain why the conditional statement makes exception for numbers like 1, where 1>ln(1)**2
+            if num > 2:
+                num = math.log(float(num))**2
+            return num
+
+        for numer_name in self.numer_names:
+            self.pd_data[numer_name] = self.pd_data[numer_name].map(scale_by_natural_log)
+
+
     def preprocessing(self, test_size, random_state):
-        self.X = self.pd_data.iloc[::, 1:].values
-        self.y = self.pd_data.iloc[::, 1].values
+        self.X = self.pd_data.iloc[:, 1:].values
+        self.y = self.pd_data.iloc[:, [0]].values
 
         train_X, val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
                                                                               random_state=random_state)
@@ -257,8 +305,8 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
 
 
     def preprocessing(self, test_size, random_state):
-        self.X = self.pd_data.iloc[::, :-1].values
-        self.y = self.pd_data.iloc[::, -1].values
+        self.X = self.pd_data.iloc[:, :-1].values
+        self.y = self.pd_data.iloc[:, [-1]].values
         self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
                                                                               random_state=random_state)
 

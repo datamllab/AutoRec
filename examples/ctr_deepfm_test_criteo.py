@@ -11,7 +11,7 @@ from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, PointWiseOptimizer
 from autorecsys.recommender import CTRRecommender
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor
-
+import tensorflow as tf
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -22,10 +22,12 @@ logger = logging.getLogger(__name__)
 st = time.time()
 # load dataset
 # criteo_path = "./examples/datasets/criteo_full/train.txt"
-criteo_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"
+# criteo_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"r
+criteo_path = "./examples/datasets/criteo_2mil/train_2mil.txt"
 save_path = "./preprocessed_sampled_criteo_data.npy"
 criteo = CriteoPreprocessor(criteo_path, save_path)
 criteo.preprocessing(test_size=0.2, random_state=1314)
+criteo.scale_numerical_data()
 train_X, train_y, val_X, val_y = criteo.train_X, criteo.train_y, criteo.val_X, criteo.val_y
 print("Preprocessing time:\t", time.time()-st)
 
@@ -59,7 +61,7 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
-                batch_size=10000
+                batch_size=1024
                 )
 logger.info('First 10 Predicted Ratings: {}'.format(searcher.predict(x=val_X)[:10]))
 logger.info('Predicting Accuracy (logloss): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
