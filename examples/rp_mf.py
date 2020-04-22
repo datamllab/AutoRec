@@ -24,6 +24,7 @@ ml_1m = NetflixPrizePreprocessor(nf_paths)
 ml_1m.preprocessing(test_size=0.1, random_state=1314)
 train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
 
+
 # build the pipeline.
 input = Input(shape=[2])
 user_emb = LatentFactorMapper(feat_column_id=0,

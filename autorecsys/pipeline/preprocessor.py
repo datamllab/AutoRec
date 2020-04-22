@@ -176,9 +176,9 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
                 line = [v if v != "" else "0" for v in line.strip('\n').split('\t')]
 
                 for i, j in enumerate(self.label_indices):  # record label feature data
-                    label_ll[i].append(float(line[j]))  # typecast from string saves memory
+                    label_ll[i].append(int(line[j]))  # typecast from string saves memory
                 for i, j in enumerate(self.numer_indices):  # record numerical feature data
-                    numer_ll[i].append(float(line[j]))  # typecast from string saves memory
+                    numer_ll[i].append(int(line[j]))  # typecast from string saves memory
                 for i, j in enumerate(self.categ_indices):  # record categorical feature data
                     categ_ll[i].append(line[j])  # cannot typecast string data
                     categ_count_dict[i][line[j]] += 1  # count category occurrences
@@ -240,7 +240,7 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
             self.pd_data[numer_name] = self.pd_data[numer_name].map(scale_by_natural_log)
 
 
-    def preprocessing(self, test_size, random_state):
+    def preprocessing(self, test_size, random_state=None):
         self.X = self.pd_data.iloc[:, 1:].values
         self.y = self.pd_data.iloc[:, [0]].values
 

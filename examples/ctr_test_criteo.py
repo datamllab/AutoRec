@@ -2,34 +2,45 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import logging
 import numpy as np
 import time
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, PointWiseOptimizer
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, SelfAttentionInteraction, MLPInteraction, PointWiseOptimizer
 from autorecsys.recommender import CTRRecommender
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor
-from autorecsys.utils.common import set_seed
 
+st = time.time()
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-set_seed(0)
-st = time.time()
+
 # load dataset
-# criteo_path = "./examples/datasets/criteo_full/train.txt"
-# criteo_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"
-criteo_path = "./examples/datasets/criteo_2mil/train_2mil.txt"
-save_path = "./preprocessed_sampled_criteo_data.npy"
-criteo = CriteoPreprocessor(criteo_path, save_path)
-criteo.preprocessing(test_size=0.2)
-criteo.scale_numerical_data()
+criteo_path = "./examples/datasets/criteo_full/train.txt"
+criteo = CriteoPreprocessor(criteo_path)
+criteo.preprocessing(test_size=0.2, random_state=1314)
 train_X, train_y, val_X, val_y = criteo.train_X, criteo.train_y, criteo.val_X, criteo.val_y
-print("Preprocessing time:\t", time.time()-st)
+
+# print(criteo.hash_sizes)
+# print()
+# print(train_X[:3])
+# print(train_X.shape)
+# print()
+# print(val_X[:3])
+# print(val_X.shape)
+# print()
+# print(train_y[:3])
+# print(train_y.shape)
+# print()
+# print(val_y[:3])
+# print(val_y.shape)
+# input()
+
+# TODO: preprocess train val split
 
 # build the pipeline.
 dense_input_node = Input(shape=[criteo.numer_num])
@@ -44,9 +55,9 @@ sparse_feat_emb = SparseFeatureMapper(
     hash_size=criteo.hash_sizes,
     embedding_dim=2)(sparse_input_node)
 
-fm_output = FMInteraction()([sparse_feat_emb])
+attention_output = SelfAttentionInteraction()([dense_feat_emb, sparse_feat_emb])
 bottom_mlp_output = MLPInteraction()([dense_feat_emb])
-top_mlp_output = MLPInteraction()([fm_output, bottom_mlp_output])
+top_mlp_output = MLPInteraction()([attention_output, bottom_mlp_output])
 
 output = PointWiseOptimizer()(top_mlp_output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
@@ -61,19 +72,20 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
-                batch_size=1024
+                batch_size=1000
                 )
-
 logger.info('First 10 Predicted Ratings: {}'.format(searcher.predict(x=val_X)[:10]))
-logger.info('Predicting BinaryCrossentropy: {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+logger.info('Predicting Accuracy (logloss): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
 
-print("Total time:\t", time.time()-st)
+
+print(time.time()-st)
+
 
 
 # # load dataset
 # mini_criteo = np.load("./examples/datasets/criteo/criteo_2M.npz")
 # # TODO: preprocess train val split
-# train_X = [mini_criteo['X_int'].astype(np.float32), mini_criteo['X_cat'].astype(np.float32)]
+# train_X = [mini_criteo['X_int'].astype(np.float32), mini_criteo['X_cat'].astype(np.float32)]  # numerical & categorical features are combined as list of nparray
 # train_y = mini_criteo['y']
 # val_X, val_y = train_X, train_y
 #
@@ -96,9 +108,9 @@ print("Total time:\t", time.time()-st)
 #     ],
 #     embedding_dim=2)(sparse_input_node)
 #
-# fm_output = FMInteraction()([sparse_feat_emb])
+# attention_output = SelfAttentionInteraction()([dense_feat_emb, sparse_feat_emb])
 # bottom_mlp_output = MLPInteraction()([dense_feat_emb])
-# top_mlp_output = MLPInteraction()([fm_output, bottom_mlp_output])
+# top_mlp_output = MLPInteraction()([attention_output, bottom_mlp_output])
 #
 # output = PointWiseOptimizer()(top_mlp_output)
 # model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
