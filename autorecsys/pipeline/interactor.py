@@ -226,8 +226,18 @@ class HyperInteraction(Block):
 
 
 class FMInteraction(Block):
-    """
-    factorization machine interactor
+    """CTR module for factorization machine operation.
+
+    This block applies factorization machine operation on a list of 
+    input 3D tensors of size (batch_size, field_size, embedding_size). 
+    It will align the dimension of tensors to 3D if they're 1D or 2D originally, and 
+    will align/transfrom the last embedding dimension based on a tunable hyperaparmeter.
+
+    Reference: https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf
+
+    # Attributes:
+        embedding_dim (int). The transformed embedding dimension of each field,
+                            before conducting the factorization machine operation.
     """
 
     def __init__(self,
