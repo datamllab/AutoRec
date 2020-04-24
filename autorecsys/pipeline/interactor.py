@@ -228,12 +228,12 @@ class HyperInteraction(Block):
 class FMInteraction(Block):
     """CTR module for factorization machine operation.
 
+    Reference: https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf
+
     This block applies factorization machine operation on a list of 
     input 3D tensors of size (batch_size, field_size, embedding_size). 
     It will align the dimension of tensors to 3D if they're 1D or 2D originally, and 
     will align/transfrom the last embedding dimension based on a tunable hyperaparmeter.
-
-    Reference: https://www.csie.ntu.edu.tw/~b97053/paper/Rendle2010FM.pdf
 
     # Attributes:
         embedding_dim (int). The transformed embedding dimension of each field,
@@ -290,7 +290,21 @@ class FMInteraction(Block):
 
 
 class CrossNetInteraction(Block):
-    """Module for crossnet layer in deep & cross network
+    """CTR module for crossnet layer in deep & cross network.
+
+    Reference: https://arxiv.org/pdf/1708.05123.pdf
+
+    This block applies cross interaction operation on a 2D tensors of size 
+    (batch_size, embedding_size). 
+
+    We assume the input could be a list of tensors of 2D or 3D, and the block will 
+    flatten them as as list of 2D tensors, and ten concatenate them as a single 2D
+    tensor. The cross interaction follows the reference and the number of 
+    layers of the cross interaction is tunable.
+
+
+    # Attributes:
+        layer_num (int). The number of layers of the cross interaction.
     """
     def __init__(self, 
                 layer_num=None, 
@@ -320,6 +334,7 @@ class CrossNetInteraction(Block):
         layer_num = self.layer_num or hp.Choice('layer_num', [1, 2, 3, 4], default=1)
         embedding_dim = input_node.shape[-1]
 
+        # perform the multilayer cross net interaction
         output_node = input_node
         for _ in range(layer_num):
             pre_output_emb = tf.keras.layers.Dense(1, use_bias=False)(output_node) 
@@ -332,7 +347,23 @@ class CrossNetInteraction(Block):
 
 
 class SelfAttentionInteraction(Block):
-    """Module for crossnet layer in deep & cross network
+    """CTR module for the multi-head self-attention layer in the autoint paper.
+
+    Reference: https://arxiv.org/pdf/1708.05123.pdf
+
+    This block applies multi-head self-attention on a 3D tensor of size 
+    (batch_size, field_size, embedding_size). 
+    
+    We assume the input could be a list of tensors of 1D, 2D or 3D, and the block 
+    will align the dimension of tensors to 3D if they're 1D or 2D originally, and 
+    it will also align the last embedding dimension based on a tunable hyperaparmeter.
+
+    # Attributes:
+        embedding_dim (int). Embedding dimension for aligning embedding dimension of 
+                            the input tensors.
+        att_embedding_dim (int). Output embedding dimension after the mulit-head self-attention.
+        head_num (int). Number of attention heads.
+        residual (boolean). Whether to apply residual connection after self-attention or not.
     """
     def __init__(self, 
                   embedding_dim=None, 
@@ -366,7 +397,10 @@ class SelfAttentionInteraction(Block):
         self.residual = state['residual']
 
     def _scaled_dot_product_attention(self, q, k, v):
-        """Calculate the attention weights.
+        """Calculate the attention weights. 
+
+        Reference: https://www.tensorflow.org/tutorials/text/transformer
+
         q, k, v must have matching leading dimensions.
         k, v must have matching penultimate dimension, i.e.: seq_len_k = seq_len_v.
         The mask has different shapes depending on its type(padding or look ahead) 
@@ -378,10 +412,10 @@ class SelfAttentionInteraction(Block):
           v: value shape == (..., seq_len_v, depth_v)
           
         Returns:
-          output, attention_weights
+          single-head attention result
         """
 
-        matmul_qk = tf.matmul(q, k, transpose_b=True)  # (..., seq_len_q, seq_len_k)
+        matmul_qk = tf.matmul(q, k, transpose_b=True) 
         
         # scale matmul_qk
         dk = tf.cast(tf.shape(k)[-1], tf.float32)
@@ -389,9 +423,8 @@ class SelfAttentionInteraction(Block):
 
         # softmax is normalized on the last axis (seq_len_k) so that the scores
         # add up to 1.
-        attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)  # (..., seq_len_q, seq_len_k)
-
-        output = tf.matmul(attention_weights, v)  # (..., seq_len_q, depth_v)
+        attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)
+        output = tf.matmul(attention_weights, v)
 
         return output
 
