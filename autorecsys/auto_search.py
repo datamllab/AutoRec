@@ -36,13 +36,13 @@ class Search(object):
         self.best_model = None
         self.need_fully_train = False
 
-    def search(self, x=None, y=None, x_val=None, y_val=None, objective=None, batch_size=None):
+    def search(self, x=None, y=None, x_val=None, y_val=None, objective=None, **fit_kwargs):
         # overwrite the objective
         self.objective = objective or 'mse'
         tuner = self._build_tuner(self.tuner, self.tuner_params)
 
         # TODO search on a small piece of train data, currently it uses whole train data
-        tuner.search(x=x, y=y, x_val=x_val, y_val=y_val, batch_size=batch_size)
+        tuner.search(x=x, y=y, x_val=x_val, y_val=y_val, **fit_kwargs)
         # show the search space
         tuner.search_space_summary()
         # show the search results
