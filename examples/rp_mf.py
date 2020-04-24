@@ -59,6 +59,5 @@ searcher.search(x=train_X,
                 epochs = 20,
                 callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] )
 
-
 logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
 logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
