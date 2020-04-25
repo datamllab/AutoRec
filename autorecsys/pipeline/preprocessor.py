@@ -7,6 +7,7 @@ from typing import List
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
+import time
 
 
 class BaseProprocessor(metaclass=ABCMeta):
@@ -75,6 +76,58 @@ class BasePairWiseProprocessor(BaseProprocessor):
     @abstractmethod
     def preprocessing(self, **kwargs):
         raise NotImplementedError
+
+
+class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
+
+    def __init__(self, dataset_path):
+        super(NetflixPrizePreprocessor, self).__init__(dataset_path=dataset_path, )
+        self.columns_names = ["user_id", "item_id", "rating"]
+        self.used_columns_names = ["user_id", "item_id", "rating"]
+        self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32}
+        self._load_data()
+
+    def _load_data(self):
+        """
+
+        CustomerIDs range from 1 to 2649429, with gaps. There are 480189 users.
+        :return:
+        """
+        cols = [list() for _ in range(len(self.columns_names))]
+        user2index_dict = dict()  # needs renumber since CustomerIDs range from 1 to 2649429, with gaps
+
+        for fp in self.dataset_path:  # TODO: deal with list of paths
+
+            with open(fp, 'r') as f:
+                for line in f.readlines():
+                    if ':' in line:
+                        movie = line.strip(":\n")  # needs no renumber since MovieIDs range from 1 to 17770 sequentially
+                    else:
+                        user, rating, _ = line.strip().split(',')
+                        cols[1].append(movie)
+                        cols[2].append(rating)
+
+                        if user in user2index_dict.keys():
+                            cols[0].append(user2index_dict[user])
+                        else:
+                            cols[0].append(len(user2index_dict.keys()))  # number users from 0
+                            user2index_dict[user] = len(user2index_dict.keys())
+
+        self.pd_data = pd.DataFrame(dict(zip(self.columns_names, cols)))
+
+        for col_name, dtype in self.dtype_dict.items():
+            self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
+
+        self.pd_data = self.pd_data[self.used_columns_names]
+        self.user_num = len(set(cols[0]))
+        self.item_num = len(set(cols[1]))
+
+
+    def preprocessing(self, test_size, random_state):
+        self.X = self.pd_data.iloc[::, :-1].values
+        self.y = self.pd_data.iloc[::, -1].values
+        self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
+                                                                              random_state=random_state)
 
 
 class MovielensPreprocessor(BaseRatingPredictionProprocessor):
