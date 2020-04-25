@@ -12,7 +12,7 @@ import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
     ElementwiseInteraction
-from autorecsys.pipeline.preprocessor import MovielensPreprocessor
+from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
 from autorecsys.recommender import RPRecommender
 
 # logging setting
@@ -131,7 +131,8 @@ if __name__ == '__main__':
     if args.data == "ml":
         data = MovielensPreprocessor(args.data_path, sep=args.sep)
     if args.data == "netflix":
-        data = MovielensPreprocessor(args.data_path)
+        dataset_paths = [args.data_path + "/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
+        data = NetflixPrizePreprocessor(dataset_paths)
     data.preprocessing(test_size=0.1, random_state=1314)
     train_X, train_y = data.train_X, data.train_y
     val_X, val_y = data.val_X, data.val_y
