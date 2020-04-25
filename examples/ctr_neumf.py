@@ -5,6 +5,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 import logging
+import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, PointWiseOptimizer, ElementwiseInteraction
 from autorecsys.pipeline.preprocessor import MovielensCTRPreprocessor
@@ -50,6 +51,9 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
-                batch_size=256)
+                batch_size=256,
+                epochs = 20,
+                callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
+                )
 logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
 logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))

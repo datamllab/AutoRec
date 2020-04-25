@@ -2,7 +2,7 @@
 # This codes are migrated from Keras Tuner: https://keras-team.github.io/keras-tuner/.  
 # The copyright belows to the Keras Tuner authors.
 
-
+import random
 import math
 import contextlib
 import numpy as np

@@ -5,6 +5,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import logging
+import tensorflow as tf
 import numpy as np
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, MLPInteraction, PointWiseOptimizer
@@ -58,7 +59,9 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
-                batch_size=10000
+                batch_size=10000,
+                epochs=20,
+                callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
                 )
 logger.info('First 10 Predicted Ratings: {}'.format(searcher.predict(x=val_X)[:10]))
 logger.info('Predicting Accuracy (logloss): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
