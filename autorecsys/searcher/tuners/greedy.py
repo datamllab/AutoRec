@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# This codes are migrated from Keras Tuner: https://keras-team.github.io/keras-tuner/.  
+# The copyright belows to the Keras Tuner authors.
+
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import random
