@@ -406,12 +406,12 @@ class SelfAttentionInteraction(Block):
         The mask has different shapes depending on its type(padding or look ahead) 
         but it must be broadcastable for addition.
         
-        Args:
+        # Arguments:
           q: query shape == (..., seq_len_q, depth)
           k: key shape == (..., seq_len_k, depth)
           v: value shape == (..., seq_len_v, depth_v)
           
-        Returns:
+        # Returns:
           single-head attention result
         """
 
