@@ -8,6 +8,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 import logging
+import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
     ElementwiseInteraction
@@ -116,6 +117,8 @@ if __name__ == '__main__':
     parser.add_argument('-sep', type=str, help='dataset sep')
     parser.add_argument('-search', type=str, help='input a search method name')
     parser.add_argument('-batch_size', type=int, help='batch size')
+    parser.add_argument('-epochs', type=int, help='epochs')
+    parser.add_argument('-early_stop', type=int, help='early stop')
     parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
     print("args:", args)
@@ -130,7 +133,9 @@ if __name__ == '__main__':
     if args.data == "netflix":
         data = MovielensPreprocessor(args.data_path)
     data.preprocessing(test_size=0.1, random_state=1314)
-    train_X, train_y, val_X, val_y = data.train_X, data.train_y, data.val_X, data.val_y
+    train_X, train_y = data.train_X, data.train_y
+    val_X, val_y = data.val_X, data.val_y
+    test_X, test_y =  data.val_X, data.val_y
 
     # select model
     if args.model == 'mf':
@@ -149,15 +154,18 @@ if __name__ == '__main__':
                       tuner=args.search,  ## hyperband, bayesian
                       tuner_params={'max_trials': args.trials, 'overwrite': True}
                       )
+
     start_time = time.time()
     searcher.search(x=train_X,
                     y=train_y,
                     x_val=val_X,
                     y_val=val_y,
                     objective='val_mse',
-                    batch_size=args.batch_size)
+                    batch_size=args.batch_size,
+                    epochs=args.epochs,
+                    callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.early_stop)] )
     end_time = time.time()
     print( "runing time:", end_time - start_time )
     print( "args", args)
-    logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
-    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+    logger.info('Predicted Ratings: {}'.format(searcher.predict(x=test_X)))
+    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
