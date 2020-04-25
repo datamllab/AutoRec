@@ -123,7 +123,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print("args:", args)
 
-
     if args.sep == None:
         args.sep = '::'
 
@@ -166,7 +165,7 @@ if __name__ == '__main__':
                     epochs=args.epochs,
                     callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.early_stop)] )
     end_time = time.time()
-    print( "runing time:", end_time - start_time )
-    print( "args", args)
+    print( "Runing time:", end_time - start_time )
+    print( "Args", args)
     logger.info('Predicted Ratings: {}'.format(searcher.predict(x=test_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))

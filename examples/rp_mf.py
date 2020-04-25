@@ -31,7 +31,7 @@ data = NetflixPrizePreprocessor(dataset_paths)
 # data = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
 # data = MovielensPreprocessor("./examples/datasets/ml-10M100K/ratings.dat")
 # data = MovielensPreprocessor("./examples/datasets/ml-latest/ratings.csv", sep=',')
-data.preprocessing(test_size=0.1, random_state=1314)
+data.preprocessing(test_size=0.2, random_state=1314)
 train_X, train_y, val_X, val_y = data.train_X, data.train_y, data.val_X, data.val_y
 
 # build the pipeline.
@@ -57,7 +57,7 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_mse',
-                batch_size=10240,
+                batch_size=512000,
                 epochs = 20,
                 callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] )
 
