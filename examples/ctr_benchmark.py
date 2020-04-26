@@ -8,6 +8,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 import logging
+import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, DenseFeatureMapper, SparseFeatureMapper, \
                         ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, \
@@ -95,12 +96,12 @@ def build_autorec(emb_dict):
 if __name__ == '__main__':
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('-model', type=str, help='input a model name')
+    parser.add_argument('-model', type=str, help='input a model name', default='dlrm')
     parser.add_argument('-data', type=str, help='dataset name', default="criteo")
     parser.add_argument('-data_path', type=str, help='dataset path', default='./examples/datasets/ml-1m/ratings.dat')
     parser.add_argument('-sep', type=str, help='dataset sep')
     parser.add_argument('-search', type=str, help='input a search method name', default='random')
-    parser.add_argument('-batch_size', type=int, help='batch size', default=1024)
+    parser.add_argument('-batch_size', type=int, help='batch size', default=10000)
     parser.add_argument('-trials', type=int, help='try number', default=2)
     args = parser.parse_args()
     print("args:", args)
@@ -111,7 +112,7 @@ if __name__ == '__main__':
 
     # Load and preprocess dataset
     if args.data == "ml":
-        data = MovielensPreprocessor(args.data_path, sep=args.sep)
+        data = MovielensCTRPreprocessor(args.data_path, sep=args.sep)
         data.preprocessing(test_size=0.1, random_state=1314)
         train_X, train_y, val_X, val_y = data.train_X, data.train_y, data.val_X, data.val_y
         input = Input(shape=[2])
@@ -181,7 +182,10 @@ if __name__ == '__main__':
                     x_val=val_X,
                     y_val=val_y,
                     objective='val_BinaryCrossentropy',
-                    batch_size=args.batch_size)
+                    batch_size=args.batch_size,
+                    epochs = 20,
+                    callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
+                    )
     end_time = time.time()
     print( "runing time:", end_time - start_time )
     print( "args", args)
