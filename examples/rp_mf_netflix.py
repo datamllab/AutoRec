@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import tensorflow as tf
@@ -39,15 +38,14 @@ test_X, test_y = data.test_X, data.test_y
 user_num = data.user_num
 item_num = data.item_num
 
-print( "train_X size:", train_X.shape )
-print( "train_y size:", train_y.shape )
-print( "val_X size:", val_X.shape )
-print( "val_y size:", val_y.shape )
-print( "test_X size:", test_X.shape )
-print( "test_y size:", test_y.shape )
-print( "user number:", user_num )
-print( "item number:", item_num )
-
+print("train_X size:", train_X.shape)
+print("train_y size:", train_y.shape)
+print("val_X size:", val_X.shape)
+print("val_y size:", val_y.shape)
+print("test_X size:", test_X.shape)
+print("test_y size:", test_y.shape)
+print("user number:", user_num)
+print("item number:", item_num)
 
 # build the pipeline.
 input = Input(shape=[2])
@@ -73,8 +71,8 @@ searcher.search(x=train_X,
                 y_val=val_y,
                 objective='val_mse',
                 batch_size=512000,
-                epochs = 10,
-                callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] )
+                epochs=10,
+                callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)])
 
 logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
 logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))

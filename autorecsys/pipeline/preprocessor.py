@@ -122,7 +122,6 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
         self.user_num = len(set(cols[0]))
         self.item_num = len(set(cols[1]))
 
-
     def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
         self.y = self.pd_data.iloc[::, -1].values

@@ -4,8 +4,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import time
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 import logging
 import tensorflow as tf
@@ -89,18 +89,18 @@ def build_neumf():
 def build_autorec():
     input = Input(shape=[2])
     user_emb_1 = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
-                                  embedding_dim=64)(input)
+                                    id_num=10000,
+                                    embedding_dim=64)(input)
     item_emb_1 = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
-                                  embedding_dim=64)(input)
+                                    id_num=10000,
+                                    embedding_dim=64)(input)
 
     user_emb_2 = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
-                                  embedding_dim=64)(input)
+                                    id_num=10000,
+                                    embedding_dim=64)(input)
     item_emb_2 = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
-                                  embedding_dim=64)(input)
+                                    id_num=10000,
+                                    embedding_dim=64)(input)
 
     output = HyperInteraction()([user_emb_1, item_emb_1, user_emb_2, item_emb_2])
     output = RatingPredictionOptimizer()(output)
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     data.preprocessing(test_size=0.1, random_state=1314)
     train_X, train_y = data.train_X, data.train_y
     val_X, val_y = data.val_X, data.val_y
-    test_X, test_y =  data.val_X, data.val_y
+    test_X, test_y = data.val_X, data.val_y
 
     # select model
     if args.model == 'mf':
@@ -163,9 +163,9 @@ if __name__ == '__main__':
                     objective='val_mse',
                     batch_size=args.batch_size,
                     epochs=args.epochs,
-                    callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.early_stop)] )
+                    callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.early_stop)])
     end_time = time.time()
-    print( "Runing time:", end_time - start_time )
-    print( "Args", args)
+    print("Runing time:", end_time - start_time)
+    print("Args", args)
     logger.info('Predicted Ratings: {}'.format(searcher.predict(x=test_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
