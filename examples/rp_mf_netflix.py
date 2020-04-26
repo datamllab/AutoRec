@@ -50,10 +50,10 @@ print("item number:", item_num)
 # build the pipeline.
 input = Input(shape=[2])
 user_emb = LatentFactorMapper(feat_column_id=0,
-                              id_num=user_num,
+                              id_num=1000000,
                               embedding_dim=64)(input)
 item_emb = LatentFactorMapper(feat_column_id=1,
-                              id_num=item_num,
+                              id_num=1000000,
                               embedding_dim=64)(input)
 output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
 output = RatingPredictionOptimizer()(output)

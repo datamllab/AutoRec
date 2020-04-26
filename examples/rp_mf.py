@@ -47,7 +47,7 @@ print("test_X size:", test_X.shape)
 print("test_y size:", test_y.shape)
 print("user number:", user_num)
 print("item number:", item_num)
-
+git
 # build the pipeline.
 input = Input(shape=[2])
 user_emb = LatentFactorMapper(feat_column_id=0,
