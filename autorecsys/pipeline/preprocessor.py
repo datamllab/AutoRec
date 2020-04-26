@@ -293,12 +293,12 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
 
         return train_X, validate_X, test_X, train_y, validate_y, test_y
 
-    def preprocessing(self, test_size, random_state=42):
+    def preprocessing(self, train_size, validate_size, random_state=42):
         self.X = self.pd_data.iloc[:, 1:].values
         self.y = self.pd_data.iloc[:, [0]].values
 
         train_X, validate_X, test_X, self.train_y, self.validate_y, self.test_y = self.split_data(
-            self.X, self.y, train_size=0.6, validate_size=0.2, random_state=random_state)
+            self.X, self.y, train_size=train_size, validate_size=validate_size, random_state=random_state)
 
         # Reformat numerical and categorical data.
         self.train_X = [train_X[:, :self.numer_num], train_X[:, self.numer_num:]]
