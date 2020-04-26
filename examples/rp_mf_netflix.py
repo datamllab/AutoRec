@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import tensorflow as tf
 # gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
@@ -25,10 +25,9 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # load dataset
-# dataset_paths = ["./examples/datasets/netflix-prize-data/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
-# data = NetflixPrizePreprocessor(dataset_paths)
-
-data = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
+dataset_paths = ["./examples/datasets/netflix-prize-data/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
+data = NetflixPrizePreprocessor(dataset_paths)
+# data = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
 # data = MovielensPreprocessor("./examples/datasets/ml-10M100K/ratings.dat")
 # data = MovielensPreprocessor("./examples/datasets/ml-latest/ratings.csv", sep=',')
 data.preprocessing(val_test_size=0.1, random_state=1314)
@@ -47,14 +46,14 @@ print("test_X size:", test_X.shape)
 print("test_y size:", test_y.shape)
 print("user number:", user_num)
 print("item number:", item_num)
-git
+
 # build the pipeline.
 input = Input(shape=[2])
 user_emb = LatentFactorMapper(feat_column_id=0,
-                              id_num=user_num,
+                              id_num=1000000,
                               embedding_dim=64)(input)
 item_emb = LatentFactorMapper(feat_column_id=1,
-                              id_num=item_num,
+                              id_num=1000000,
                               embedding_dim=64)(input)
 output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
 output = RatingPredictionOptimizer()(output)
@@ -71,7 +70,7 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_mse',
-                batch_size=256,
+                batch_size=512000,
                 epochs=10,
                 callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)])
 

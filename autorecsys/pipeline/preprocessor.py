@@ -122,11 +122,12 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
         self.user_num = len(set(cols[0]))
         self.item_num = len(set(cols[1]))
 
-
-    def preprocessing(self, test_size, random_state):
+    def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
         self.y = self.pd_data.iloc[::, -1].values
-        self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
+        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
+                                                                              random_state=random_state)
+        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
                                                                               random_state=random_state)
 
 
@@ -147,11 +148,16 @@ class MovielensPreprocessor(BaseRatingPredictionProprocessor):
                                    dtype=self.dtype_dict)
         self.pd_data = self.pd_data[self.used_columns_names]
 
-    def preprocessing(self, test_size, random_state):
+    def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
+        self.user_num = max( self.X[::,0] ) + 1
+        self.item_num = max( self.X[::, 1] ) + 1
         self.y = self.pd_data.iloc[::, -1].values
-        self.train_X, self.val_X, self.train_y, self.val_y = train_test_split(self.X, self.y, test_size=test_size,
+        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
                                                                               random_state=random_state)
+        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
+                                                                              random_state=random_state)
+
 
 
 class MovielensCTRPreprocessor(BasePointWiseProprocessor):
