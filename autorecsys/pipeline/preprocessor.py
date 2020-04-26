@@ -119,7 +119,7 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
             self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
 
         self.pd_data = self.pd_data[self.used_columns_names]
-        self.user_num = max(set(cols[0]))
+        self.user_num = len(set(cols[0]))
         self.item_num = len(set(cols[1]))
 
 
@@ -151,6 +151,8 @@ class MovielensPreprocessor(BaseRatingPredictionProprocessor):
 
     def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
+        self.user_num = max( self.X[::,0] ) + 1
+        self.item_num = max( self.X[::, 1] ) + 1
         self.y = self.pd_data.iloc[::, -1].values
         self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
                                                                               random_state=random_state)
