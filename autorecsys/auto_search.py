@@ -49,11 +49,7 @@ class Search(object):
         tuner.results_summary()
         best_pipe_lists = tuner.get_best_models(1)
         # len(best_pipe_lists) == 0 means that this pipeline does not have tunable parameters
-        # self.best_keras_graph, self.best_model = best_pipe_lists[0]
         self.best_model = best_pipe_lists[0]
-        # self.best_keras_graph.save(tuner.best_keras_graph_path)
-        # self.logger.info('retrain the best pipeline using whole data set')
-        # self.best_model.save_weights(tuner.best_model_path)
         return self.best_model
 
     def _build_tuner(self, tuner, tuner_params):
