@@ -127,10 +127,11 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
 
 class CriteoPreprocessor(BaseCTRPreprocessor):
 
-    def __init__(self):
+    def __init__(self, dataset_path="./examples/datasets/criteo_2mil/train_2mil.txt"):
+        # TODO: change dataset_path to package-firendly path
         # Step 1: Set attributes used when initializing the preprocessor object.
         # dataset_path = "./examples/datasets/criteo_full/train.txt"
-        dataset_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"
+        # dataset_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"
         # dataset_path = "./examples/datasets/criteo_2mil/train_2mil.txt"
         super(CriteoPreprocessor, self).__init__(dataset_path=dataset_path, )
 
@@ -176,7 +177,7 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         :return:
 
         Criteo dataset has 40 features per line, where [0] = label, [1-13] = numerical, and [14-39] = categorical
-        TODO: 2 things to save: 1) fit dictionary, 2) transformed numpy data
+        TODO: allow to do fit and transform again even if files exist
         """
         # Step 0: Load transformed data if it exists.
         if Path(self.transformed_data_path).is_file():  # found transformed data
@@ -237,9 +238,7 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
 
         # Step 4: Format data and obtain hash statistics.
         array_data = np.concatenate((np.asarray(label_ll).T, np.asarray(numer_ll).T, np.asarray(categ_ll).T), axis=1)
-        del label_ll  # release memory
-        del numer_ll
-        del categ_ll
+        del label_ll, numer_ll, categ_ll  # release memory
         gc.collect()
 
         self.pd_data = pd.DataFrame(array_data, columns=self.used_columns_names)
@@ -264,19 +263,17 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         for numer_name in self.numer_names:
             self.pd_data[numer_name] = self.pd_data[numer_name].map(scale_by_natural_log)
 
-    def split_data(self, X, y, train_size, validate_size, random_state=42):
+    def split_data(self, X, y, train_size, validate_size):
         """
 
         :param X: numpy array
         :param y: numpy array
         :param train_size:
         :param validate_size:
-        :param random_state:
         :return:
         """
         # Step 1: Obtain shuffled data indices.
         data_size = X.shape[0]
-        np.random.seed(random_state)
         shuffled_indices = np.random.permutation(range(data_size))
 
         # Step 2: Determine data split positions.
@@ -291,27 +288,27 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         test_X = X[shuffled_indices][validate_end:]
         test_y = y[shuffled_indices][validate_end:]
 
-        return train_X, validate_X, test_X, train_y, validate_y, test_y
+        return train_X, train_y, validate_X, validate_y, test_X, test_y
 
     def preprocessing(self, train_size, validate_size, random_state=42):
-        self.X = self.pd_data.iloc[:, 1:].values
-        self.y = self.pd_data.iloc[:, [0]].values
+        # Step 1: Load data for fit and transform categorical data.
+        self.load_data()
 
-        train_X, validate_X, test_X, self.train_y, self.validate_y, self.test_y = self.split_data(
-            self.X, self.y, train_size=train_size, validate_size=validate_size, random_state=random_state)
+        # Step 2: Transform numerical data.
+        self.scale_numerical_data()
 
-        # Reformat numerical and categorical data.
-        self.train_X = [train_X[:, :self.numer_num], train_X[:, self.numer_num:]]
-        del train_X  # release memory
-        gc.collect()
+        # Step 3: Split data for training, validation, and testing.
+        X = self.pd_data.iloc[:, 1:].values
+        y = self.pd_data.iloc[:, [0]].values
+        train_X, train_y, validate_X, validate_y, test_X, test_y = self.split_data(
+            X, y, train_size=train_size, validate_size=validate_size)
 
-        self.validate_X = [validate_X[:, :self.numer_num], validate_X[:, self.numer_num:]]
-        del validate_X  # release memory
-        gc.collect()
+        # Step 4: Arrange data for training algorithms.
+        train_X = [train_X[:, :self.numer_num], train_X[:, self.numer_num:]]
+        validate_X = [validate_X[:, :self.numer_num], validate_X[:, self.numer_num:]]
+        test_X = [test_X[:, :self.numer_num], test_X[:, self.numer_num:]]
 
-        self.test_X = [test_X[:, :self.numer_num], test_X[:, self.numer_num:]]
-        del test_X  # release memory
-        gc.collect()
+        return train_X, train_y, validate_X, validate_y, test_X, test_y
 
 class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
 
