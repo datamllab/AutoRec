@@ -121,7 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('-early_stop', type=int, help='early stop')
     parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
-    print("args:", args)
+    # print("args:", args)
 
     if args.sep == None:
         args.sep = '::'
@@ -137,14 +137,23 @@ if __name__ == '__main__':
     val_X, val_y = data.val_X, data.val_y
     test_X, test_y = data.test_X, data.test_y
     user_num, item_num = data.user_num, data.item_num
-    print("train_X size:", train_X.shape)
-    print("train_y size:", train_y.shape)
-    print("val_X size:", val_X.shape)
-    print("val_y size:", val_y.shape)
-    print("test_X size:", test_X.shape)
-    print("test_y size:", test_y.shape)
-    print("user number:", user_num)
-    print("item number:", item_num)
+    logger.info('train_X size: {}'.format(train_X.shape))
+    logger.info('train_y size: {}'.format(train_y.shape))
+    logger.info('val_X size: {}'.format(val_X.shape))
+    logger.info('val_y size: {}'.format(val_y.shape))
+    logger.info('test_X size: {}'.format(test_X.shape))
+    logger.info('test_y size: {}'.format(test_y.shape))
+    logger.info('user total number: {}'.format(user_num))
+    logger.info('item total number: {}'.format(item_num))
+
+    # print("train_X size:", train_X.shape)
+    # print("train_y size:", train_y.shape)
+    # print("val_X size:", val_X.shape)
+    # print("val_y size:", val_y.shape)
+    # print("test_X size:", test_X.shape)
+    # print("test_y size:", test_y.shape)
+    # print("user number:", user_num)
+    # print("item number:", item_num)
 
     # select model
     if args.model == 'mf':
@@ -174,7 +183,9 @@ if __name__ == '__main__':
                     epochs=args.epochs,
                     callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.early_stop)])
     end_time = time.time()
-    print("Runing time:", end_time - start_time)
-    print("Args", args)
+    # print("Runing time:", end_time - start_time)
+    # print("Args", args)
+    logger.info('Runing time: {}'.format(end_time - start_time))
+    logger.info('Args: {}'.format(args))
     logger.info('Predicted Ratings: {}'.format(searcher.predict(x=test_X)))
     logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
