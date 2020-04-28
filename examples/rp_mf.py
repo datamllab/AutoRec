@@ -28,16 +28,15 @@ logger = logging.getLogger(__name__)
 # dataset_paths = ["./examples/datasets/netflix-prize-data/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
 # data = NetflixPrizePreprocessor(dataset_paths)
 
-data = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
+# data = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
 # data = MovielensPreprocessor("./examples/datasets/ml-10M100K/ratings.dat")
-# data = MovielensPreprocessor("./examples/datasets/ml-latest/ratings.csv", sep=',')
+data = MovielensPreprocessor("./examples/datasets/ml-latest/ratings.csv", sep=',')
 data.preprocessing(val_test_size=0.1, random_state=1314)
 train_X, train_y = data.train_X, data.train_y
 val_X, val_y = data.val_X, data.val_y
 test_X, test_y = data.test_X, data.test_y
+user_num, item_num = data.user_num, data.item_num
 
-user_num = data.user_num
-item_num = data.item_num
 
 print("train_X size:", train_X.shape)
 print("train_y size:", train_y.shape)
@@ -47,7 +46,7 @@ print("test_X size:", test_X.shape)
 print("test_y size:", test_y.shape)
 print("user number:", user_num)
 print("item number:", item_num)
-git
+
 # build the pipeline.
 input = Input(shape=[2])
 user_emb = LatentFactorMapper(feat_column_id=0,
