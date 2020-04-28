@@ -25,19 +25,32 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # load dataset
+##Netflix Dataset
 # dataset_paths = ["./examples/datasets/netflix-prize-data/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
 # data = NetflixPrizePreprocessor(dataset_paths)
 
+#Movielens 1M Dataset
 data = MovielensPreprocessor("./examples/datasets/ml-1m/ratings.dat")
+
+##Movielens 10M Dataset
 # data = MovielensPreprocessor("./examples/datasets/ml-10M100K/ratings.dat")
+
+##Movielens latest Dataset
 # data = MovielensPreprocessor("./examples/datasets/ml-latest/ratings.csv", sep=',')
+
 data.preprocessing(val_test_size=0.1, random_state=1314)
 train_X, train_y = data.train_X, data.train_y
 val_X, val_y = data.val_X, data.val_y
 test_X, test_y = data.test_X, data.test_y
-
-user_num = data.user_num
-item_num = data.item_num
+user_num, item_num = data.user_num, data.item_num
+logger.info('train_X size: {}'.format(train_X.shape))
+logger.info('train_y size: {}'.format(train_y.shape))
+logger.info('val_X size: {}'.format(val_X.shape))
+logger.info('val_y size: {}'.format(val_y.shape))
+logger.info('test_X size: {}'.format(test_X.shape))
+logger.info('test_y size: {}'.format(test_y.shape))
+logger.info('user total number: {}'.format(user_num))
+logger.info('item total number: {}'.format(item_num))
 
 # build the pipeline.
 input = Input(shape=[2])
@@ -62,9 +75,8 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_mse',
-                batch_size=256,
+                batch_size=1024,
                 epochs=10,
                 callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)])
-
-logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
-logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
+logger.info('Predicting Val Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+logger.info('Predicting Test Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
