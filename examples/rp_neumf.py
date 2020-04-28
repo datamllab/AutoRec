@@ -5,6 +5,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 import logging
+import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer, \
     ElementwiseInteraction
@@ -47,18 +48,18 @@ logger.info('item total number: {}'.format(item_num))
 # build the pipeline.
 input = Input(shape=[2])
 user_emb_gmf = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+                                  id_num=user_num,
                                   embedding_dim=64)(input)
 item_emb_gmf = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+                                  id_num=item_num,
                                   embedding_dim=64)(input)
 innerproduct_output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb_gmf, item_emb_gmf])
 
 user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+                                  id_num=user_num,
                                   embedding_dim=64)(input)
 item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+                                  id_num=item_num,
                                   embedding_dim=64)(input)
 mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 
@@ -75,6 +76,8 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_mse',
-                batch_size=256)
-logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
-logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+                batch_size=1024,
+                epochs=10,
+                callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)])
+logger.info('Predicting Val Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+logger.info('Predicting Test Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))

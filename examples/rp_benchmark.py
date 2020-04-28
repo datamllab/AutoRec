@@ -146,15 +146,6 @@ if __name__ == '__main__':
     logger.info('user total number: {}'.format(user_num))
     logger.info('item total number: {}'.format(item_num))
 
-    # print("train_X size:", train_X.shape)
-    # print("train_y size:", train_y.shape)
-    # print("val_X size:", val_X.shape)
-    # print("val_y size:", val_y.shape)
-    # print("test_X size:", test_X.shape)
-    # print("test_y size:", test_y.shape)
-    # print("user number:", user_num)
-    # print("item number:", item_num)
-
     # select model
     if args.model == 'mf':
         model = build_mf(user_num, item_num)
