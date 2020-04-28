@@ -35,9 +35,15 @@ data.preprocessing(val_test_size=0.1, random_state=1314)
 train_X, train_y = data.train_X, data.train_y
 val_X, val_y = data.val_X, data.val_y
 test_X, test_y = data.test_X, data.test_y
-
-user_num = data.user_num
-item_num = data.item_num
+user_num, item_num = data.user_num, data.item_num
+print("train_X size:", train_X.shape)
+print("train_y size:", train_y.shape)
+print("val_X size:", val_X.shape)
+print("val_y size:", val_y.shape)
+print("test_X size:", test_X.shape)
+print("test_y size:", test_y.shape)
+print("user number:", user_num)
+print("item number:", item_num)
 
 # build the pipeline.
 input = Input(shape=[2])
@@ -62,7 +68,7 @@ searcher.search(x=train_X,
                 x_val=val_X,
                 y_val=val_y,
                 objective='val_mse',
-                batch_size=256,
+                batch_size=1024,
                 epochs=10,
                 callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)])
 
