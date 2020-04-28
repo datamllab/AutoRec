@@ -693,7 +693,7 @@ class PipeTuner(MultiExecutionTuner):
 
     def save_weights(self, trial, pipe):
         trial_dir = self.get_trial_dir(trial.trial_id)
-        pipe.save_weights(trial_dir)
+        tf.keras.models.save_model(pipe, trial_dir)
 
     def load_model(self, trial):
         """Load the model in a history trial.
@@ -702,11 +702,8 @@ class PipeTuner(MultiExecutionTuner):
         # Returns
             Tuple of (PreprocessGraph, KerasGraph, tf.keras.Model).
         """
-        keras_graph = self.hypergraph.build_graphs(
-            trial.hyperparameters)
-        keras_graph.reload(self._get_save_path(trial, 'keras_graph'))
-        self.hypermodel = keras_graph
-        models = (keras_graph, super().load_model(trial))
+        models = tf.keras.models.load_model(self.get_trial_dir(trial.trial_id), compile=False)
+        models.compile(loss=tf.keras.losses.BinaryCrossentropy())
         self.hypermodel = None
         return models
 

@@ -10,7 +10,9 @@ import pkgutil
 from collections import OrderedDict
 import importlib
 import tensorflow as tf
+import random
 from tensorflow.python.util import nest
+import pickle
 
 
 def dataset_shape(dataset):
@@ -74,3 +76,18 @@ def load_dataframe_input(x):
     return res
 
 
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
+
+
+def save_pickle(path, obj):
+    # TODO: create directory if it does not exist
+    with open(path, 'wb') as f:
+        pickle.dump(obj, f)
+
+
+def load_pickle(path):
+    with open(path, 'rb') as f:
+        return pickle.load(f)

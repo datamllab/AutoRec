@@ -39,15 +39,6 @@ test_X, test_y = data.test_X, data.test_y
 user_num = data.user_num
 item_num = data.item_num
 
-print("train_X size:", train_X.shape)
-print("train_y size:", train_y.shape)
-print("val_X size:", val_X.shape)
-print("val_y size:", val_y.shape)
-print("test_X size:", test_X.shape)
-print("test_y size:", test_y.shape)
-print("user number:", user_num)
-print("item number:", item_num)
-git
 # build the pipeline.
 input = Input(shape=[2])
 user_emb = LatentFactorMapper(feat_column_id=0,
