@@ -127,7 +127,7 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
 
 class CriteoPreprocessor(BaseCTRPreprocessor):
 
-    def __init__(self, dataset_path="./examples/datasets/criteo_2mil/train_2mil.txt"):
+    def __init__(self, dataset_path="./examples/datasets/criteo_full/train.txt"):
         # TODO: change dataset_path to package-firendly path
         # Step 1: Set attributes used when initializing the preprocessor object.
         # dataset_path = "./examples/datasets/criteo_full/train.txt"
@@ -326,16 +326,16 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
         :return:
         """
         cols = [list() for _ in range(len(self.columns_names))]
-        user2index_dict = dict()  # needs renumber since CustomerIDs range from 1 to 2649429, with gaps
+        user2index_dict = dict()  # needs renumber since CustomerID ranges from 1 to 2649429, with gaps
 
         for fp in self.dataset_path:  # TODO: deal with list of paths
 
             with open(fp, 'r') as f:
                 for line in f.readlines():
                     if ':' in line:
-                        movie = line.strip(":\n")  # needs no renumber since MovieIDs range from 1 to 17770 sequentially
+                        movie = int(line.strip(":\n"))-1  # -1 because the sequential MovieIDs starts from 1
                     else:
-                        user, rating, _ = line.strip().split(',')
+                        user, rating = [int(v) for v in line.strip().split(',')[:2]]
                         cols[1].append(movie)
                         cols[2].append(rating)
 
@@ -345,15 +345,15 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
                             cols[0].append(len(user2index_dict.keys()))  # number users from 0
                             user2index_dict[user] = len(user2index_dict.keys())
 
+        # TODO: load date as well, later keep only selected data via self.used_columns_names
         self.pd_data = pd.DataFrame(dict(zip(self.columns_names, cols)))
 
         for col_name, dtype in self.dtype_dict.items():
             self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
 
         self.pd_data = self.pd_data[self.used_columns_names]
-        self.user_num = len(set(cols[0]))
-        self.item_num = len(set(cols[1]))
-
+        self.user_num = self.pd_data["user_id"].nunique()
+        self.item_num = self.pd_data["item_id"].nunique()
 
     def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
@@ -362,7 +362,6 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
                                                                               random_state=random_state)
         self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
                                                                               random_state=random_state)
-
 
 class MovielensPreprocessor(BaseRatingPredictionProprocessor):
 
