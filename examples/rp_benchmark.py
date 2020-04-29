@@ -4,10 +4,16 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import time
 import os
-
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 import logging
+# logging setting
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
+
+
 import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
@@ -15,10 +21,7 @@ from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptim
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
 from autorecsys.recommender import RPRecommender
 
-# logging setting
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+
 
 
 def build_mf(user_num, item_num):
@@ -122,7 +125,6 @@ if __name__ == '__main__':
     parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
     # print("args:", args)
-
     if args.sep == None:
         args.sep = '::'
 
@@ -137,14 +139,14 @@ if __name__ == '__main__':
     val_X, val_y = data.val_X, data.val_y
     test_X, test_y = data.test_X, data.test_y
     user_num, item_num = data.user_num, data.item_num
-    logger.info('train_X size: {}'.format(train_X.shape))
-    logger.info('train_y size: {}'.format(train_y.shape))
-    logger.info('val_X size: {}'.format(val_X.shape))
-    logger.info('val_y size: {}'.format(val_y.shape))
-    logger.info('test_X size: {}'.format(test_X.shape))
-    logger.info('test_y size: {}'.format(test_y.shape))
-    logger.info('user total number: {}'.format(user_num))
-    logger.info('item total number: {}'.format(item_num))
+    logging.info('train_X size: {}'.format(train_X.shape))
+    logging.info('train_y size: {}'.format(train_y.shape))
+    logging.info('val_X size: {}'.format(val_X.shape))
+    logging.info('val_y size: {}'.format(val_y.shape))
+    logging.info('test_X size: {}'.format(test_X.shape))
+    logging.info('test_y size: {}'.format(test_y.shape))
+    logging.info('user total number: {}'.format(user_num))
+    logging.info('item total number: {}'.format(item_num))
 
     # select model
     if args.model == 'mf':
@@ -176,7 +178,7 @@ if __name__ == '__main__':
     end_time = time.time()
     # print("Runing time:", end_time - start_time)
     # print("Args", args)
-    logger.info('Runing time: {}'.format(end_time - start_time))
-    logger.info('Args: {}'.format(args))
-    logger.info('Predicted Ratings: {}'.format(searcher.predict(x=test_X)))
-    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
+    logging.info('Runing time: {}'.format(end_time - start_time))
+    logging.info('Args: {}'.format(args))
+    logging.info('Predicting Val Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+    logging.info('Predicting Test Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
