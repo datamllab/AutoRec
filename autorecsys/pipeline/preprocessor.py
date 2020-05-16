@@ -117,6 +117,8 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
         self.transformed_data_path = "./avazu_transformed_data.pkl"
         self.categ_filter = 3
 
+        # TODO (for printed message): Notice typo "BinaryCrossentropy" should be "BinaryCrossEntropy"
+
         # Set indices variables
         # TODO: fix the situation that these indices are relative to the raw data and not to the preprocessed data
         self.ignored_indices = [0]
