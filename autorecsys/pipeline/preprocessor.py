@@ -19,11 +19,11 @@ from pathlib import Path
 from autorecsys.utils.common import load_pickle, save_pickle
 
 
-class BaseProprocessor(metaclass=ABCMeta):
+class BasePreprocessor(metaclass=ABCMeta):
 
     @abstractmethod
     def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
+        super(BasePreprocessor, self).__init__()
         self.dataset_path = dataset_path
         self.train_path = train_path
         self.val_path = val_path
@@ -33,14 +33,14 @@ class BaseProprocessor(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class BaseRatingPredictionProprocessor(BaseProprocessor):
+class BaseRatingPredictionPreprocessor(BasePreprocessor):
     """
     for rating prediction recommendation methods
     """
 
     @abstractmethod
     def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
+        super(BaseRatingPredictionPreprocessor, self).__init__()
         self.dataset_path = dataset_path
         self.train_path = train_path
         self.val_path = val_path
@@ -50,50 +50,14 @@ class BaseRatingPredictionProprocessor(BaseProprocessor):
         raise NotImplementedError
 
 
-class BaseCTRPreprocessor(BaseProprocessor):
+class BaseCTRPreprocessor(BasePreprocessor):
     """
     for click-through rate (CTR) recommendation methods
     """
 
     @abstractmethod
     def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
-
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
-
-
-class BasePointWiseProprocessor(BaseProprocessor):
-    """
-    for PointWise recommendation methods, CTR
-    for PointWise recommendation methods, rating prediction for Movielens
-    and can also for the similar dataset
-    """
-
-    @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
-
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
-
-
-class BasePairWiseProprocessor(BaseProprocessor):
-    """
-    for PairWise recommendation methods
-    """
-
-    @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
+        super(BaseCTRPreprocessor, self).__init__()
         self.dataset_path = dataset_path
         self.train_path = train_path
         self.val_path = val_path
@@ -310,7 +274,7 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
 
         return train_X, train_y, validate_X, validate_y, test_X, test_y
 
-class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
+class NetflixPrizePreprocessor(BaseRatingPredictionPreprocessor):
 
     def __init__(self, dataset_path):
         super(NetflixPrizePreprocessor, self).__init__(dataset_path=dataset_path, )
@@ -363,7 +327,7 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
         self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
                                                                               random_state=random_state)
 
-class MovielensPreprocessor(BaseRatingPredictionProprocessor):
+class MovielensPreprocessor(BaseRatingPredictionPreprocessor):
 
     used_columns_names: List[str]
 
@@ -392,7 +356,7 @@ class MovielensPreprocessor(BaseRatingPredictionProprocessor):
 
 
 
-class MovielensCTRPreprocessor(BasePointWiseProprocessor):
+class MovielensCTRPreprocessor(BaseCTRPreprocessor):
 
     def __init__(self, dataset_path, sep='::'):
         super(MovielensCTRPreprocessor, self).__init__(dataset_path=dataset_path)
