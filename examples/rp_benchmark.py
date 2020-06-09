@@ -4,11 +4,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import time
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+import sys
+# os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 import logging
 # logging setting
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(stream=sys.stdout,
+                    level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # logger = logging.getLogger(__name__)
