@@ -20,68 +20,130 @@ from autorecsys.utils.common import load_pickle, save_pickle
 
 
 class BasePreprocessor(metaclass=ABCMeta):
+    """ Preprocess data.
+
+    Attributes:
+        dataset_path (str): Path to the complete dataset.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+        train_size (float): Percentage of the train set.
+        test_size (float): Percentage for the test set.
+    """
 
     @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BasePreprocessor, self).__init__()
+    def __init__(self,
+                 dataset_path=None,
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None,
+                 train_size=None,
+                 test_size=None):
+        super().__init__()
         self.dataset_path = dataset_path
         self.train_path = train_path
-        self.val_path = val_path
+        self.validate_path = validate_path
+        self.test_path = test_path
+        self.train_size = train_size
+        self.test_size = test_size
 
     @abstractmethod
-    def preprocessing(self, **kwargs):
+    def preprocess(self, **kwargs):
+        """ Preprocess data.
+
+        Args:
+            **kwargs: Keyword arguments used to preprocess dataset.
+        """
         raise NotImplementedError
 
 
 class BaseRatingPredictionPreprocessor(BasePreprocessor):
-    """
-    for rating prediction recommendation methods
+    """ Preprocess data for rating prediction.
+
+    Attributes:
+
+    TODO: Attributes in class BaseRatingPredictionPreprocessor & class BaseCTRPreprocessor are the same as those in
+        class BasePreprocessor.
     """
 
     @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseRatingPredictionPreprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     @abstractmethod
-    def preprocessing(self, **kwargs):
+    def preprocess(self, **kwargs):
+        """ Preprocess data for rating prediction.
+
+        Args:
+            **kwargs: Keyword arguments used to preprocess data for rating prediction.
+        """
         raise NotImplementedError
 
 
 class BaseCTRPreprocessor(BasePreprocessor):
-    """
-    for click-through rate (CTR) recommendation methods
+    """ Preprocess data for click-through rate (CTR) prediction.
+
+    Attributes:
+
+    TODO: Attributes in class BaseRatingPredictionPreprocessor & class BaseCTRPreprocessor are the same as those in
+        class BasePreprocessor.
     """
 
     @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseCTRPreprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     @abstractmethod
-    def preprocessing(self, **kwargs):
+    def preprocess(self, **kwargs):
+        """ Preprocess data for click-through rate (CTR) prediction.
+
+        Args:
+            **kwargs: Keyword arguments used to preprocess data for click-through rate (CTR) prediction.
+        """
         raise NotImplementedError
 
 
 class AvazuPreprocessor(BaseCTRPreprocessor):
+    """ Preprocess the Avazu dataset for click-through rate (CTR) prediction.
 
-    def __init__(self, dataset_path="./examples/datasets/avazu/sampled_train_10000.txt"):
-        super(AvazuPreprocessor, self).__init__(dataset_path=dataset_path, )
-        # /home/thwang1231/autorec/examples/datasets/avazu/sampled_train_10000.txt  # 5/4 loss: 0.6239
-        # /home/thwang1231/autorec/examples/datasets/avazu/sampled_train_2mil.txt   # 5/4 loss: 0.3718
-        # /home/thwang1231/autorec/examples/datasets/avazu/train                    # 5/4 loss: 0.3859
+    Attributes:
+        has_header (bool): Whether the first line of the dataset file is a header.
+        column_names (list): String names of columns associated with the dataset.
+        used_column_names (list): String names of columns to be used.
+        fit_dictionary_path (str): Path to categorical data's fit dictionary.
+        transformed_data_path (str): Path to the preprocessed dataset saved in the pickle format.
+        categ_filter (int): Threshold to filter out infrequent categories in each categorical data column. The filtered
+            categories will be labeled under a uniform category.
+        ignored_indices (list): Integer indices indicating the columns to ignore.
+        label_indices (list): Integer indices indicating the columns for label data.
+        numer_indices (list): Integer indices indicating the columns for numerical data.
+        categ_indices (list): Integer indices indicating the columns for categorical data.
+        label_num (int): Number of label data.
+        numer_num (int): Number of numerical data.
+        categ_num (int): Number of categorical data.
+        pd_data (DataFrame): Preprocessed data.
+        hash_sizes (list): Integer cardinality of categories in each categorical data column.
+        dtype_dict (dict): Map string column names to proper data type.
+
+    Note:
+        To obtain the Avazu dataset, visit: https://www.kaggle.com/c/avazu-ctr-prediction
+        The Avazu dataset has 24 data columns: [0] is ignored, [1] is label, and [2-23] are categorical.
+
+    TODO: used_column_names and ignored_indices may is redundant
+    """
+
+    def __init__(self, dataset_path="/home/thwang1231/autorec/examples/datasets/avazu/sampled_train_10000.txt"):
+        super().__init__(dataset_path=dataset_path)
         # Step 1: Set attributes used/set during dataset loading & data preprocessing.
+
         self.has_header = True
-        self.column_names = None
+        self.column_names = ['id', 'click', 'hour', 'C1', 'banner_pos', 'site_id', 'site_domain', 'site_category',
+                             'app_id', 'app_domain', 'app_category', 'device_id', 'device_ip', 'device_model',
+                             'device_type', 'device_conn_type', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21']
+        self.used_column_names = None
         self.fit_dictionary_path = "./avazu_fit_dictionary.pkl"
         self.transformed_data_path = "./avazu_transformed_data.pkl"
         self.categ_filter = 3
-
-        # TODO (for printed message): Notice typo "BinaryCrossentropy" should be "BinaryCrossEntropy"
 
         # Set indices variables
         # TODO: fix the situation that these indices are relative to the raw data and not to the preprocessed data
@@ -99,10 +161,6 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
         # TODO: Remark although Avazu datast contains column header, and we do support header loading, we assume some
         #   info about benchmark datasets, e.g., like Avazu, Criteo, Movielens, and Netflix, are simply known. Determine
         #   which of these info's corresponding instance variables are and pre-set them with constant values.
-        self.column_names = ['id', 'click', 'hour', 'C1', 'banner_pos', 'site_id', 'site_domain', 'site_category',
-                             'app_id', 'app_domain', 'app_category', 'device_id', 'device_ip', 'device_model',
-                            'device_type', 'device_conn_type', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21']
-        self.used_column_names = None
         self.pd_data = None
         self.hash_sizes = None
         self.dtype_dict = None
@@ -115,15 +173,10 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
 
 
     def load_data(self):
-        """
-        Set the following variables:
-            1) self.used_column_names: set the variable here because column_names may be loaded from dataset header
-            2) self.pd_data: set the variable here because the dataframe contain loaded and transformed data
-            3) self.hash_sizes: set the variable here because it is inferred from pd_data
-                    Note: do not infer from fit_dictionary because there might not such file to load.
-                    On the other hand, transformed data is always available at the end of the file so infer from that
-            4) self.dtype_dict: set the variable because we use used_column_name as key, which can be loaded here
-        :return:
+        """ Load the Avazu dataset, fit categorical data, and transform categorical data according to the fit
+            dictionary. Set variable column_names, variable pd_data, and variable hash_sizes.
+
+        TODO: dtype_dict does NOT have to be set here, it should be set in the constructor and referred as a dict.
         """
         # Step 0: Load transformed data if it exists.
         if Path(self.transformed_data_path).is_file():  # found transformed data
@@ -204,14 +257,23 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
         # Save transformed data.
         save_pickle(self.transformed_data_path, self.pd_data)
 
-    def split_data(self, X, y, train_size, validate_size):
-        """
+    def split_data(self, X, y, train_size, valid_size):
+        """ Split the Avazu dataset into the train, validation, and test sets.
 
-        :param X: numpy array
-        :param y: numpy array
-        :param train_size:
-        :param validate_size:
-        :return:
+        Args:
+            X (ndarray): (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+                and N is the number of numerical and categorical columns.
+            y (ndarray): (M, 1) matrix associated with the label data, where M is the number of rows.
+            train_size (float): Ratio of train set w.r.t. the entire Avazu dataset.
+            valid_size (float): Ratio of validation set w.r.t. the entire Avazu dataset.
+
+        Returns:
+            train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+            train_y (ndarray): Matrix associated with the part of label data used to train model.
+            valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+            valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+            test_X (ndarray): Matrix associated with the part of numerical and categorical data for model testing.
+            test_y (ndarray): Matrix associated with the part of label data for model testing.
         """
         # Step 1: Obtain shuffled data indices.
         data_size = X.shape[0]
@@ -219,20 +281,34 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
 
         # Step 2: Determine data split positions.
         train_end = int(train_size * data_size)
-        validate_end = train_end + int(validate_size * data_size)
+        validate_end = train_end + int(valid_size * data_size)
 
         # Step 3: Split shuffled data.
         train_X = X[shuffled_indices][:train_end]
         train_y = y[shuffled_indices][:train_end]
-        validate_X = X[shuffled_indices][train_end:validate_end]
-        validate_y = y[shuffled_indices][train_end:validate_end]
+        valid_X = X[shuffled_indices][train_end:validate_end]
+        valid_y = y[shuffled_indices][train_end:validate_end]
         test_X = X[shuffled_indices][validate_end:]
         test_y = y[shuffled_indices][validate_end:]
 
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
+        return train_X, train_y, valid_X, valid_y, test_X, test_y
 
-    def preprocessing(self, train_size, validate_size, random_state=42):
-        # Step 1: Load data for fit and transform categorical data.
+    def preprocess(self, train_size, valid_size):
+        """ Apply all preprocessing steps to the Avazu dataset.
+
+        Args:
+            train_size (float): Ratio of train set w.r.t. the entire Avazu dataset.
+            valid_size (float): Ratio of validation set w.r.t. the entire Avazu dataset.
+
+        Returns:
+            train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+            train_y (ndarray): Matrix associated with the part of label data used to train model.
+            valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+            valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+            test_X (ndarray): Matrix associated with the part of numerical and categorical data for model testing.
+            test_y (ndarray): Matrix associated with the part of label data for model testing.
+        """
+        # Step 1: Load the Avazu dataset and then fit and transform the categorical data.
         self.load_data()
 
         # Step 2: Transform numerical data.
@@ -242,8 +318,9 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
         # TODO: reference by class variable and not constant
         X = self.pd_data.iloc[:, 1:].values  # because 0th column in raw data is ignored/not loaded
         y = self.pd_data.iloc[:, [0]].values
+
         train_X, train_y, validate_X, validate_y, test_X, test_y = self.split_data(
-            X, y, train_size=train_size, validate_size=validate_size)
+            X, y, train_size=train_size, valid_size=valid_size)
 
         # Step 4: Arrange data for training algorithms.
         # print(train_X[:, 1:].shape)
@@ -261,8 +338,41 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
 
 
 class CriteoPreprocessor(BaseCTRPreprocessor):
+    """ Concrete class for preprocessing the Criteo dataset for click-through rate (CTR) task.
 
-    def __init__(self, dataset_path="./examples/datasets/criteo_sample_10000/train_examples.txt"):
+    Attributes:
+        fit_dictionary_path (str): Path to categorical data's fit dictionary.
+        transformed_data_path (str): Path to the preprocessed dataset saved in the pickle format.
+        label_num (int): Number of label data.
+        numer_num (int): Number of numerical data.
+        categ_num (int): Number of categorical data.
+        categ_filter (int): Threshold to filter out infrequent categories in each categorical data column.
+            The filtered categories will be labeled under a uniform category.
+        label_indices (list): Integer indices indicating the columns for label data.
+        numer_indices (list): Integer indices indicating the columns for numerical data.
+        categ_indices (list): Integer indices indicating the columns for categorical data.
+        label_names (list): String column names associated with the columns for label data.
+        numer_names (list): String column names associated with the columns for numerical data.
+        categ_names (list): String column names associated with the columns for categorical data.
+        column_names (list): String names of columns associated with the dataset.
+        used_column_names (list): String names of columns to be used.
+        pd_data (DataFrame): Preprocessed data.
+        hash_sizes (list): Integer cardinality of categories in each categorical data column.
+        dtype_dict (dict): Map string column names to proper data type.
+
+    Note:
+        To obtain the Criteo dataset, visit: https://www.kaggle.com/c/criteo-display-ad-challenge/
+        The Criteo dataset has 40 data columns: [0] is label, [1-13] are numerical, and [14-39] are categorical.
+
+    TODO: Note X, y and their split variations are not saved in this class. This is reasonable as they can be loaded.
+    """
+
+    def __init__(self, dataset_path="/home/thwang1231/autorec/examples/datasets/criteo/criteo_500K.txt"):
+        """ Constructor for class CriteoPreprocessor.
+
+        Args:
+            dataset_path (str): Path to the dataset.
+        """
         # TODO: change dataset_path to package-firendly path
         # dataset_path = "./examples/datasets/criteo_full/train.txt"
         # dataset_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"
@@ -295,23 +405,11 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         #   3) The categorical features are indexed as numerical values and thus expressible in floats.
         self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
 
-        # Step 2: Set attributes used during data split.
-        self.X = None
-        self.y = None
-        self.train_X = None
-        self.train_y = None
-        self.validate_X = None
-        self.validate_y = None
-        self.test_X = None
-        self.test_y = None
-
     def load_data(self):
+        """ Load the Criteo dataset, fit categorical data, and transform categorical data according to the fit
+            dictionary. Set variable pd_data and variable hash_sizes.
 
-        """ Load raw Criteo data, in progress setting self.hash_sizes (from categorical data) and self.pd_data (from
-            all data) and saving the fit dictionary and self.pd_data
-        :return:
-
-        Criteo dataset has 40 features per line, where [0] = label, [1-13] = numerical, and [14-39] = categorical
+        TODO: dtype_dict does NOT have to be set here, it should be set in the constructor and referred as a dict.
         TODO: allow to do fit and transform again even if files exist
         """
         # Step 0: Load transformed data if it exists.
@@ -395,9 +493,18 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         save_pickle(self.transformed_data_path, self.pd_data)
 
     def scale_numerical_data(self):
-
+        """ Scale numerical data according to specified transformation method.
+        """
         # TODO: Designated transformation functions to specified place.
         def scale_by_natural_log(num):
+            """ Scale numerical data by log transformation.
+
+            Args:
+                num (float): Number to be transformed.
+
+            Returns:
+                num (float): Transformed number.
+            """
             # TODO: 1) Explain why the conditional statement makes exception for numbers like 1, where 1>ln(1)**2
             if num > 2:
                 num = math.log(float(num))**2
@@ -406,14 +513,23 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         for numer_name in self.numer_names:
             self.pd_data[numer_name] = self.pd_data[numer_name].map(scale_by_natural_log)
 
-    def split_data(self, X, y, train_size, validate_size):
-        """
+    def split_data(self, X, y, train_size, valid_size):
+        """ Split the Criteo dataset into the train, validation, and test sets.
 
-        :param X: numpy array
-        :param y: numpy array
-        :param train_size:
-        :param validate_size:
-        :return:
+        Args:
+            X (ndarray): (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+                and N is the number of numerical and categorical columns.
+            y (ndarray): (M, 1) matrix associated with the label data, where M is the number of rows.
+            train_size (float): Ratio of train set w.r.t. the entire Avazu dataset.
+            valid_size (float): Ratio of validation set w.r.t. the entire Avazu dataset.
+
+        Returns:
+            train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+            train_y (ndarray): Matrix associated with the part of label data used to train model.
+            valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+            valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+            test_X (ndarray): Matrix associated with the part of numerical and categorical data for model testing.
+            test_y (ndarray): Matrix associated with the part of label data for model testing.
         """
         # Step 1: Obtain shuffled data indices.
         data_size = X.shape[0]
@@ -421,19 +537,33 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
 
         # Step 2: Determine data split positions.
         train_end = int(train_size * data_size)
-        validate_end = train_end + int(validate_size * data_size)
+        validate_end = train_end + int(valid_size * data_size)
 
         # Step 3: Split shuffled data.
         train_X = X[shuffled_indices][:train_end]
         train_y = y[shuffled_indices][:train_end]
-        validate_X = X[shuffled_indices][train_end:validate_end]
-        validate_y = y[shuffled_indices][train_end:validate_end]
+        valid_X = X[shuffled_indices][train_end:validate_end]
+        valid_y = y[shuffled_indices][train_end:validate_end]
         test_X = X[shuffled_indices][validate_end:]
         test_y = y[shuffled_indices][validate_end:]
 
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
+        return train_X, train_y, valid_X, valid_y, test_X, test_y
 
-    def preprocessing(self, train_size, validate_size, random_state=42):
+    def preprocess(self, train_size, valid_size):
+        """ Apply all preprocessing steps to the Criteo dataset.
+
+        Args:
+            train_size (float): Ratio of train set w.r.t. the entire Criteo dataset.
+            valid_size (float): Ratio of validation set w.r.t. the entire Criteo dataset.
+
+        Returns:
+            train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+            train_y (ndarray): Matrix associated with the part of label data used to train model.
+            valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+            valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+            test_X (ndarray): Matrix associated with the part of numerical and categorical data for model testing.
+            test_y (ndarray): Matrix associated with the part of label data for model testing.
+        """
         # Step 1: Load data for fit and transform categorical data.
         self.load_data()
 
@@ -443,19 +573,48 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         # Step 3: Split data for training, validation, and testing.
         X = self.pd_data.iloc[:, 1:].values
         y = self.pd_data.iloc[:, [0]].values
-        train_X, train_y, validate_X, validate_y, test_X, test_y = self.split_data(
-            X, y, train_size=train_size, validate_size=validate_size)
+        train_X, train_y, valid_X, valid_y, test_X, test_y = self.split_data(
+            X, y, train_size=train_size, valid_size=valid_size)
 
         # Step 4: Arrange data for training algorithms.
         train_X = [train_X[:, :self.numer_num], train_X[:, self.numer_num:]]
-        validate_X = [validate_X[:, :self.numer_num], validate_X[:, self.numer_num:]]
+        valid_X = [valid_X[:, :self.numer_num], valid_X[:, self.numer_num:]]
         test_X = [test_X[:, :self.numer_num], test_X[:, self.numer_num:]]
 
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
+        return train_X, train_y, valid_X, valid_y, test_X, test_y
+
 
 class NetflixPrizePreprocessor(BaseRatingPredictionPreprocessor):
+    """ Concrete class for preprocessing the Netflix dataset for rating prediction task.
+
+    Attributes:
+        column_names (list): String names of columns associated with the dataset.
+        used_column_names (list): String names of columns to be used.
+        dtype_dict (dict): Map string column names to proper data type.
+        pd_data (DataFrame): Preprocessed data.
+        user_num (int): Number of CustomerIDs.
+        item_num (int): Number of MovieIDs.
+        X (ndarray): (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+            and N is the number of numerical and categorical columns.
+        y (ndarray): (M, 1) matrix associated with the label data, where M is the number of rows.
+        train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+        train_y (ndarray): Matrix associated with the part of label data used to train model.
+        valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+        valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+        test_X (ndarray): Matrix associated with the part of numerical and categorical data for model testing.
+        test_y (ndarray): Matrix associated with the part of label data for model testing.
+
+    Note:
+        To obtain the Netflix dataset, visit: https://www.kaggle.com/netflix-inc/netflix-prize-data
+        The Netflix dataset contains 3 kinds of features: MovieID, CustomerID, and Date.
+    """
 
     def __init__(self, dataset_path):
+        """ Constructor for class NetflixPrizePreprocessor.
+
+        Args:
+            dataset_path (str): Path to the dataset.
+        """
         super(NetflixPrizePreprocessor, self).__init__(dataset_path=dataset_path, )
         self.columns_names = ["user_id", "item_id", "rating"]
         self.used_columns_names = ["user_id", "item_id", "rating"]
@@ -463,10 +622,10 @@ class NetflixPrizePreprocessor(BaseRatingPredictionPreprocessor):
         self._load_data()
 
     def _load_data(self):
-        """
+        """ Load the Netflix dataset, fit user data, and transform user data according to the fit dictionary. Set
+            variables pd_data, user_num, and item_num.
 
-        CustomerIDs range from 1 to 2649429, with gaps. There are 480189 users.
-        :return:
+        TODO: Consider class name to use netflix prize or plain netflix
         """
         cols = [list() for _ in range(len(self.columns_names))]
         user2index_dict = dict()  # needs renumber since CustomerID ranges from 1 to 2649429, with gaps
@@ -498,64 +657,144 @@ class NetflixPrizePreprocessor(BaseRatingPredictionPreprocessor):
         self.user_num = self.pd_data["user_id"].nunique()
         self.item_num = self.pd_data["item_id"].nunique()
 
-    def preprocessing(self, val_test_size, random_state):
+    def preprocess(self, val_test_size):
+        """ Apply all preprocessing steps to the Netflix dataset.
+
+        Args:
+            val_test_size (float): Ratio of validation/test set w.r.t. the entire Netflix dataset.
+
+        TODO: Unify this function with its implementation in CTR-task classes.
+        """
         self.X = self.pd_data.iloc[::, :-1].values
         self.y = self.pd_data.iloc[::, [-1]].values
-        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
-                                                                              random_state=random_state)
-        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
-                                                                              random_state=random_state)
+        self.train_X, valid_test_X, self.train_y, valid_test_y = train_test_split(
+            self.X, self.y, test_size=val_test_size * 2)
+        self.valid_X, self.test_X, self.valid_y, self.test_y = train_test_split(
+            valid_test_X, valid_test_y, test_size=0.5)
 
 class MovielensPreprocessor(BaseRatingPredictionPreprocessor):
+    """ Concrete class for preprocessing the Movielens dataset for rating prediction task.
 
-    used_columns_names: List[str]
+    Attributes:
+        column_names (list): String names of columns associated with the dataset.
+        used_column_names (list): String names of columns to be used.
+        sep (str): Delimiter used to separate data columns in the Movielens dataset.
+        dtype_dict (dict): Map string column names to proper data type.
+        pd_data (DataFrame): Preprocessed data.
+        user_num (int): Number of CustomerIDs.
+        item_num (int): Number of MovieIDs.
+        X (ndarray): (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+            and N is the number of numerical and categorical columns.
+        y (ndarray): (M, 1) matrix associated with the label data, where M is the number of rows.
+        train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+        train_y (ndarray): Matrix associated with the part of label data used to train model.
+        valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+        valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+        test_X (ndarray): Matrix associated with the part of numerical and categorical data for model testing.
+        test_y (ndarray): Matrix associated with the part of label data for model testing.
+
+    Note:
+        To obtain the Movielens dataset, visit: https://grouplens.org/datasets/movielens/
+        The Movielens dataset contains 4 data columns: UserID, MovieID, Rating, and Timestamp.
+    """
+    used_column_names: List[str]
 
     def __init__(self, dataset_path, sep='::'):
+        """ Constructor for class MovielensPreprocessor.
+
+        Args:
+            dataset_path (str): Path to the dataset.
+            sep (str): Delimiter used to separate data columns in the Movielens dataset.
+        """
         super(MovielensPreprocessor, self).__init__(dataset_path=dataset_path, )
-        self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
-        self.used_columns_names = ["user_id", "item_id", "rating"]
+        self.column_names = ["user_id", "item_id", "rating", "timestamp"]
+        self.used_column_names = ["user_id", "item_id", "rating"]
         self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
         self.sep = sep
         self._load_data()
 
     def _load_data(self):
-        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
+        """ Load the Movielens dataset. Set variable pd_data.
+        """
+        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.column_names,
                                    dtype=self.dtype_dict)
-        self.pd_data = self.pd_data[self.used_columns_names]
+        self.pd_data = self.pd_data[self.used_column_names]
 
-    def preprocessing(self, val_test_size, random_state):
+    def preprocess(self, val_test_size):
+        """ Apply all preprocessing steps to the Movielens dataset.
+
+        Args:
+            val_test_size (float): Ratio of validation/test set w.r.t. the entire Netflix dataset.
+
+        TODO: Unify this function with its implementation in CTR-task classes.
+        """
         self.X = self.pd_data.iloc[::, :-1].values
         self.user_num = max( self.X[::,0] ) + 1
         self.item_num = max( self.X[::, 1] ) + 1
         self.y = self.pd_data.iloc[::, -1].values
-        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
-                                                                              random_state=random_state)
-        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
-                                                                              random_state=random_state)
-
+        self.train_X, val_test_X, self.train_y, val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2)
+        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(val_test_X, val_test_y, test_size = 0.5)
 
 
 class MovielensCTRPreprocessor(BaseCTRPreprocessor):
+    """ Concrete class for preprocessing the Movielens dataset for click-through rate (CTR) task.
+
+    Attributes:
+        column_names (list): String names of columns associated with the dataset.
+        used_column_names (list): String names of columns to be used.
+        sep (str): Delimiter used to separate data columns in the Movielens dataset.
+        dtype_dict (dict): Map string column names to proper data type.
+        pd_data (DataFrame): Preprocessed data.
+        user_num (int): Number of CustomerIDs.
+        item_num (int): Number of MovieIDs.
+        X (ndarray): (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+            and N is the number of numerical and categorical columns.
+        y (ndarray): (M, 1) matrix associated with the label data, where M is the number of rows.
+        train_X (ndarray): Matrix associated with the part of numerical and categorical data for model training.
+        train_y (ndarray): Matrix associated with the part of label data used to train model.
+        valid_X (ndarray): Matrix associated with the part of numerical and categorical data for model validation.
+        valid_y (ndarray): Matrix associated with the part of label data used to validate model.
+
+    Note:
+        To obtain the Movielens dataset, visit: https://grouplens.org/datasets/movielens/
+        The Movielens dataset contains 4 data columns: UserID, MovieID, Rating, and Timestamp.
+
+    TODO: Variables user_num & item_num should be saved but are currently not. The testing scripts are using arbitrary
+        large number as user & item numbers.
+    """
 
     def __init__(self, dataset_path, sep='::'):
+        """Constructor for class MovielensPreprocessor.
+
+        Args:
+            dataset_path (str): Path to the dataset.
+            sep (str): Delimiter used to separate data columns in the Movielens dataset.
+        """
         super(MovielensCTRPreprocessor, self).__init__(dataset_path=dataset_path)
-        self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
-        self.used_columns_names = ["user_id", "item_id", "rating"]
+        self.column_names = ["user_id", "item_id", "rating", "timestamp"]
+        self.used_column_names = ["user_id", "item_id", "rating"]
         self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
         self.sep = sep
         self._load_data()
 
     def _load_data(self):
-        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
+        """ Load the Movielens dataset. Set variable pd_data.
+        """
+        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.column_names,
                                    dtype=self.dtype_dict)
-        self.pd_data = self.pd_data[self.used_columns_names]
+        self.pd_data = self.pd_data[self.used_column_names]
 
     def _negative_sampling(self, input_df, num_neg, mult=1):
-        """ Add a column of negative item IDs to the input DataFrame
-        :param input_df: DataFrame user-item interactions with columns=[user_id, item_id, rating]
-        :param num_neg: Integer number of negative interaction to sample per user-item interaction (cannot be 0)
-        :param mult: Integer multiplier for boosting the rank of negative item candidates in case of deficiency
-        :return: DataFrame user-item interactions with columns=[user_id, item_id, rating, neg_item_ids]
+        """ Add a column of negative item IDs to the input DataFrame.
+
+        Args:
+            input_df (DataFrame): DataFrame user-item interactions with columns=[user_id, item_id, rating].
+            num_neg (int): Number of negative interaction to sample per user-item interaction (cannot be 0).
+            mult (int): Multiplier for boosting the rank of negative item candidates in case of deficiency.
+
+        Returns:
+            input_df (DataFrame): User-item interactions with columns=[user_id, item_id, rating, neg_item_ids]
+
         TODO: proper mult should be calculated by program and not asking user to specify
         TODO: notice a positive relation may receive duplicated negatively sampled items; consider this universal but may require attention
         """
@@ -580,14 +819,32 @@ class MovielensCTRPreprocessor(BaseCTRPreprocessor):
 
         return input_df
 
-    def preprocessing(self, test_size, num_neg, random_state, mult):
+    def preprocess(self, test_size, num_neg, mult):
+        """ Apply all preprocessing steps to the Movielens dataset.
+
+        Args:
+            test_size (float): Ratio of test set w.r.t. the entire Netflix dataset.
+            num_neg (int): Number of negative interaction to sample per user-item interaction (cannot be 0).
+            mult (int): Multiplier for boosting the rank of negative item candidates in case of deficiency.
+        """
         compact_data = self._negative_sampling(self.pd_data, num_neg=num_neg, mult=mult)
         compact_X = compact_data.loc[:, compact_data.columns != 'rating']
         compact_y = compact_data[['rating']]
         compact_train_X, compact_val_X, compact_train_y, compact_val_y = train_test_split(compact_X, compact_y,
-            test_size=test_size, random_state=random_state)
+            test_size=test_size)
 
         def expand(unexpanded_X, unexpanded_y):
+            """ Expand the dataset w.r.t. the native sample data column.
+
+            Args:
+                unexpanded_X (ndarray): Matrix containing the negative items sampled w.r.t. to each positive items of a
+                    user.
+                unexpanded_y (ndarray): Matrix containing the positive interactions associated with each positive items
+                    of a user.
+
+            Returns:
+                pos_neg_data (DataFrame): Data containing both positive and negative user-item interactions.
+            """
             # Extract positive relations
             unexpanded_data = pd.concat([unexpanded_X, unexpanded_y], axis=1)
             pos_data = unexpanded_data[['user_id', 'item_id', 'rating']]
