@@ -111,15 +111,15 @@ def build_autorec(user_num, item_num):
 if __name__ == '__main__':
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('-model', type=str, help='input a model name')
-    parser.add_argument('-data', type=str, help='dataset name')
-    parser.add_argument('-data_path', type=str, help='dataset path')
+    parser.add_argument('-model', type=str, help='input a model name', default='mf')
+    parser.add_argument('-data', type=str, help='dataset name', default='ml')
+    parser.add_argument('-data_path', type=str, help='dataset path', default='./datasets/ml-1m/5k.dat')
     parser.add_argument('-sep', type=str, help='dataset sep')
-    parser.add_argument('-search', type=str, help='input a search method name')
-    parser.add_argument('-batch_size', type=int, help='batch size')
-    parser.add_argument('-epochs', type=int, help='epochs')
-    parser.add_argument('-early_stop', type=int, help='early stop')
-    parser.add_argument('-trials', type=int, help='try number')
+    parser.add_argument('-search', type=str, help='input a search method name', default='random')
+    parser.add_argument('-batch_size', type=int, help='batch size', default=256)
+    parser.add_argument('-epochs', type=int, help='epochs', default=1)
+    parser.add_argument('-early_stop', type=int, help='early stop', default=1)
+    parser.add_argument('-trials', type=int, help='try number', default=10)
     args = parser.parse_args()
     # print("args:", args)
 
@@ -128,15 +128,15 @@ if __name__ == '__main__':
 
     # Load dataset
     if args.data == "ml":
-        data = MovielensPreprocessor(args.data_path, sep=args.sep)
-    if args.data == "netflix":
-        dataset_paths = [args.data_path + "/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
-        data = NetflixPrizePreprocessor(dataset_paths)
-    data.preprocessing(val_test_size=0.1, random_state=1314)
-    train_X, train_y = data.train_X, data.train_y
-    val_X, val_y = data.val_X, data.val_y
-    test_X, test_y = data.test_X, data.test_y
-    user_num, item_num = data.user_num, data.item_num
+        data = MovielensPreprocessor(csv_path=args.data_path, validate_percentage=0.1, test_percentage=0.1)
+        train_X, train_y, val_X, val_y, test_X, test_y = data.preprocess()
+        user_num, item_num = data.get_hash_size()
+    # if args.data == "netflix":
+    #     dataset_paths = [args.data_path + "/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
+    #     data = NetflixPrizePreprocessor(dataset_paths)
+
+
+
     logger.info('train_X size: {}'.format(train_X.shape))
     logger.info('train_y size: {}'.format(train_y.shape))
     logger.info('val_X size: {}'.format(val_X.shape))
@@ -165,9 +165,9 @@ if __name__ == '__main__':
                       )
 
     start_time = time.time()
-    searcher.search(x=train_X,
+    searcher.search(x=data.get_x_categorical(train_X),
                     y=train_y,
-                    x_val=val_X,
+                    x_val=data.get_x_categorical(val_X),
                     y_val=val_y,
                     objective='val_mse',
                     batch_size=args.batch_size,
@@ -178,5 +178,4 @@ if __name__ == '__main__':
     # print("Args", args)
     logger.info('Runing time: {}'.format(end_time - start_time))
     logger.info('Args: {}'.format(args))
-    logger.info('Predicted Ratings: {}'.format(searcher.predict(x=test_X)))
-    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
+    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=data.get_x_categorical(test_X), y_true=test_y)))
