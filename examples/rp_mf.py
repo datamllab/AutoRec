@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # data = NetflixPrizePreprocessor(dataset_paths)
 
 #Movielens 1M Dataset
-movielens = MovielensPreprocessor()
+movielens = NetflixPrizePreprocessor()
 train_X, train_y, val_X, val_y, test_X, test_y = movielens.preprocess()
 
 user_num, item_num = movielens.get_hash_size()

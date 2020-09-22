@@ -18,11 +18,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# load dataset
+# Step 1: Preprocess data
 criteo = CriteoPreprocessor()  # automatically set up for preprocessing the Criteo dataset
 train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
 
-# build the pipeline.
+# Step 2: Build model
 dense_input_node = Input(shape=[criteo.get_numerical_count()])
 sparse_input_node = Input(shape=[criteo.get_categorical_count()])
 
@@ -41,11 +41,13 @@ hyper_output = HyperInteraction(meta_interator_num=2)([sparse_feat_bottom_output
 output = PointWiseOptimizer()(hyper_output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
 
-# AutoML search and predict.
+# Step 3: Build Searcher
 searcher = Search(model=model,
                   tuner='random',
                   tuner_params={'max_trials': 2, 'overwrite': True},
                   )
+
+# Step 4: Search model & HP
 searcher.search(x=[criteo.get_x_numerical(train_X), criteo.get_x_categorical(train_X)],
                 y=train_y,
                 x_val=[criteo.get_x_numerical(val_X), criteo.get_x_categorical(val_X)],

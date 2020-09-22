@@ -5,6 +5,7 @@ import argparse
 import time
 import os
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 import logging
 import tensorflow as tf

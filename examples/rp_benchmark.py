@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     # search and predict.
     searcher = Search(model=model,
-                      tuner=args.search,  ## hyperband, bayesian
+                      tuner=args.search,
                       tuner_params={'max_trials': args.trials, 'overwrite': True}
                       )
 
