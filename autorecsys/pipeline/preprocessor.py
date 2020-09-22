@@ -299,7 +299,7 @@ class AvazuPreprocessor(BasePreprocessor):
 
     def __init__(self,
                  non_csv_path=None,
-                 csv_path='/home/thwang1231/autorec/examples/datasets/avazu/sampled_train_10000.txt',
+                 csv_path='./example_datasets/avazu/train-10k',
                  header=0,
                  columns=None,
                  delimiter=',',
@@ -310,13 +310,13 @@ class AvazuPreprocessor(BasePreprocessor):
                  numerical_columns=None,
                  categorical_columns=None,
                  categorical_filter=3,
-                 fit_dictionary_path='/home/thwang1231/autorec/examples/preprocessed/avazu/fit_dictionary.pkl',
-                 transform_path='/home/thwang1231/autorec/examples/preprocessed/avazu/transformed.pkl',
+                 fit_dictionary_path=None,
+                 transform_path=None,
                  test_percentage=0.1,
                  validate_percentage=0.1,
-                 train_path='/home/thwang1231/autorec/examples/preprocessed/avazu/train.pkl',
-                 validate_path='/home/thwang1231/autorec/examples/preprocessed/avazu/validate.pkl',
-                 test_path='/home/thwang1231/autorec/examples/preprocessed/avazu/test.pkl'):
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
 
         if columns is None:
             columns = ['id', 'click', 'hour', 'C1', 'banner_pos', 'site_id', 'site_domain', 'site_category', 'app_id',
@@ -407,7 +407,7 @@ class CriteoPreprocessor(BasePreprocessor):
 
     def __init__(self,
                  non_csv_path=None,
-                 csv_path='/home/thwang1231/autorec/examples/datasets/criteo_sample_10000/train_examples.txt',  # 0.584212
+                 csv_path='./example_datasets/criteo/train-10k.txt',
                  header=None,  # inferred in load_data()
                  columns=None,
                  delimiter='\t',
@@ -418,13 +418,13 @@ class CriteoPreprocessor(BasePreprocessor):
                  numerical_columns=None,
                  categorical_columns=None,
                  categorical_filter=3,
-                 fit_dictionary_path='/home/thwang1231/autorec/examples/preprocessed/criteo/fit_dictionary.pkl',
-                 transform_path='/home/thwang1231/autorec/examples/preprocessed/criteo/transformed.pkl',
+                 fit_dictionary_path=None,
+                 transform_path=None,
                  test_percentage=0.1,
                  validate_percentage=0.1,
-                 train_path='/home/thwang1231/autorec/examples/preprocessed/criteo/train.pkl',
-                 validate_path='/home/thwang1231/autorec/examples/preprocessed/criteo/validate.pkl',
-                 test_path='/home/thwang1231/autorec/examples/preprocessed/criteo/test.pkl'):
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
 
         if columns is None:
             columns = range(40)
@@ -515,8 +515,8 @@ class NetflixPrizePreprocessor(BasePreprocessor):
     """
 
     def __init__(self,
-                 non_csv_path='/home/thwang1231/autorec/examples/datasets/netflix-prize-data/abridged_data_1.txt',
-                 csv_path='/home/thwang1231/autorec/examples/preprocessed/netflix/abridged_data_1.csv',
+                 non_csv_path='./example_datasets/netflix/combined_data_1-10k.txt',
+                 csv_path='./example_datasets/netflix/combined_data_1-10k.csv',
                  header=None,  # inferred in load_data()
                  columns=None,
                  delimiter=',',
@@ -527,13 +527,13 @@ class NetflixPrizePreprocessor(BasePreprocessor):
                  numerical_columns=None,
                  categorical_columns=None,
                  categorical_filter=0,  # no grouping, simply renumber
-                 fit_dictionary_path='/home/thwang1231/autorec/examples/preprocessed/netflix/fit_dictionary.pkl',
-                 transform_path='/home/thwang1231/autorec/examples/preprocessed/netflix/transformed.pkl',
+                 fit_dictionary_path=None,
+                 transform_path=None,
                  test_percentage=0.1,
                  validate_percentage=0.1,
-                 train_path='/home/thwang1231/autorec/examples/preprocessed/netflix/train.pkl',
-                 validate_path='/home/thwang1231/autorec/examples/preprocessed/netflix/validate.pkl',
-                 test_path='/home/thwang1231/autorec/examples/preprocessed/netflix/test.pkl'):
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
 
         if columns is None:
             columns = ['MovieID', 'CustomerID', 'Rating', 'Date']
@@ -638,7 +638,7 @@ class MovielensPreprocessor(BasePreprocessor):
 
     def __init__(self,
                  non_csv_path=None,
-                 csv_path='/home/thwang1231/autorec/examples/datasets/ml-1m/5k.dat',
+                 csv_path='./example_datasets/movielens/ratings-10k.dat',
                  header=None,  # inferred in load_data()
                  columns=None,
                  delimiter='::',
@@ -649,13 +649,13 @@ class MovielensPreprocessor(BasePreprocessor):
                  numerical_columns=None,
                  categorical_columns=None,
                  categorical_filter=0,  # no grouping, simply renumber
-                 fit_dictionary_path='/home/thwang1231/autorec/examples/preprocessed/movielens/fit_dictionary.pkl',
-                 transform_path='/home/thwang1231/autorec/examples/preprocessed/movielens/transformed.pkl',
+                 fit_dictionary_path=None,
+                 transform_path=None,
                  test_percentage=0.1,
                  validate_percentage=0.1,
-                 train_path='/home/thwang1231/autorec/examples/preprocessed/movielens/train.pkl',
-                 validate_path='/home/thwang1231/autorec/examples/preprocessed/movielens/validate.pkl',
-                 test_path='/home/thwang1231/autorec/examples/preprocessed/movielens/test.pkl'):
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
 
         if columns is None:
             columns = ['UserID', 'MovieID', 'Rating', 'Timestamp']
