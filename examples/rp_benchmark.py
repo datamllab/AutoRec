@@ -111,15 +111,15 @@ def build_autorec(user_num, item_num):
 if __name__ == '__main__':
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument('-model', type=str, help='input a model name', default='mf')
-    parser.add_argument('-data', type=str, help='dataset name', default='ml')
-    parser.add_argument('-data_path', type=str, help='dataset path', default='./datasets/ml-1m/5k.dat')
+    parser.add_argument('-model', type=str, help='input a model name')
+    parser.add_argument('-data', type=str, help='dataset name')
+    parser.add_argument('-data_path', type=str, help='dataset path')
     parser.add_argument('-sep', type=str, help='dataset sep')
-    parser.add_argument('-search', type=str, help='input a search method name', default='random')
-    parser.add_argument('-batch_size', type=int, help='batch size', default=256)
-    parser.add_argument('-epochs', type=int, help='epochs', default=1)
-    parser.add_argument('-early_stop', type=int, help='early stop', default=1)
-    parser.add_argument('-trials', type=int, help='try number', default=10)
+    parser.add_argument('-search', type=str, help='input a search method name')
+    parser.add_argument('-batch_size', type=int, help='batch size')
+    parser.add_argument('-epochs', type=int, help='epochs')
+    parser.add_argument('-early_stop', type=int, help='early stop')
+    parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
     # print("args:", args)
 

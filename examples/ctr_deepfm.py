@@ -52,7 +52,7 @@ searcher.search(x=[criteo.get_x_numerical(train_X), criteo.get_x_categorical(tra
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
                 batch_size=10000,
-                epochs = 20,
+                epochs = 2,
                 callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
                 )
 logger.info('First 10 Predicted Ratings: {}'.format(searcher.predict(x=[criteo.get_x_numerical(val_X), criteo.get_x_categorical(val_X)])[:10]))
