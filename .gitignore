@@ -15,3 +15,7 @@ test.py
 _rp_benchmark_latest.py
 _rp_benchmark_10m.py
 search_1/
+
+# MKdocs
+/docs/sources
+/docs/site
