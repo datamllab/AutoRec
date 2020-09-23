@@ -32,6 +32,7 @@ nav:
   - Documentation:
     - Preprocessor: preprocessor.md
     - Mapper: mapper.md
+    - Node: node.md
     - Interactor: interactor.md
     - Optimizer: optimizer.md
     - Recommender: recommender.md

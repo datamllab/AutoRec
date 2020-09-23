@@ -32,6 +32,16 @@ PAGES = {
         'autorecsys.pipeline.preprocessor.MovielensPreprocessor',
         'autorecsys.pipeline.preprocessor.MovielensPreprocessor.preprocess',
     ],
+    'node.md': [
+        'autorecsys.pipeline.node.Input',
+        'autorecsys.pipeline.node.Input.fit_transform',
+        'autorecsys.pipeline.node.Input.transform',
+        'autorecsys.pipeline.node.StructuredDataInput',
+        'autorecsys.pipeline.node.StructuredDataInput.get_state',
+        'autorecsys.pipeline.node.StructuredDataInput.set_state',
+        'autorecsys.pipeline.node.StructuredDataInput.update',
+        'autorecsys.pipeline.node.StructuredDataInput.infer_column_types',
+    ],
     'mapper.md': [
         'autorecsys.pipeline.mapper.LatentFactorMapper',
         'autorecsys.pipeline.mapper.LatentFactorMapper.get_state',
