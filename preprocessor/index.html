@@ -1,0 +1,1251 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for AutoRec.">
+      
+      
+        <link rel="canonical" href="http://autokeras.org/preprocessor/">
+      
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+    
+    
+      
+        <title>Preprocessor - AutoRec</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bc7e593a.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab28b872.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4cae4f">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="green" data-md-color-accent="green">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#basepreprocessor" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="http://autokeras.org" title="AutoRec" class="md-header-nav__button md-logo" aria-label="AutoRec">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            AutoRec
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Preprocessor
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/datamllab/AutoRecSys" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="http://autokeras.org" title="AutoRec" class="md-nav__button md-logo" aria-label="AutoRec">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    AutoRec
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/datamllab/AutoRecSys" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../install/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Preprocessor
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Preprocessor
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basepreprocessor" class="md-nav__link">
+    BasePreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format_dataset" class="md-nav__link">
+    format_dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load_dataset" class="md-nav__link">
+    load_dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transform_categorical" class="md-nav__link">
+    transform_categorical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transform_numerical" class="md-nav__link">
+    transform_numerical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_hash_size" class="md-nav__link">
+    get_hash_size
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_x" class="md-nav__link">
+    get_x
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_x_numerical" class="md-nav__link">
+    get_x_numerical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_x_categorical" class="md-nav__link">
+    get_x_categorical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_y" class="md-nav__link">
+    get_y
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_numerical_count" class="md-nav__link">
+    get_numerical_count
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_categorical_count" class="md-nav__link">
+    get_categorical_count
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#split_data" class="md-nav__link">
+    split_data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#avazupreprocessor" class="md-nav__link">
+    AvazuPreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_1" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#criteopreprocessor" class="md-nav__link">
+    CriteoPreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_2" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#netflixprizepreprocessor" class="md-nav__link">
+    NetflixPrizePreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format_dataset_1" class="md-nav__link">
+    format_dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_3" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#movielenspreprocessor" class="md-nav__link">
+    MovielensPreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_4" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../mapper/" class="md-nav__link">
+      Mapper
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../node/" class="md-nav__link">
+      Node
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../interactor/" class="md-nav__link">
+      Interactor
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../optimizer/" class="md-nav__link">
+      Optimizer
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../recommender/" class="md-nav__link">
+      Recommender
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../auto_search/" class="md-nav__link">
+      Auto Search
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../about/" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basepreprocessor" class="md-nav__link">
+    BasePreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format_dataset" class="md-nav__link">
+    format_dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load_dataset" class="md-nav__link">
+    load_dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transform_categorical" class="md-nav__link">
+    transform_categorical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transform_numerical" class="md-nav__link">
+    transform_numerical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_hash_size" class="md-nav__link">
+    get_hash_size
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_x" class="md-nav__link">
+    get_x
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_x_numerical" class="md-nav__link">
+    get_x_numerical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_x_categorical" class="md-nav__link">
+    get_x_categorical
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_y" class="md-nav__link">
+    get_y
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_numerical_count" class="md-nav__link">
+    get_numerical_count
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get_categorical_count" class="md-nav__link">
+    get_categorical_count
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#split_data" class="md-nav__link">
+    split_data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#avazupreprocessor" class="md-nav__link">
+    AvazuPreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_1" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#criteopreprocessor" class="md-nav__link">
+    CriteoPreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_2" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#netflixprizepreprocessor" class="md-nav__link">
+    NetflixPrizePreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format_dataset_1" class="md-nav__link">
+    format_dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_3" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#movielenspreprocessor" class="md-nav__link">
+    MovielensPreprocessor
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preprocess_4" class="md-nav__link">
+    preprocess
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>Preprocessor</h1>
+                
+                <p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L22">[source]</a></span></p>
+<h3 id="basepreprocessor">BasePreprocessor</h3>
+<div class="highlight"><pre><span></span><code><span class="n">autorecsys</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">BasePreprocessor</span><span class="p">(</span>
+    <span class="n">non_csv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">delimiter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">filler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dtype_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ignored_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">numerical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">fit_dictionary_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_percentage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_percentage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">train_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Preprocess data into Pandas DataFrame format.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>non_csv_path (str)</strong>: Path to convert the dataset into CSV format.</li>
+<li><strong>csv_path (str)</strong>: Path to save and load the CSV dataset.</li>
+<li><strong>header (int)</strong>: Row number to use as column names.</li>
+<li><strong>columns (list)</strong>: String names associated with the columns of the dataset.</li>
+<li><strong>delimiter (str)</strong>: Separator used to parse lines.</li>
+<li><strong>filler (float)</strong>: Filler value used to fill missing data.</li>
+<li><strong>dtype_dict (dict)</strong>: Map string column names to column data type.</li>
+<li><strong>ignored_columns (list)</strong>: String names associated with the columns to ignore.</li>
+<li><strong>target_column (str)</strong>: String name associated with the columns containing target data for prediction, e.g.,
+    rating column for rating prediction and label column for click-through rate (CTR) prediction.</li>
+<li><strong>numerical_columns (list)</strong>: String names associated with the columns containing numerical data.</li>
+<li><strong>categorical_columns (list)</strong>: String names associated with the columns containing categorical data.</li>
+<li><strong>categorical_filter (int)</strong>: Filter used to group infrequent categories in one column as the same category.</li>
+<li><strong>fit_dictionary_path (str)</strong>: Path to the fit dictionary for categorical data.</li>
+<li><strong>transform_path (str)</strong>: Path to the transformed dataset.</li>
+<li><strong>test_percentage (float)</strong>: Percentage for the test set.</li>
+<li><strong>validate_percentage (float)</strong>: Percentage for the validation set.</li>
+<li><strong>train_path (str)</strong>: Path to the training set.</li>
+<li><strong>validate_path (str)</strong>: Path to the validation set.</li>
+<li><strong>test_path (str)</strong>: Path to the test set.</li>
+</ul>
+<p><strong>Attributes</strong></p>
+<ul>
+<li><strong>non_csv_path (str)</strong>: Path to convert the dataset into CSV format.</li>
+<li><strong>csv_path (str)</strong>: Path to save and load the CSV dataset.</li>
+<li><strong>header (int)</strong>: Row number to use as column names.</li>
+<li><strong>columns (list)</strong>: String names associated with the columns of the dataset.</li>
+<li><strong>delimiter (str)</strong>: Separator used to parse lines.</li>
+<li><strong>filler (float)</strong>: Filler value used to fill missing data.</li>
+<li><strong>dtype_dict (dict)</strong>: Map string column names to column data type.</li>
+<li><strong>ignored_columns (list)</strong>: String names associated with the columns to ignore.</li>
+<li><strong>data_df (DataFrame)</strong>: Data loaded in Pandas DataFrame format and contains only relevant columns.</li>
+<li><strong>target_column (str)</strong>: String name associated with the columns containing target data for prediction, e.g.,
+    rating column for rating prediction and label column for click-through rate (CTR) prediction.</li>
+<li><strong>numerical_columns (list)</strong>: String names associated with the columns containing numerical data.</li>
+<li><strong>categorical_columns (list)</strong>: String names associated with the columns containing categorical data.</li>
+<li><strong>categorical_filter (int)</strong>: Filter used to group infrequent categories in one column as the same category.</li>
+<li><strong>fit_dict (dict)</strong>: Map string categorical column names to dictionary which maps categories to indices.</li>
+<li><strong>fit_dictionary_path (str)</strong>: Path to the fit dictionary for categorical data.</li>
+<li><strong>transform_path (str)</strong>: Path to the transformed dataset.</li>
+<li><strong>test_percentage (float)</strong>: Percentage for the test set.</li>
+<li><strong>validate_percentage (float)</strong>: Percentage for the validation set.</li>
+<li><strong>train_path (str)</strong>: Path to the training set.</li>
+<li><strong>validate_path (str)</strong>: Path to the validation set.</li>
+<li><strong>test_path (str)</strong>: Path to the test set.</li>
+</ul>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L124">[source]</a></span></p>
+<h3 id="format_dataset">format_dataset</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">format_dataset</span><span class="p">()</span>
+</code></pre></div>
+<p>(Optional) Convert dataset into CSV format.</p>
+<p><strong>Note</strong></p>
+<p>User should implement this function to convert non-CSV dataset into CSV format.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L132">[source]</a></span></p>
+<h3 id="load_dataset">load_dataset</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">()</span>
+</code></pre></div>
+<p>Load CSV data as a Pandas DataFrame object.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L139">[source]</a></span></p>
+<h3 id="transform_categorical">transform_categorical</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">transform_categorical</span><span class="p">()</span>
+</code></pre></div>
+<p>Transform categorical data.</p>
+<p><strong>Note</strong></p>
+<p>Produce fit dictionary for categorical data and transform categorical data using fit dictionary.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L165">[source]</a></span></p>
+<h3 id="transform_numerical">transform_numerical</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">transform_numerical</span><span class="p">()</span>
+</code></pre></div>
+<p>Transform numerical data using supported data transformation functions.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L178">[source]</a></span></p>
+<h3 id="get_hash_size">get_hash_size</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_hash_size</span><span class="p">()</span>
+</code></pre></div>
+<p>Get the hash sizes of categorical columns.</p>
+<p><strong>Returns</strong></p>
+<p>List of integer numbers of categories in each categorical data columns.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L186">[source]</a></span></p>
+<h3 id="get_x">get_x</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_x</span><span class="p">()</span>
+</code></pre></div>
+<p>Get the training data columns.</p>
+<p><strong>Returns</strong></p>
+<p>DataFrame training data columns.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L194">[source]</a></span></p>
+<h3 id="get_x_numerical">get_x_numerical</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div>
+<p>Get the numerical columns from the input data columns.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>x (DataFrame)</strong>: The input data columns.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p>ndarray numerical columns in the input data columns.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L205">[source]</a></span></p>
+<h3 id="get_x_categorical">get_x_categorical</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div>
+<p>Get the categorical columns from the input data columns.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>x (DataFrame)</strong>: The input data columns.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p>ndarray categorical columns in the input data columns.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L216">[source]</a></span></p>
+<h3 id="get_y">get_y</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_y</span><span class="p">()</span>
+</code></pre></div>
+<p>Get the output column.</p>
+<p><strong>Returns</strong></p>
+<p>ndarray output column.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L224">[source]</a></span></p>
+<h3 id="get_numerical_count">get_numerical_count</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_numerical_count</span><span class="p">()</span>
+</code></pre></div>
+<p>Get the number of numerical columns.</p>
+<p><strong>Returns</strong></p>
+<p>Integer number of numerical columns.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L232">[source]</a></span></p>
+<h3 id="get_categorical_count">get_categorical_count</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">get_categorical_count</span><span class="p">()</span>
+</code></pre></div>
+<p>Get the number of categorical columns.</p>
+<p><strong>Returns</strong></p>
+<p>Integer number of categorical columns.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L240">[source]</a></span></p>
+<h3 id="split_data">split_data</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">split_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_percentage</span><span class="p">)</span>
+</code></pre></div>
+<p>Split data into the train, validation, and test sets.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>x (ndarray)</strong>: (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+    and N is the number of numerical and categorical columns.</li>
+<li><strong>y (ndarray)</strong>: (M, 1) matrix associated with the label data, where M is the number of rows.</li>
+<li><strong>test_percentage (float)</strong>: Percentage of test set.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p>4-tuple of ndarray training input data, testing input data, training output data, and testing output data.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L257">[source]</a></span></p>
+<h3 id="preprocess">preprocess</h3>
+<div class="highlight"><pre><span></span><code><span class="n">BasePreprocessor</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+</code></pre></div>
+<p>Apply all preprocess steps.</p>
+<p><strong>Note</strong></p>
+<p>User is responsible for calling the needed data preprocessing functions from here.</p>
+<p><strong>Returns</strong></p>
+<p>6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+    testing input data, and testing output data.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L270">[source]</a></span></p>
+<h3 id="avazupreprocessor">AvazuPreprocessor</h3>
+<div class="highlight"><pre><span></span><code><span class="n">autorecsys</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">AvazuPreprocessor</span><span class="p">(</span>
+    <span class="n">non_csv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="s2">&quot;./example_datasets/avazu/train-10k&quot;</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+    <span class="n">filler</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">dtype_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ignored_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;click&quot;</span><span class="p">,</span>
+    <span class="n">numerical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_filter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">fit_dictionary_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">validate_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">train_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Preprocess the Avazu dataset for click-through rate (CTR) prediction.</p>
+<p><strong>Note:</strong></p>
+<p>To obtain the Avazu dataset, visit: https://www.kaggle.com/c/avazu-ctr-prediction
+The Avazu dataset has 24 data columns: [0] is ignored, [1] is label, and [2-23] are categorical.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>non_csv_path (str)</strong>: Path to convert the dataset into CSV format.</li>
+<li><strong>csv_path (str)</strong>: Path to save and load the CSV dataset.</li>
+<li><strong>header (int)</strong>: Row number to use as column names.</li>
+<li><strong>columns (list)</strong>: String names associated with the columns of the dataset.</li>
+<li><strong>delimiter (str)</strong>: Separator used to parse lines.</li>
+<li><strong>filler (float)</strong>: Filler value used to fill missing data.</li>
+<li><strong>dtype_dict (dict)</strong>: Map string column names to column data type.</li>
+<li><strong>ignored_columns (list)</strong>: String names associated with the columns to ignore.</li>
+<li><strong>target_column (str)</strong>: String name associated with the columns containing target data for prediction, e.g.,
+    rating column for rating prediction and label column for click-through rate (CTR) prediction.</li>
+<li><strong>numerical_columns (list)</strong>: String names associated with the columns containing numerical data.</li>
+<li><strong>categorical_columns (list)</strong>: String names associated with the columns containing categorical data.</li>
+<li><strong>categorical_filter (int)</strong>: Filter used to group infrequent categories in one column as the same category.</li>
+<li><strong>fit_dictionary_path (str)</strong>: Path to the fit dictionary for categorical data.</li>
+<li><strong>transform_path (str)</strong>: Path to the transformed dataset.</li>
+<li><strong>test_percentage (float)</strong>: Percentage for the test set.</li>
+<li><strong>validate_percentage (float)</strong>: Percentage for the validation set.</li>
+<li><strong>train_path (str)</strong>: Path to the training set.</li>
+<li><strong>validate_path (str)</strong>: Path to the validation set.</li>
+<li><strong>test_path (str)</strong>: Path to the test set.</li>
+</ul>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L354">[source]</a></span></p>
+<h3 id="preprocess_1">preprocess</h3>
+<div class="highlight"><pre><span></span><code><span class="n">AvazuPreprocessor</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+</code></pre></div>
+<p>Apply all preprocessing steps to the Avazu dataset.</p>
+<p><strong>Returns</strong></p>
+<p>6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+    testing input data, and testing output data.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L378">[source]</a></span></p>
+<h3 id="criteopreprocessor">CriteoPreprocessor</h3>
+<div class="highlight"><pre><span></span><code><span class="n">autorecsys</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">CriteoPreprocessor</span><span class="p">(</span>
+    <span class="n">non_csv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="s2">&quot;./example_datasets/criteo/train-10k.txt&quot;</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">filler</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">dtype_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ignored_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">numerical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_filter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">fit_dictionary_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">validate_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">train_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Preprocess the Criteo dataset for click-through rate (CTR) prediction.</p>
+<p><strong>Note</strong></p>
+<p>To obtain the Criteo dataset, visit: https://www.kaggle.com/c/criteo-display-ad-challenge/
+The Criteo dataset has 40 data columns: [0] is label, [1-13] are numerical, and [14-39] are categorical.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>non_csv_path (str)</strong>: Path to convert the dataset into CSV format.</li>
+<li><strong>csv_path (str)</strong>: Path to save and load the CSV dataset.</li>
+<li><strong>header (int)</strong>: Row number to use as column names.</li>
+<li><strong>columns (list)</strong>: String names associated with the columns of the dataset.</li>
+<li><strong>delimiter (str)</strong>: Separator used to parse lines.</li>
+<li><strong>filler (float)</strong>: Filler value used to fill missing data.</li>
+<li><strong>dtype_dict (dict)</strong>: Map string column names to column data type.</li>
+<li><strong>ignored_columns (list)</strong>: String names associated with the columns to ignore.</li>
+<li><strong>target_column (str)</strong>: String name associated with the columns containing target data for prediction, e.g.,
+    rating column for rating prediction and label column for click-through rate (CTR) prediction.</li>
+<li><strong>numerical_columns (list)</strong>: String names associated with the columns containing numerical data.</li>
+<li><strong>categorical_columns (list)</strong>: String names associated with the columns containing categorical data.</li>
+<li><strong>categorical_filter (int)</strong>: Filter used to group infrequent categories in one column as the same category.</li>
+<li><strong>fit_dictionary_path (str)</strong>: Path to the fit dictionary for categorical data.</li>
+<li><strong>transform_path (str)</strong>: Path to the transformed dataset.</li>
+<li><strong>test_percentage (float)</strong>: Percentage for the test set.</li>
+<li><strong>validate_percentage (float)</strong>: Percentage for the validation set.</li>
+<li><strong>train_path (str)</strong>: Path to the training set.</li>
+<li><strong>validate_path (str)</strong>: Path to the validation set.</li>
+<li><strong>test_path (str)</strong>: Path to the test set.</li>
+</ul>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L460">[source]</a></span></p>
+<h3 id="preprocess_2">preprocess</h3>
+<div class="highlight"><pre><span></span><code><span class="n">CriteoPreprocessor</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+</code></pre></div>
+<p>Apply all preprocessing steps to the Criteo dataset.</p>
+<p><strong>Returns</strong></p>
+<p>6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+    testing input data, and testing output data.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L487">[source]</a></span></p>
+<h3 id="netflixprizepreprocessor">NetflixPrizePreprocessor</h3>
+<div class="highlight"><pre><span></span><code><span class="n">autorecsys</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">NetflixPrizePreprocessor</span><span class="p">(</span>
+    <span class="n">non_csv_path</span><span class="o">=</span><span class="s2">&quot;./example_datasets/netflix/combined_data_1-10k.txt&quot;</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="s2">&quot;./example_datasets/netflix/combined_data_1-10k.csv&quot;</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span>
+    <span class="n">filler</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">dtype_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ignored_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;Rating&quot;</span><span class="p">,</span>
+    <span class="n">numerical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_filter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">fit_dictionary_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">validate_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">train_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Preprocess the Netflix dataset for rating prediction.</p>
+<p><strong>Note</strong></p>
+<p>To obtain the Netflix dataset, visit: https://www.kaggle.com/netflix-inc/netflix-prize-data
+The Netflix dataset has 4 data columns: MovieID, CustomerID, Rating, and Date.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>non_csv_path (str)</strong>: Path to convert the dataset into CSV format.</li>
+<li><strong>csv_path (str)</strong>: Path to save and load the CSV dataset.</li>
+<li><strong>header (int)</strong>: Row number to use as column names.</li>
+<li><strong>columns (list)</strong>: String names associated with the columns of the dataset.</li>
+<li><strong>delimiter (str)</strong>: Separator used to parse lines.</li>
+<li><strong>filler (float)</strong>: Filler value used to fill missing data.</li>
+<li><strong>dtype_dict (dict)</strong>: Map string column names to column data type.</li>
+<li><strong>ignored_columns (list)</strong>: String names associated with the columns to ignore.</li>
+<li><strong>target_column (str)</strong>: String name associated with the columns containing target data for prediction, e.g.,
+    rating column for rating prediction and label column for click-through rate (CTR) prediction.</li>
+<li><strong>numerical_columns (list)</strong>: String names associated with the columns containing numerical data.</li>
+<li><strong>categorical_columns (list)</strong>: String names associated with the columns containing categorical data.</li>
+<li><strong>categorical_filter (int)</strong>: Filter used to group infrequent categories in one column as the same category.</li>
+<li><strong>fit_dictionary_path (str)</strong>: Path to the fit dictionary for categorical data.</li>
+<li><strong>transform_path (str)</strong>: Path to the transformed dataset.</li>
+<li><strong>test_percentage (float)</strong>: Percentage for the test set.</li>
+<li><strong>validate_percentage (float)</strong>: Percentage for the validation set.</li>
+<li><strong>train_path (str)</strong>: Path to the training set.</li>
+<li><strong>validate_path (str)</strong>: Path to the validation set.</li>
+<li><strong>test_path (str)</strong>: Path to the test set.</li>
+</ul>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L569">[source]</a></span></p>
+<h3 id="format_dataset_1">format_dataset</h3>
+<div class="highlight"><pre><span></span><code><span class="n">NetflixPrizePreprocessor</span><span class="o">.</span><span class="n">format_dataset</span><span class="p">()</span>
+</code></pre></div>
+<p>Convert the Netflix Prize dataset into CSV format and save it as a new file.</p>
+<p><strong>Note:</strong></p>
+<p>This is an example showing the function which converts dataset into the CSV format as provided by user.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L582">[source]</a></span></p>
+<h3 id="preprocess_3">preprocess</h3>
+<div class="highlight"><pre><span></span><code><span class="n">NetflixPrizePreprocessor</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+</code></pre></div>
+<p>Apply all preprocessing steps to the Netflix Prize dataset.</p>
+<p><strong>Returns</strong></p>
+<p>6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+    testing input data, and testing output data.</p>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L609">[source]</a></span></p>
+<h3 id="movielenspreprocessor">MovielensPreprocessor</h3>
+<div class="highlight"><pre><span></span><code><span class="n">autorecsys</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">MovielensPreprocessor</span><span class="p">(</span>
+    <span class="n">non_csv_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="o">=</span><span class="s2">&quot;./example_datasets/movielens/ratings-10k.dat&quot;</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;::&quot;</span><span class="p">,</span>
+    <span class="n">filler</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">dtype_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ignored_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;Rating&quot;</span><span class="p">,</span>
+    <span class="n">numerical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">categorical_filter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">fit_dictionary_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">validate_percentage</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">train_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">test_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Preprocess the Movielens 1M dataset for rating prediction.</p>
+<p><strong>Note</strong></p>
+<p>To obtain the Movielens 1M dataset, visit: https://grouplens.org/datasets/movielens/
+The Movielens 1M dataset has 4 data columns: UserID, MovieID, Rating, and Timestamp.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><strong>non_csv_path (str)</strong>: Path to convert the dataset into CSV format.</li>
+<li><strong>csv_path (str)</strong>: Path to save and load the CSV dataset.</li>
+<li><strong>header (int)</strong>: Row number to use as column names.</li>
+<li><strong>columns (list)</strong>: String names associated with the columns of the dataset.</li>
+<li><strong>delimiter (str)</strong>: Separator used to parse lines.</li>
+<li><strong>filler (float)</strong>: Filler value used to fill missing data.</li>
+<li><strong>dtype_dict (dict)</strong>: Map string column names to column data type.</li>
+<li><strong>ignored_columns (list)</strong>: String names associated with the columns to ignore.</li>
+<li><strong>target_column (str)</strong>: String name associated with the columns containing target data for prediction, e.g.,
+    rating column for rating prediction and label column for click-through rate (CTR) prediction.</li>
+<li><strong>numerical_columns (list)</strong>: String names associated with the columns containing numerical data.</li>
+<li><strong>categorical_columns (list)</strong>: String names associated with the columns containing categorical data.</li>
+<li><strong>categorical_filter (int)</strong>: Filter used to group infrequent categories in one column as the same category.</li>
+<li><strong>fit_dictionary_path (str)</strong>: Path to the fit dictionary for categorical data.</li>
+<li><strong>transform_path (str)</strong>: Path to the transformed dataset.</li>
+<li><strong>test_percentage (float)</strong>: Percentage for the test set.</li>
+<li><strong>validate_percentage (float)</strong>: Percentage for the validation set.</li>
+<li><strong>train_path (str)</strong>: Path to the training set.</li>
+<li><strong>validate_path (str)</strong>: Path to the validation set.</li>
+<li><strong>test_path (str)</strong>: Path to the test set.</li>
+</ul>
+<hr />
+<p><span style="float:right;"><a href="https://github.com/datamllab/AutoRecSys/autorecsys/pipeline/preprocessor.py#L691">[source]</a></span></p>
+<h3 id="preprocess_4">preprocess</h3>
+<div class="highlight"><pre><span></span><code><span class="n">MovielensPreprocessor</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+</code></pre></div>
+<p>Apply all preprocessing steps to the Movielens 1M dataset.</p>
+<p><strong>Returns</strong></p>
+<p>6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+    testing input data, and testing output data.</p>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../install/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Installation
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../mapper/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Mapper
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.6a3d08fc.min.js"></script>
+      <script src="../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+        <script src="https://unpkg.com/mermaid@8.4.4/dist/mermaid.min.js"></script>
+      
+    
+  </body>
+</html>
