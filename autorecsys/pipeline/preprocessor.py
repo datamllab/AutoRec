@@ -17,6 +17,7 @@ import os
 import math
 from pathlib import Path
 from autorecsys.utils.common import load_pickle, save_pickle
+from datetime import datetime
 
 
 class BaseProprocessor(metaclass=ABCMeta):
@@ -137,7 +138,7 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
         #   which of these info's corresponding instance variables are and pre-set them with constant values.
         self.column_names = ['id', 'click', 'hour', 'C1', 'banner_pos', 'site_id', 'site_domain', 'site_category',
                              'app_id', 'app_domain', 'app_category', 'device_id', 'device_ip', 'device_model',
-                            'device_type', 'device_conn_type', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21']
+                             'device_type', 'device_conn_type', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21']
         self.used_column_names = None
         self.pd_data = None
         self.hash_sizes = None
@@ -148,7 +149,6 @@ class AvazuPreprocessor(BaseCTRPreprocessor):
 
         # self.used_columns_names = self.columns_names
         # self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
-
 
     def load_data(self):
         """
@@ -436,7 +436,7 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
         def scale_by_natural_log(num):
             # TODO: 1) Explain why the conditional statement makes exception for numbers like 1, where 1>ln(1)**2
             if num > 2:
-                num = math.log(float(num))**2
+                num = math.log(float(num)) ** 2
             return num
 
         for numer_name in self.numer_names:
@@ -489,6 +489,7 @@ class CriteoPreprocessor(BaseCTRPreprocessor):
 
         return train_X, train_y, validate_X, validate_y, test_X, test_y
 
+
 class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
 
     def __init__(self, dataset_path):
@@ -512,7 +513,7 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
             with open(fp, 'r') as f:
                 for line in f.readlines():
                     if ':' in line:
-                        movie = int(line.strip(":\n"))-1  # -1 because the sequential MovieIDs starts from 1
+                        movie = int(line.strip(":\n")) - 1  # -1 because the sequential MovieIDs starts from 1
                     else:
                         user, rating = [int(v) for v in line.strip().split(',')[:2]]
                         cols[1].append(movie)
@@ -537,13 +538,75 @@ class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
     def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
         self.y = self.pd_data.iloc[::, [-1]].values
-        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
-                                                                              random_state=random_state)
-        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
-                                                                              random_state=random_state)
+        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y,
+                                                                                        test_size=val_test_size * 2,
+                                                                                        random_state=random_state)
+        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y,
+                                                                            test_size=0.5,
+                                                                            random_state=random_state)
 
+
+# here
 class MovielensPreprocessor(BaseRatingPredictionProprocessor):
+    used_columns_names: List[str]
 
+    def __init__(self, dataset_path, time=False, sep='::'):
+        super(MovielensPreprocessor, self).__init__(dataset_path=dataset_path, )
+        self.time = time
+        self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
+        self.used_columns_names = ["user_id", "item_id", "rating"]
+        self.dtype_dict = {"user_id": np.float32, "item_id": np.float32, "rating": np.float32, "timestamp": np.float32}
+        self.sep = sep
+        self._load_data()
+
+    def _load_data(self):
+        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
+                                   dtype=self.dtype_dict)
+        if self.time:
+            self.pd_data = self.pd_data[self.columns_names]
+            self.preprocess_time()
+            # self.pd_data = col_func(self.pd_data)
+        else:
+            self.pd_data = self.pd_data[self.used_columns_names]
+
+    def preprocessing(self, val_test_size, random_state):
+        if self.time:
+            self.X = self.pd_data.drop('i', axis=1).values
+            self.y = self.pd_data['i'].values
+        else:
+            self.X = self.pd_data.iloc[::, :-1].values
+            self.y = self.pd_data.iloc[::, -1].values
+
+        self.user_num = max(self.X[::, 0]) + 1
+        self.item_num = max(self.X[::, 1]) + 1
+        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y,
+                                                                                        test_size=val_test_size * 2,
+                                                                                        random_state=random_state)
+        # print(self.X)
+        # print(self.y)
+        # print(self.train_y)
+        # import time
+        # time.sleep(10)
+
+        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y,
+                                                                            test_size=0.5,
+                                                                            random_state=random_state)
+
+    def preprocess_time(self):
+        self.pd_data['date'] = pd.to_datetime(self.pd_data['timestamp'].apply(datetime.utcfromtimestamp))
+        self.pd_data['year'] = self.pd_data['date'].dt.year.astype(int)
+        self.pd_data['month'] = self.pd_data['date'].dt.month.astype(int)
+        self.pd_data['day'] = self.pd_data['date'].dt.day.astype(int)
+        # d.set_option('display.max_columns', None)
+        # pd.set_option('display.max_rows', None)
+        # print('start')
+        # print(self.pd_data.head(5))
+
+        # import time
+        # time.sleep(20)
+
+
+class MovielensPreprocessor2(BaseRatingPredictionProprocessor):
     used_columns_names: List[str]
 
     def __init__(self, dataset_path, sep='::'):
@@ -561,14 +624,15 @@ class MovielensPreprocessor(BaseRatingPredictionProprocessor):
 
     def preprocessing(self, val_test_size, random_state):
         self.X = self.pd_data.iloc[::, :-1].values
-        self.user_num = max( self.X[::,0] ) + 1
-        self.item_num = max( self.X[::, 1] ) + 1
+        self.user_num = max(self.X[::, 0]) + 1
+        self.item_num = max(self.X[::, 1]) + 1
         self.y = self.pd_data.iloc[::, -1].values
-        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
-                                                                              random_state=random_state)
-        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
-                                                                              random_state=random_state)
-
+        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y,
+                                                                                        test_size=val_test_size * 2,
+                                                                                        random_state=random_state)
+        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y,
+                                                                            test_size=0.5,
+                                                                            random_state=random_state)
 
 
 class MovielensCTRPreprocessor(BasePointWiseProprocessor):
@@ -602,11 +666,12 @@ class MovielensCTRPreprocessor(BasePointWiseProprocessor):
 
         # Find sampled negative items (SNI) for each user
         u_sni_series = u_cni_series.agg(  # series where index=user & data=sampled negative items
-            lambda x: np.random.RandomState().permutation(list(x)*num_neg*mult)[:num_neg * (len(item_set) - len(x))])
+            lambda x: np.random.RandomState().permutation(list(x) * num_neg * mult)[
+                      :num_neg * (len(item_set) - len(x))])
 
         # Distribute SNI to positive user-item interactions by chunk
         u_snic_series = u_sni_series.agg(  # series where index=user & data=sampled negative item chunks (SNIC)
-            lambda x: [x[i*num_neg: (i+1)*num_neg] for i in range(int(len(x)/num_neg))])
+            lambda x: [x[i * num_neg: (i + 1) * num_neg] for i in range(int(len(x) / num_neg))])
 
         # Distribute SNIC to users
         u_snic_df = u_snic_series.to_frame().apply(pd.Series.explode).reset_index()
@@ -621,7 +686,8 @@ class MovielensCTRPreprocessor(BasePointWiseProprocessor):
         compact_X = compact_data.loc[:, compact_data.columns != 'rating']
         compact_y = compact_data[['rating']]
         compact_train_X, compact_val_X, compact_train_y, compact_val_y = train_test_split(compact_X, compact_y,
-            test_size=test_size, random_state=random_state)
+                                                                                          test_size=test_size,
+                                                                                          random_state=random_state)
 
         def expand(unexpanded_X, unexpanded_y):
             # Extract positive relations

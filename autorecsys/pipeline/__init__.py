@@ -8,4 +8,4 @@ from autorecsys.pipeline.interactor import MLPInteraction,  \
                                         HyperInteraction
 
 from autorecsys.pipeline.optimizer import RatingPredictionOptimizer, PointWiseOptimizer
-from autorecsys.pipeline.node import Input, StructuredDataInput
+#from autorecsys.pipeline.node import Input, StructuredDataInput
