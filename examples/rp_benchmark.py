@@ -4,10 +4,18 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import time
 import os
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+import sys
+# os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 import logging
+# logging setting
+logging.basicConfig(stream=sys.stdout,
+                    level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
+
+
 import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
@@ -15,10 +23,7 @@ from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptim
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
 from autorecsys.recommender import RPRecommender
 
-# logging setting
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+
 
 
 def build_mf(user_num, item_num):
@@ -135,6 +140,7 @@ if __name__ == '__main__':
         user_num, item_num = data.get_hash_size()
 
     # Step 2: Build the recommender, which provides search space
+
     if args.model == 'mf':
         model = build_mf(user_num, item_num)
     if args.model == 'mlp':
@@ -171,3 +177,4 @@ if __name__ == '__main__':
     # Step 5: Evaluate the searched model
     logger.info('Test Accuracy (mse): {}'.format(searcher.evaluate(x=test_X_categorical,
                                                                    y_true=test_y)))
+

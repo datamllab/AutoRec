@@ -12,6 +12,7 @@ __pycache__/
 test.py
 *.sh
 *.log.txt
+*.log
 _rp_benchmark_latest.py
 _rp_benchmark_10m.py
 search_1/
