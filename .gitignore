@@ -20,3 +20,13 @@ search_1/
 # MKdocs
 /docs/sources
 /docs/site
+
+# Local test scripts
+ctr_benchmark-gpu*.py
+examples/netflix.py
+examples/ctr_deepfm_test_criteo.py
+examples/ctr_deepfm_test_avazu.py
+examples/ctr_test_criteo.py
+
+# Others
+autorecsys/utils/config.py
