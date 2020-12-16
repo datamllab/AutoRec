@@ -4,8 +4,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import argparse
 import time
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 import logging
 import tensorflow as tf
@@ -14,7 +14,7 @@ from autorecsys.pipeline import Input, LatentFactorMapper, DenseFeatureMapper, S
                         ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, \
                         CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, \
                         PointWiseOptimizer
-from autorecsys.pipeline.preprocessor import MovielensPreprocessor
+from autorecsys.pipeline.preprocessor import CriteoPreprocessor, AvazuPreprocessor
 from autorecsys.recommender import CTRRecommender
 
 # logging setting
@@ -97,64 +97,73 @@ if __name__ == '__main__':
     # parse args
     parser = argparse.ArgumentParser()
     parser.add_argument('-model', type=str, help='input a model name', default='dlrm')
-    parser.add_argument('-data', type=str, help='dataset name', default="criteo")
-    parser.add_argument('-data_path', type=str, help='dataset path', default='./examples/datasets/ml-1m/ratings.dat')
+    parser.add_argument('-data', type=str, help='dataset name', default="avazu")
+    parser.add_argument('-data_path', type=str, help='dataset path', default='./example_datasets/avazu/train-10k')
     parser.add_argument('-sep', type=str, help='dataset sep')
     parser.add_argument('-search', type=str, help='input a search method name', default='random')
-    parser.add_argument('-batch_size', type=int, help='batch size', default=10000)
+    parser.add_argument('-batch_size', type=int, help='batch size', default=256)
     parser.add_argument('-trials', type=int, help='try number', default=2)
+    parser.add_argument('-gpu_index', type=int, help='the index of gpu to use', default=0)
     args = parser.parse_args()
     print("args:", args)
-
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_index)
 
     if args.sep == None:
         args.sep = '::'
 
-    # Load and preprocess dataset
-    if args.data == "ml":
-        data = MovielensCTRPreprocessor(args.data_path, sep=args.sep)
-        data.preprocessing(test_size=0.1, random_state=1314)
-        train_X, train_y, val_X, val_y = data.train_X, data.train_y, data.val_X, data.val_y
-        input = Input(shape=[2])
-        user_emb = LatentFactorMapper(feat_column_id=0,
-                                          id_num=10000,
-                                          embedding_dim=64)(input)
-        item_emb = LatentFactorMapper(feat_column_id=1,
-                                          id_num=10000,
-                                          embedding_dim=64)(input)
-        emb_dict = {'user': user_emb, 'item': item_emb}
+    if args.data == "avazu":
+        # Step 1: Preprocess data
+        avazu = AvazuPreprocessor(csv_path=args.data_path, validate_percentage=0.1, test_percentage=0.1)
+        train_X, train_y, val_X, val_y, test_X, test_y = avazu.preprocess()
+        train_X_categorical = avazu.get_x_categorical(train_X)
+        val_X_categorical = avazu.get_x_categorical(val_X)
+        test_X_categorical = avazu.get_x_categorical(test_X)
+        categorical_count = avazu.get_categorical_count()
+        hash_size = avazu.get_hash_size()
+
+        # Step 2: Build the recommender, which provides search space
+        # Step 2.1: Setup mappers to handle inputs
+        # dense_input_node = None
+        sparse_input_node = Input(shape=[categorical_count])
+        input = [sparse_input_node]
+
+        # dense_feat_emb = None
+        sparse_feat_emb = SparseFeatureMapper(
+            num_of_fields=categorical_count,
+            hash_size=hash_size,
+            embedding_dim=64)(sparse_input_node)
+
+        emb_dict = {'sparse': sparse_feat_emb}
 
     if args.data == "criteo":
-        # data = CriteoPreprocessor(args.data_path)
-        import numpy as np
-        mini_criteo = np.load("./examples/datasets/criteo/criteo_1000.npz")
-        # TODO: preprocess train val split
-        train_X = [mini_criteo['X_int'].astype(np.float32), mini_criteo['X_cat'].astype(np.float32)]
-        train_y = mini_criteo['y']
-        val_X, val_y = train_X, train_y
+        # Step 1: Preprocess data
+        criteo = CriteoPreprocessor(csv_path=args.data_path, validate_percentage=0.1, test_percentage=0.1)
+        train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
+        train_X_numerical, train_X_categorical = criteo.get_x_numerical(train_X), criteo.get_x_categorical(train_X)
+        val_X_numerical, val_X_categorical = criteo.get_x_numerical(val_X), criteo.get_x_categorical(val_X)
+        test_X_numerical, test_X_categorical = criteo.get_x_numerical(test_X), criteo.get_x_categorical(test_X)
+        numerical_count = criteo.get_numerical_count()
+        categorical_count = criteo.get_categorical_count()
+        hash_size = criteo.get_hash_size()
 
-        dense_input_node = Input(shape=[13])
-        sparse_input_node = Input(shape=[26])
+        # Step 2: Build the recommender, which provides search space
+        # Step 2.1: Setup mappers to handle inputs
+        dense_input_node = Input(shape=[numerical_count])
+        sparse_input_node = Input(shape=[categorical_count])
         input = [dense_input_node, sparse_input_node]
+
         dense_feat_emb = DenseFeatureMapper(
-            num_of_fields=13,
-            embedding_dim=16)(dense_input_node)
+            num_of_fields=numerical_count,
+            embedding_dim=64)(dense_input_node)
 
         sparse_feat_emb = SparseFeatureMapper(
-            num_of_fields=26,
-            hash_size=[
-                1444, 555, 175781, 128509, 306, 19,
-                11931, 630, 4, 93146, 5161, 174835,
-                3176, 28, 11255, 165206, 11, 4606,
-                2017, 4, 172322, 18, 16, 56456,
-                86, 43356
-            ],
-            embedding_dim=16)(sparse_input_node)
+            num_of_fields=categorical_count,
+            hash_size=hash_size,
+            embedding_dim=64)(sparse_input_node)
+
         emb_dict = {'dense': dense_feat_emb, 'sparse': sparse_feat_emb}
 
-
-
-    # select model
+    # Step 2.2: Setup interactors to handle models
     if args.model == 'dlrm':
         output = build_dlrm(emb_dict)
     if args.model == 'deepfm':
@@ -163,19 +172,20 @@ if __name__ == '__main__':
         output = build_neumf(emb_dict)
     if args.model == 'autoint':
         output = build_autorec(emb_dict)
-    if args.model == 'neumf':
-        output = build_autorec(emb_dict)
     if args.model == 'autorec':
         output = build_autorec(emb_dict)
 
+    # Step 2.3: Setup optimizer to handle the target task
     output = PointWiseOptimizer()(output)
     model = CTRRecommender(inputs=input, outputs=output)
 
-    # search and predict.
+    # Step 3: Build the searcher, which provides search algorithm
     searcher = Search(model=model,
-                      tuner=args.search,  ## hyperband, bayesian
+                      tuner=args.search,
                       tuner_params={'max_trials': args.trials, 'overwrite': True}
                       )
+
+    # Step 4: Use the searcher to search the recommender
     start_time = time.time()
     searcher.search(x=train_X,
                     y=train_y,
@@ -183,11 +193,15 @@ if __name__ == '__main__':
                     y_val=val_y,
                     objective='val_BinaryCrossentropy',
                     batch_size=args.batch_size,
-                    epochs = 20,
-                    callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
+                    epochs=1,
+                    callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)]
                     )
     end_time = time.time()
-    print( "runing time:", end_time - start_time )
-    print( "args", args)
-    logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
-    logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+    print("running time:", end_time - start_time)
+    print("args", args)
+    logger.info('Validation Accuracy (logloss): {}'.format(searcher.evaluate(x=val_X,
+                                                                             y_true=val_y)))
+
+    # Step 5: Evaluate the searched model
+    logger.info('Test Accuracy (logloss): {}'.format(searcher.evaluate(x=test_X,
+                                                                       y_true=test_y)))

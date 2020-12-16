@@ -8,8 +8,9 @@ import logging
 import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, PointWiseOptimizer, ElementwiseInteraction
-from autorecsys.pipeline.preprocessor import MovielensCTRPreprocessor
 from autorecsys.recommender import CTRRecommender
+from autorecsys.pipeline.preprocessor import CriteoPreprocessor
+
 
 # logging setting
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -17,12 +18,11 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 logger = logging.getLogger(__name__)
 
 # load dataset
-ml_1m = MovielensCTRPreprocessor("./examples/datasets/ml-1m/ratings.dat")
-ml_1m.preprocessing(test_size=0.1, random_state=1314, num_neg=10, mult=2)
-train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
+criteo = CriteoPreprocessor()  # automatically set up for preprocessing the Criteo dataset
+train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
 
 # build the pipeline.
-input = Input(shape=[2])
+input = Input(shape=[criteo.get_categorical_count()])
 user_emb_gmf = LatentFactorMapper(feat_column_id=0,
                                   id_num=10000,
                                   embedding_dim=64)(input)
@@ -46,14 +46,14 @@ searcher = Search(model=model,
                   tuner='random',
                   tuner_params={'max_trials': 10, 'overwrite': True},
                   )
-searcher.search(x=train_X,
+searcher.search(x=[criteo.get_x_categorical(train_X)],
                 y=train_y,
-                x_val=val_X,
+                x_val=[criteo.get_x_categorical(val_X)],
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
                 batch_size=256,
                 epochs = 20,
                 callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
                 )
-logger.info('Predicted Ratings: {}'.format(searcher.predict(x=val_X)))
-logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
+logger.info('Predicted Ratings: {}'.format(searcher.predict(x=[criteo.get_x_categorical(val_X)])))
+logger.info('Predicting Accuracy (mse): {}'.format(searcher.evaluate(x=[criteo.get_x_categorical(val_X)], y_true=val_y)))

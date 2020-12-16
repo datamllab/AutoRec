@@ -1,0 +1,40 @@
+site_name: AutoRec
+theme:
+  name: 'material'
+  palette:
+    primary: 'green'
+    accent: 'green'
+
+docs_dir: sources
+repo_url: https://github.com/datamllab/AutoRecSys
+site_url: http://autokeras.org
+edit_uri: ""
+site_description: 'Documentation for AutoRec.'
+# google_analytics: ['UA-44322747-3', 'autokeras.com']
+markdown_extensions:
+  - codehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - admonition
+
+extra_javascript:
+  - https://unpkg.com/mermaid@8.4.4/dist/mermaid.min.js
+
+nav:
+  - Home: index.md
+  - Installation: install.md
+  - Documentation:
+    - Preprocessor: preprocessor.md
+    - Mapper: mapper.md
+    - Node: node.md
+    - Interactor: interactor.md
+    - Optimizer: optimizer.md
+    - Recommender: recommender.md
+    - Auto Search: auto_search.md
+  - About: about.md

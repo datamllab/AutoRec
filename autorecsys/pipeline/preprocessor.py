@@ -19,638 +19,694 @@ from pathlib import Path
 from autorecsys.utils.common import load_pickle, save_pickle
 
 
-class BaseProprocessor(metaclass=ABCMeta):
+class BasePreprocessor(metaclass=ABCMeta):
+    """ Preprocess data into Pandas DataFrame format.
+
+    # Arguments
+        non_csv_path (str): Path to convert the dataset into CSV format.
+        csv_path (str): Path to save and load the CSV dataset.
+        header (int): Row number to use as column names.
+        columns (list): String names associated with the columns of the dataset.
+        delimiter (str): Separator used to parse lines.
+        filler (float): Filler value used to fill missing data.
+        dtype_dict (dict): Map string column names to column data type.
+        ignored_columns (list): String names associated with the columns to ignore.
+        target_column (str): String name associated with the columns containing target data for prediction, e.g.,
+            rating column for rating prediction and label column for click-through rate (CTR) prediction.
+        numerical_columns (list): String names associated with the columns containing numerical data.
+        categorical_columns (list): String names associated with the columns containing categorical data.
+        categorical_filter (int): Filter used to group infrequent categories in one column as the same category.
+        fit_dictionary_path (str): Path to the fit dictionary for categorical data.
+        transform_path (str): Path to the transformed dataset.
+        test_percentage (float): Percentage for the test set.
+        validate_percentage (float): Percentage for the validation set.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+
+    # Attributes
+        non_csv_path (str): Path to convert the dataset into CSV format.
+        csv_path (str): Path to save and load the CSV dataset.
+        header (int): Row number to use as column names.
+        columns (list): String names associated with the columns of the dataset.
+        delimiter (str): Separator used to parse lines.
+        filler (float): Filler value used to fill missing data.
+        dtype_dict (dict): Map string column names to column data type.
+        ignored_columns (list): String names associated with the columns to ignore.
+        data_df (DataFrame): Data loaded in Pandas DataFrame format and contains only relevant columns.
+        target_column (str): String name associated with the columns containing target data for prediction, e.g.,
+            rating column for rating prediction and label column for click-through rate (CTR) prediction.
+        numerical_columns (list): String names associated with the columns containing numerical data.
+        categorical_columns (list): String names associated with the columns containing categorical data.
+        categorical_filter (int): Filter used to group infrequent categories in one column as the same category.
+        fit_dict (dict): Map string categorical column names to dictionary which maps categories to indices.
+        fit_dictionary_path (str): Path to the fit dictionary for categorical data.
+        transform_path (str): Path to the transformed dataset.
+        test_percentage (float): Percentage for the test set.
+        validate_percentage (float): Percentage for the validation set.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+    """
 
     @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
+    def __init__(self,
+                 non_csv_path=None,
+                 csv_path=None,
+                 header=None,
+                 columns=None,
+                 delimiter=None,
+                 filler=None,
+                 dtype_dict=None,
+                 ignored_columns=None,
+                 target_column=None,
+                 numerical_columns=None,
+                 categorical_columns=None,
+                 categorical_filter=None,
+                 fit_dictionary_path=None,
+                 transform_path=None,
+                 test_percentage=None,
+                 validate_percentage=None,
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
+
+        super().__init__()
+        # Dataset load attributes.
+        self.non_csv_path = non_csv_path
+        self.csv_path = csv_path
+        self.header = header
+        self.columns = columns
+        self.delimiter = delimiter
+        self.filler = filler
+        self.dtype_dict = dtype_dict
+        self.ignored_columns = ignored_columns
+        self.data_df = None
+
+        # Dataset access attributes.
+        self.target_column = target_column
+        self.numerical_columns = numerical_columns
+        self.categorical_columns = categorical_columns
+
+        # Dataset transformation attributes.
+        self.categorical_filter = categorical_filter
+        self.fit_dict = None
+        self.fit_dictionary_path = fit_dictionary_path
+        self.transform_path = transform_path
+
+        # Dataset split attributes.
+        self.test_percentage = test_percentage
+        self.validate_percentage = validate_percentage
         self.train_path = train_path
-        self.val_path = val_path
+        self.validate_path = validate_path
+        self.test_path = test_path
 
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
+    def format_dataset(self):
+        """ (Optional) Convert dataset into CSV format.
 
-
-class BaseRatingPredictionProprocessor(BaseProprocessor):
-    """
-    for rating prediction recommendation methods
-    """
-
-    @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
-
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
-
-
-class BaseCTRPreprocessor(BaseProprocessor):
-    """
-    for click-through rate (CTR) recommendation methods
-    """
-
-    @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
-
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
-
-
-class BasePointWiseProprocessor(BaseProprocessor):
-    """
-    for PointWise recommendation methods, CTR
-    for PointWise recommendation methods, rating prediction for Movielens
-    and can also for the similar dataset
-    """
-
-    @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
-
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
-
-
-class BasePairWiseProprocessor(BaseProprocessor):
-    """
-    for PairWise recommendation methods
-    """
-
-    @abstractmethod
-    def __init__(self, dataset_path=None, train_path=None, val_path=None, test_size=None):
-        super(BaseProprocessor, self).__init__()
-        self.dataset_path = dataset_path
-        self.train_path = train_path
-        self.val_path = val_path
-
-    @abstractmethod
-    def preprocessing(self, **kwargs):
-        raise NotImplementedError
-
-
-class AvazuPreprocessor(BaseCTRPreprocessor):
-
-    def __init__(self, dataset_path="./examples/datasets/avazu/sampled_train_10000.txt"):
-        super(AvazuPreprocessor, self).__init__(dataset_path=dataset_path, )
-        # /home/thwang1231/autorec/examples/datasets/avazu/sampled_train_10000.txt  # 5/4 loss: 0.6239
-        # /home/thwang1231/autorec/examples/datasets/avazu/sampled_train_2mil.txt   # 5/4 loss: 0.3718
-        # /home/thwang1231/autorec/examples/datasets/avazu/train                    # 5/4 loss: 0.3859
-        # Step 1: Set attributes used/set during dataset loading & data preprocessing.
-        self.has_header = True
-        self.column_names = None
-        self.fit_dictionary_path = "./avazu_fit_dictionary.pkl"
-        self.transformed_data_path = "./avazu_transformed_data.pkl"
-        self.categ_filter = 3
-
-        # TODO (for printed message): Notice typo "BinaryCrossentropy" should be "BinaryCrossEntropy"
-
-        # Set indices variables
-        # TODO: fix the situation that these indices are relative to the raw data and not to the preprocessed data
-        self.ignored_indices = [0]
-        self.label_indices = [1]
-        self.numer_indices = []
-        # TODO: consider this is actually "used" categorical indices
-        self.categ_indices = [i for i in range(24) if i not in self.label_indices + self.ignored_indices]
-
-        self.label_num = len(self.label_indices)
-        self.numer_num = len(self.numer_indices)
-        self.categ_num = len(self.categ_indices)
-
-        # Set variables that will be set in load_data()
-        # TODO: Remark although Avazu datast contains column header, and we do support header loading, we assume some
-        #   info about benchmark datasets, e.g., like Avazu, Criteo, Movielens, and Netflix, are simply known. Determine
-        #   which of these info's corresponding instance variables are and pre-set them with constant values.
-        self.column_names = ['id', 'click', 'hour', 'C1', 'banner_pos', 'site_id', 'site_domain', 'site_category',
-                             'app_id', 'app_domain', 'app_category', 'device_id', 'device_ip', 'device_model',
-                            'device_type', 'device_conn_type', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21']
-        self.used_column_names = None
-        self.pd_data = None
-        self.hash_sizes = None
-        self.dtype_dict = None
-
-        # Remark we no longer use label_num = len(label_indices)
-        # Remark we no longer use categ_num = len(categ_indices)
-
-        # self.used_columns_names = self.columns_names
-        # self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
-
-
-    def load_data(self):
+        # Note
+            User should implement this function to convert non-CSV dataset into CSV format.
         """
-        Set the following variables:
-            1) self.used_column_names: set the variable here because column_names may be loaded from dataset header
-            2) self.pd_data: set the variable here because the dataframe contain loaded and transformed data
-            3) self.hash_sizes: set the variable here because it is inferred from pd_data
-                    Note: do not infer from fit_dictionary because there might not such file to load.
-                    On the other hand, transformed data is always available at the end of the file so infer from that
-            4) self.dtype_dict: set the variable because we use used_column_name as key, which can be loaded here
-        :return:
+        raise NotImplementedError
+
+    def load_dataset(self):
+        """ Load CSV data as a Pandas DataFrame object.
         """
-        # Step 0: Load transformed data if it exists.
-        if Path(self.transformed_data_path).is_file():  # found transformed data
-            self.pd_data = load_pickle(self.transformed_data_path)
-            print("col names:", self.column_names)
-            print("cat indices:", self.categ_indices)
-            categ_names = [self.column_names[i] for i in self.categ_indices]
-            self.hash_sizes = [self.pd_data[categ_name].nunique() for categ_name in categ_names]
-            return
+        self.data_df = pd.read_csv(self.csv_path, sep=self.delimiter, header=self.header, names=self.columns, dtype=self.dtype_dict)
+        self.data_df.drop(columns=self.ignored_columns, inplace=True)
+        self.data_df.fillna(self.filler, inplace=True)
 
-        # Step 1: Load data.
-        label_ld = defaultdict(list)  # where {k: v}={col index: list of labels}
-        categ_ld = defaultdict(list)  # where {k: v}={col index: list of categories}
-        # TODO: changed data structure holding loaded data, make the same change to other classes
-        categ_count_dict = defaultdict(lambda: defaultdict(int))  # where {k1: {k2, v}}={col index: {category: count}}
+    def transform_categorical(self):
+        """ Transform categorical data.
 
-        with open(self.dataset_path, 'r') as ld:
-            if self.has_header:
-                # TODO: parameterizable delimiter (or at least make delimiter a passable argument at parent class)
-                self.column_names = ld.readline().strip('\n').split(',')
-            for line in ld:
-                # TODO: make placeholder value a passalbe argument at parent class
-                line = [v if v != "" else "0" for v in line.strip('\n').split(',')]
+        # Note
+            Produce fit dictionary for categorical data and transform categorical data using fit dictionary.
+        """
+        # Step 1: Count categorical occurrences for each column.
+        self.fit_dict = {col: self.data_df[col].value_counts().to_dict() for col in self.categorical_columns}
 
-                for i in self.label_indices:
-                    label_ld[i].append(int(line[i]))  # typecast from string to save memory
-                for i in self.categ_indices:
-                    categ_ld[i].append(line[i])  # cannot typecast string data
-                    categ_count_dict[i][line[i]] += 1
+        # Step 2: Reindex categories for each column (create fit dictionary)
+        for col, count_dict in self.fit_dict.items():
+            index = 0.0  # float meets TensorFlow type requirement
+            categories = list()
+            for category, count in count_dict.items():
+                if count > self.categorical_filter:
+                    self.fit_dict[col][category] = index
+                    index += 1
+                else:
+                    categories.append(category)
+            for category in categories:
+                self.fit_dict[col][category] = index
 
-        # Step 2: Creat fit dictionary.
-        if Path(self.fit_dictionary_path).is_file():
-            categ_index_dict = load_pickle(self.fit_dictionary_path)
-        else:
-            categ_index_dict = defaultdict(lambda: defaultdict(int))
+        # Step 3: Transform categorical data (apply fit dictionary)
+        for col in self.categorical_columns:
+            self.data_df[col] = self.data_df[col].map(self.fit_dict[col])  # set class attribute pd_data
 
-            for i, categ_dict in categ_count_dict.items():
-                categ_index = 0
-                for categ, count in categ_dict.items():
-                    if count > self.categ_filter:
-                        categ_index_dict[i][categ] = categ_index
-                        categ_index += 1
-            del categ_count_dict
-            gc.collect()
-            # Save fit dictionary.
-            save_pickle(self.fit_dictionary_path, dict(categ_index_dict))  # cannot pickle defaultdict using lambda
+    def transform_numerical(self):
+        """ Transform numerical data using supported data transformation functions.
+        """
+        # Step 1: Define transformation method.
+        def scale_by_log(num):
+            """ Scale numerical data by log transformation.
+            """
+            return math.log(float(num)) ** 2 if num > 2 else num
+
+        # Step 2: Transform numerical data (apply transformation method)
+        for col in self.numerical_columns:
+            self.data_df[col] = self.data_df[col].map(scale_by_log)
+
+    def get_hash_size(self):
+        """ Get the hash sizes of categorical columns.
+
+        # Returns
+            List of integer numbers of categories in each categorical data columns.
+        """
+        return [len(self.fit_dict[col]) for col in self.categorical_columns]
+
+    def get_x(self):
+        """ Get the training data columns.
+
+        # Returns
+            DataFrame training data columns.
+        """
+        return self.data_df.drop(columns=self.target_column, inplace=False)
+
+    def get_x_numerical(self, x):
+        """ Get the numerical columns from the input data columns.
+
+        # Arguments
+            x (DataFrame): The input data columns.
+
+        # Returns
+            ndarray numerical columns in the input data columns.
+        """
+        return x[self.numerical_columns].values
+
+    def get_x_categorical(self, x):
+        """ Get the categorical columns from the input data columns.
+
+        # Arguments
+            x (DataFrame): The input data columns.
+
+        # Returns
+            ndarray categorical columns in the input data columns.
+        """
+        return x[self.categorical_columns].values
+
+    def get_y(self):
+        """ Get the output column.
+
+        # Returns
+            ndarray output column.
+        """
+        return self.data_df[self.target_column].values
+
+    def get_numerical_count(self):
+        """ Get the number of numerical columns.
+
+        # Returns
+            Integer number of numerical columns.
+        """
+        return len(self.numerical_columns)
+
+    def get_categorical_count(self):
+        """ Get the number of categorical columns.
+
+        # Returns
+            Integer number of categorical columns.
+        """
+        return len(self.categorical_columns)
+
+    def split_data(self, x, y, test_percentage):
+        """ Split data into the train, validation, and test sets.
+
+        # Arguments
+            x (ndarray): (M, N) matrix associated with the numerical and categorical data, where M is the number of rows
+                and N is the number of numerical and categorical columns.
+            y (ndarray): (M, 1) matrix associated with the label data, where M is the number of rows.
+            test_percentage (float): Percentage of test set.
+
+        # Returns
+            4-tuple of ndarray training input data, testing input data, training output data, and testing output data.
+        """
+        test_size = math.ceil(test_percentage * len(self.data_df.index))
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, stratify=y)
+
+        return x_train, x_test, y_train, y_test
+
+    def preprocess(self):
+        """ Apply all preprocess steps.
+
+        # Note
+            User is responsible for calling the needed data preprocessing functions from here.
+
+        # Returns
+            6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+                testing input data, and testing output data.
+        """
+        raise NotImplementedError
+
+
+class AvazuPreprocessor(BasePreprocessor):
+    """ Preprocess the Avazu dataset for click-through rate (CTR) prediction.
+
+    # Note:
+        To obtain the Avazu dataset, visit: https://www.kaggle.com/c/avazu-ctr-prediction
+        The Avazu dataset has 24 data columns: [0] is ignored, [1] is label, and [2-23] are categorical.
+
+    # Arguments
+        non_csv_path (str): Path to convert the dataset into CSV format.
+        csv_path (str): Path to save and load the CSV dataset.
+        header (int): Row number to use as column names.
+        columns (list): String names associated with the columns of the dataset.
+        delimiter (str): Separator used to parse lines.
+        filler (float): Filler value used to fill missing data.
+        dtype_dict (dict): Map string column names to column data type.
+        ignored_columns (list): String names associated with the columns to ignore.
+        target_column (str): String name associated with the columns containing target data for prediction, e.g.,
+            rating column for rating prediction and label column for click-through rate (CTR) prediction.
+        numerical_columns (list): String names associated with the columns containing numerical data.
+        categorical_columns (list): String names associated with the columns containing categorical data.
+        categorical_filter (int): Filter used to group infrequent categories in one column as the same category.
+        fit_dictionary_path (str): Path to the fit dictionary for categorical data.
+        transform_path (str): Path to the transformed dataset.
+        test_percentage (float): Percentage for the test set.
+        validate_percentage (float): Percentage for the validation set.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+    """
+
+    def __init__(self,
+                 non_csv_path=None,
+                 csv_path='./example_datasets/avazu/train-10k',
+                 header=0,
+                 columns=None,
+                 delimiter=',',
+                 filler=0.0,
+                 dtype_dict=None,  # inferred in load_data()
+                 ignored_columns=None,
+                 target_column='click',
+                 numerical_columns=None,
+                 categorical_columns=None,
+                 categorical_filter=3,
+                 fit_dictionary_path=None,
+                 transform_path=None,
+                 test_percentage=0.1,
+                 validate_percentage=0.1,
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
+
+        if columns is None:
+            columns = ['id', 'click', 'hour', 'C1', 'banner_pos', 'site_id', 'site_domain', 'site_category', 'app_id',
+                       'app_domain', 'app_category', 'device_id', 'device_ip', 'device_model', 'device_type',
+                       'device_conn_type', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21']
+        if dtype_dict is None:
+            dtype_dict = {}
+        if ignored_columns is None:
+            ignored_columns = columns[0]
+        if numerical_columns is None:
+            numerical_columns = []
+        if categorical_columns is None:
+            categorical_columns = columns[2:]
+
+        super().__init__(non_csv_path=non_csv_path,
+                         csv_path=csv_path,
+                         header=header,
+                         delimiter=delimiter,
+                         filler=filler,
+                         dtype_dict=dtype_dict,
+                         columns=columns,
+                         ignored_columns=ignored_columns,
+                         target_column=target_column,
+                         numerical_columns=numerical_columns,
+                         categorical_columns=categorical_columns,
+                         categorical_filter=categorical_filter,
+                         fit_dictionary_path=fit_dictionary_path,
+                         transform_path=transform_path,
+                         test_percentage=test_percentage,
+                         validate_percentage=validate_percentage,
+                         train_path=train_path,
+                         validate_path=validate_path,
+                         test_path=test_path)
+
+    def preprocess(self):
+        """ Apply all preprocessing steps to the Avazu dataset.
+
+        # Returns
+            6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+                testing input data, and testing output data.
+        """
+        # Step 1: Load the Avazu dataset.
+        self.load_dataset()
+
+        # Step 2: Transform categorical data.
+        self.transform_categorical()
+
+        # Step 3: Obtain LHS (X) and RHS (y) of the equation.
+        x = self.get_x()
+        y = self.get_y()
+
+        # Step 4: Split data for training, validation, and testing.
+        x_train, x_test, y_train, y_test = self.split_data(x, y, self.test_percentage)
+        x_train, x_validate, y_train, y_validate = self.split_data(x_train, y_train, self.validate_percentage)
+
+        return x_train, y_train, x_validate, y_validate, x_test, y_test
+
+
+class CriteoPreprocessor(BasePreprocessor):
+    """ Preprocess the Criteo dataset for click-through rate (CTR) prediction.
+
+    # Note
+        To obtain the Criteo dataset, visit: https://www.kaggle.com/c/criteo-display-ad-challenge/
+        The Criteo dataset has 40 data columns: [0] is label, [1-13] are numerical, and [14-39] are categorical.
+
+    # Arguments
+        non_csv_path (str): Path to convert the dataset into CSV format.
+        csv_path (str): Path to save and load the CSV dataset.
+        header (int): Row number to use as column names.
+        columns (list): String names associated with the columns of the dataset.
+        delimiter (str): Separator used to parse lines.
+        filler (float): Filler value used to fill missing data.
+        dtype_dict (dict): Map string column names to column data type.
+        ignored_columns (list): String names associated with the columns to ignore.
+        target_column (str): String name associated with the columns containing target data for prediction, e.g.,
+            rating column for rating prediction and label column for click-through rate (CTR) prediction.
+        numerical_columns (list): String names associated with the columns containing numerical data.
+        categorical_columns (list): String names associated with the columns containing categorical data.
+        categorical_filter (int): Filter used to group infrequent categories in one column as the same category.
+        fit_dictionary_path (str): Path to the fit dictionary for categorical data.
+        transform_path (str): Path to the transformed dataset.
+        test_percentage (float): Percentage for the test set.
+        validate_percentage (float): Percentage for the validation set.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+    """
+
+    def __init__(self,
+                 non_csv_path=None,
+                 csv_path='./example_datasets/criteo/train-10k.txt',
+                 header=None,  # inferred in load_data()
+                 columns=None,
+                 delimiter='\t',
+                 filler=0.0,
+                 dtype_dict=None,  # inferred in load_data()
+                 ignored_columns=None,
+                 target_column=0,
+                 numerical_columns=None,
+                 categorical_columns=None,
+                 categorical_filter=3,
+                 fit_dictionary_path=None,
+                 transform_path=None,
+                 test_percentage=0.1,
+                 validate_percentage=0.1,
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
+
+        if columns is None:
+            columns = range(40)
+        if dtype_dict is None:
+            dtype_dict = {}
+        if ignored_columns is None:
+            ignored_columns = []
+        if numerical_columns is None:
+            numerical_columns = range(1, 14)
+        if categorical_columns is None:
+            categorical_columns = range(14, 40)
+
+        super().__init__(non_csv_path=non_csv_path,
+                         csv_path=csv_path,
+                         header=header,
+                         delimiter=delimiter,
+                         filler=filler,
+                         dtype_dict=dtype_dict,
+                         columns=columns,
+                         ignored_columns=ignored_columns,
+                         target_column=target_column,
+                         numerical_columns=numerical_columns,
+                         categorical_columns=categorical_columns,
+                         categorical_filter=categorical_filter,
+                         fit_dictionary_path=fit_dictionary_path,
+                         transform_path=transform_path,
+                         test_percentage=test_percentage,
+                         validate_percentage=validate_percentage,
+                         train_path=train_path,
+                         validate_path=validate_path,
+                         test_path=test_path)
+
+    def preprocess(self):
+        """ Apply all preprocessing steps to the Criteo dataset.
+
+        # Returns
+            6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+                testing input data, and testing output data.
+        """
+        # Step 1: Load data for fit and transform categorical data.
+        self.load_dataset()
+
+        # Step 2: Transform categorical data.
+        self.transform_categorical()
+
+        # Step 3: Transform numerical data.
+        self.transform_numerical()
+
+        # Step 4: Obtain LHS (X) and RHS (y) of the equation.
+        x = self.get_x()
+        y = self.get_y()
+
+        # Step 5: Split data for training, validation, and testing.
+        x_train, x_test, y_train, y_test = self.split_data(x, y, self.test_percentage)
+        x_train, x_validate, y_train, y_validate = self.split_data(x_train, y_train, self.validate_percentage)
+
+        return x_train, y_train, x_validate, y_validate, x_test, y_test
+
+
+class NetflixPrizePreprocessor(BasePreprocessor):
+    """ Preprocess the Netflix dataset for rating prediction.
+
+    # Note
+        To obtain the Netflix dataset, visit: https://www.kaggle.com/netflix-inc/netflix-prize-data
+        The Netflix dataset has 4 data columns: MovieID, CustomerID, Rating, and Date.
+
+    # Arguments
+        non_csv_path (str): Path to convert the dataset into CSV format.
+        csv_path (str): Path to save and load the CSV dataset.
+        header (int): Row number to use as column names.
+        columns (list): String names associated with the columns of the dataset.
+        delimiter (str): Separator used to parse lines.
+        filler (float): Filler value used to fill missing data.
+        dtype_dict (dict): Map string column names to column data type.
+        ignored_columns (list): String names associated with the columns to ignore.
+        target_column (str): String name associated with the columns containing target data for prediction, e.g.,
+            rating column for rating prediction and label column for click-through rate (CTR) prediction.
+        numerical_columns (list): String names associated with the columns containing numerical data.
+        categorical_columns (list): String names associated with the columns containing categorical data.
+        categorical_filter (int): Filter used to group infrequent categories in one column as the same category.
+        fit_dictionary_path (str): Path to the fit dictionary for categorical data.
+        transform_path (str): Path to the transformed dataset.
+        test_percentage (float): Percentage for the test set.
+        validate_percentage (float): Percentage for the validation set.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+    """
+
+    def __init__(self,
+                 non_csv_path='./example_datasets/netflix/combined_data_1-10k.txt',
+                 csv_path='./example_datasets/netflix/combined_data_1-10k.csv',
+                 header=None,  # inferred in load_data()
+                 columns=None,
+                 delimiter=',',
+                 filler=0.0,
+                 dtype_dict=None,
+                 ignored_columns=None,
+                 target_column='Rating',
+                 numerical_columns=None,
+                 categorical_columns=None,
+                 categorical_filter=0,  # no grouping, simply renumber
+                 fit_dictionary_path=None,
+                 transform_path=None,
+                 test_percentage=0.1,
+                 validate_percentage=0.1,
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
+
+        if columns is None:
+            columns = ['MovieID', 'CustomerID', 'Rating', 'Date']
+        if dtype_dict is None:
+            dtype_dict = {'MovieID': np.float32, 'CustomerID': np.float32, 'Rating': np.float32, 'Date': np.str}
+        if ignored_columns is None:
+            ignored_columns = columns[3]
+        if numerical_columns is None:
+            numerical_columns = []
+        if categorical_columns is None:
+            categorical_columns = columns[:2]
+
+        super().__init__(non_csv_path=non_csv_path,
+                         csv_path=csv_path,
+                         header=header,
+                         delimiter=delimiter,
+                         filler=filler,
+                         dtype_dict=dtype_dict,
+                         columns=columns,
+                         ignored_columns=ignored_columns,
+                         target_column=target_column,
+                         numerical_columns=numerical_columns,
+                         categorical_columns=categorical_columns,
+                         categorical_filter=categorical_filter,
+                         fit_dictionary_path=fit_dictionary_path,
+                         transform_path=transform_path,
+                         test_percentage=test_percentage,
+                         validate_percentage=validate_percentage,
+                         train_path=train_path,
+                         validate_path=validate_path,
+                         test_path=test_path)
+
+    def format_dataset(self):
+        """ Convert the Netflix Prize dataset into CSV format and save it as a new file.
+
+        # Note:
+            This is an example showing the function which converts dataset into the CSV format as provided by user.
+        """
+        with open(self.non_csv_path, 'r') as rf, open(self.csv_path, 'w') as wf:
+            for line in rf:
+                if ':' in line:
+                    movie = line.strip(":\n")
+                else:
+                    wf.write(movie + ',' + line)
+
+    def preprocess(self):
+        """ Apply all preprocessing steps to the Netflix Prize dataset.
+
+        # Returns
+            6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+                testing input data, and testing output data.
+        """
+        # Step 1: Convert Netflix dataset to CSV format.
+        self.format_dataset()
+
+        # Step 2: Load data for fit and transform categorical data.
+        self.load_dataset()
 
         # Step 3: Transform categorical data.
-        for i, categ_l in categ_ld.items():
-            for j, c in enumerate(categ_l):
-                if c in categ_index_dict[i]:
-                    categ_ld[i][j] = categ_index_dict[i][c]
-                else:
-                    categ_ld[i][j] = len(categ_index_dict[i])
+        self.transform_categorical()
 
-        # Step 4: Format data and obtain hash statistics
-        categ_ll = np.asarray([categ_ld[i] for i in self.categ_indices])
-        label_ll = np.asarray([label_ld[i] for i in self.label_indices])
+        # Step 4: Obtain LHS (X) and RHS (y) of the equation.
+        x = self.get_x()
+        y = self.get_y()
 
-        # TODO: concatenate columns by absolute reference instead of relative
-        array_data = np.concatenate((label_ll.T, categ_ll.T), axis=1)
-        del categ_ll, label_ll
-        gc.collect()
+        # Step 5: Split data for training, validation, and testing.
+        x_train, x_test, y_train, y_test = self.split_data(x, y, self.test_percentage)
+        x_train, x_validate, y_train, y_validate = self.split_data(x_train, y_train, self.validate_percentage)
 
-        # TODO: Note these variables (other than fit_dict & pd_data) are not saved. Please consider which variables can
-        #   be inferred downstream and thus do no have to be saved, and which cannot and thus have to be saved.
-        self.used_column_names = [self.column_names[i] for i in self.label_indices + self.categ_indices]
-        self.pd_data = pd.DataFrame(array_data, columns=self.used_column_names)
-        del array_data
-        gc.collect()
+        return x_train, y_train, x_validate, y_validate, x_test, y_test
 
-        categ_names = [self.column_names[i] for i in self.categ_indices]
-        self.hash_sizes = [self.pd_data[categ_name].nunique() for categ_name in categ_names]
-        self.dtype_dict = {n: np.float32 for n in self.used_column_names}
-        for col_name, dtype in self.dtype_dict.items():
-            self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
 
-        # Save transformed data.
-        save_pickle(self.transformed_data_path, self.pd_data)
+class MovielensPreprocessor(BasePreprocessor):
+    """ Preprocess the Movielens 1M dataset for rating prediction.
 
-    def split_data(self, X, y, train_size, validate_size):
+    # Note
+        To obtain the Movielens 1M dataset, visit: https://grouplens.org/datasets/movielens/
+        The Movielens 1M dataset has 4 data columns: UserID, MovieID, Rating, and Timestamp.
+
+    # Arguments
+        non_csv_path (str): Path to convert the dataset into CSV format.
+        csv_path (str): Path to save and load the CSV dataset.
+        header (int): Row number to use as column names.
+        columns (list): String names associated with the columns of the dataset.
+        delimiter (str): Separator used to parse lines.
+        filler (float): Filler value used to fill missing data.
+        dtype_dict (dict): Map string column names to column data type.
+        ignored_columns (list): String names associated with the columns to ignore.
+        target_column (str): String name associated with the columns containing target data for prediction, e.g.,
+            rating column for rating prediction and label column for click-through rate (CTR) prediction.
+        numerical_columns (list): String names associated with the columns containing numerical data.
+        categorical_columns (list): String names associated with the columns containing categorical data.
+        categorical_filter (int): Filter used to group infrequent categories in one column as the same category.
+        fit_dictionary_path (str): Path to the fit dictionary for categorical data.
+        transform_path (str): Path to the transformed dataset.
+        test_percentage (float): Percentage for the test set.
+        validate_percentage (float): Percentage for the validation set.
+        train_path (str): Path to the training set.
+        validate_path (str): Path to the validation set.
+        test_path (str): Path to the test set.
+    """
+
+    def __init__(self,
+                 non_csv_path=None,
+                 csv_path='./example_datasets/movielens/ratings-10k.dat',
+                 header=None,  # inferred in load_data()
+                 columns=None,
+                 delimiter='::',
+                 filler=0.0,
+                 dtype_dict=None,
+                 ignored_columns=None,
+                 target_column='Rating',
+                 numerical_columns=None,
+                 categorical_columns=None,
+                 categorical_filter=0,  # no grouping, simply renumber
+                 fit_dictionary_path=None,
+                 transform_path=None,
+                 test_percentage=0.1,
+                 validate_percentage=0.1,
+                 train_path=None,
+                 validate_path=None,
+                 test_path=None):
+
+        if columns is None:
+            columns = ['UserID', 'MovieID', 'Rating', 'Timestamp']
+        if dtype_dict is None:
+            dtype_dict = {'UserID': np.int32, 'MovieID': np.int32, 'Rating': np.int32, 'Timestamp': np.int32}
+        if ignored_columns is None:
+            ignored_columns = columns[3]
+        if numerical_columns is None:
+            numerical_columns = []
+        if categorical_columns is None:
+            categorical_columns = columns[:2]
+
+        super().__init__(non_csv_path=non_csv_path,
+                         csv_path=csv_path,
+                         header=header,
+                         delimiter=delimiter,
+                         filler=filler,
+                         dtype_dict=dtype_dict,
+                         columns=columns,
+                         ignored_columns=ignored_columns,
+                         target_column=target_column,
+                         numerical_columns=numerical_columns,
+                         categorical_columns=categorical_columns,
+                         categorical_filter=categorical_filter,
+                         fit_dictionary_path=fit_dictionary_path,
+                         transform_path=transform_path,
+                         test_percentage=test_percentage,
+                         validate_percentage=validate_percentage,
+                         train_path=train_path,
+                         validate_path=validate_path,
+                         test_path=test_path)
+
+    def preprocess(self):
+        """ Apply all preprocessing steps to the Movielens 1M dataset.
+
+        # Returns
+            6-tuple of ndarray training input data, training output data, validation input data, validation output data,
+                testing input data, and testing output data.
         """
-
-        :param X: numpy array
-        :param y: numpy array
-        :param train_size:
-        :param validate_size:
-        :return:
-        """
-        # Step 1: Obtain shuffled data indices.
-        data_size = X.shape[0]
-        shuffled_indices = np.random.permutation(range(data_size))
-
-        # Step 2: Determine data split positions.
-        train_end = int(train_size * data_size)
-        validate_end = train_end + int(validate_size * data_size)
-
-        # Step 3: Split shuffled data.
-        train_X = X[shuffled_indices][:train_end]
-        train_y = y[shuffled_indices][:train_end]
-        validate_X = X[shuffled_indices][train_end:validate_end]
-        validate_y = y[shuffled_indices][train_end:validate_end]
-        test_X = X[shuffled_indices][validate_end:]
-        test_y = y[shuffled_indices][validate_end:]
-
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
-
-    def preprocessing(self, train_size, validate_size, random_state=42):
         # Step 1: Load data for fit and transform categorical data.
-        self.load_data()
+        self.load_dataset()
 
-        # Step 2: Transform numerical data.
-        # self.scale_numerical_data()
+        # Step 2: Transform categorical data.
+        self.transform_categorical()
 
-        # Step 3: Split data for training, validation, and testing.
-        # TODO: reference by class variable and not constant
-        X = self.pd_data.iloc[:, 1:].values  # because 0th column in raw data is ignored/not loaded
-        y = self.pd_data.iloc[:, [0]].values
-        train_X, train_y, validate_X, validate_y, test_X, test_y = self.split_data(
-            X, y, train_size=train_size, validate_size=validate_size)
+        # Step 3: Obtain LHS (X) and RHS (y) of the equation.
+        x = self.get_x()
+        y = self.get_y()
 
-        # Step 4: Arrange data for training algorithms.
-        # print(train_X[:, 1:].shape)
-        # print(type(train_X))
-        # filler = np.asarray([list() for _ in range(train_X.shape[0])])
-        # print(filler.shape)
-        # input()
+        # Step 4: Split data for training, validation, and testing.
+        x_train, x_test, y_train, y_test = self.split_data(x, y, self.test_percentage)
+        x_train, x_validate, y_train, y_validate = self.split_data(x_train, y_train, self.validate_percentage)
 
-        # No need to slice as there is only categorical feature, i.e., no numerical feature
-        # train_X = [train_X[:, 1:]]
-        # validate_X = [validate_X[:, 1:]]
-        # test_X = [test_X[:, 1:]]
-
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
-
-
-class CriteoPreprocessor(BaseCTRPreprocessor):
-
-    def __init__(self, dataset_path="./examples/datasets/criteo_sample_10000/train_examples.txt"):
-        # TODO: change dataset_path to package-firendly path
-        # dataset_path = "./examples/datasets/criteo_full/train.txt"
-        # dataset_path = "./examples/datasets/criteo_sample_10000/train_examples.txt"
-        # dataset_path = "./examples/datasets/criteo_2mil/train_2mil.txt"
-        super(CriteoPreprocessor, self).__init__(dataset_path=dataset_path, )
-
-        # Step 1: Set attributes used during dataset loading & data preprocessing.
-        self.fit_dictionary_path = "./criteo_fit_dictionary.pkl"
-        self.transformed_data_path = "./criteo_transformed_data.pkl"
-
-        self.label_num = 1
-        self.numer_num = 13
-        self.categ_num = 26
-        self.categ_filter = 10
-
-        # TODO: E.g., set label_indices first and then infer label number is more logical.
-        self.label_indices = np.arange(self.label_num)
-        self.numer_indices = np.arange(self.numer_num) + self.label_num
-        self.categ_indices = np.arange(self.categ_num) + self.label_num + self.numer_num
-
-        self.label_names = ["l" + str(i) for i in range(self.label_num)]
-        self.numer_names = ["n" + str(i) for i in range(self.numer_num)]
-        self.categ_names = ["c" + str(i) for i in range(self.categ_num)]
-
-        self.columns_names = self.label_names + self.numer_names + self.categ_names
-        self.used_columns_names = self.label_names + self.numer_names + self.categ_names
-        # Set data type of all columns as integer:
-        #   1) The label feature is binary and thus expressible in floats.
-        #   2) The numerical features are expressible in floats.
-        #   3) The categorical features are indexed as numerical values and thus expressible in floats.
-        self.dtype_dict = {n: np.float32 for n in self.used_columns_names}
-
-        # Step 2: Set attributes used during data split.
-        self.X = None
-        self.y = None
-        self.train_X = None
-        self.train_y = None
-        self.validate_X = None
-        self.validate_y = None
-        self.test_X = None
-        self.test_y = None
-
-    def load_data(self):
-
-        """ Load raw Criteo data, in progress setting self.hash_sizes (from categorical data) and self.pd_data (from
-            all data) and saving the fit dictionary and self.pd_data
-        :return:
-
-        Criteo dataset has 40 features per line, where [0] = label, [1-13] = numerical, and [14-39] = categorical
-        TODO: allow to do fit and transform again even if files exist
-        """
-        # Step 0: Load transformed data if it exists.
-        if Path(self.transformed_data_path).is_file():  # found transformed data
-            self.pd_data = load_pickle(self.transformed_data_path)
-            # TODO: Here we should also load used label, numerical, and categorical column names, meaning they should be
-            #  saved. This allows:
-            #       1) using data without prior knowledge of the mentioned class variables.
-            #       2) rationalizing once we know something, we have the option to recover them without remembering them
-            #       3) so no need to rely on any "self" variables, i.e., our saved data is self-sufficient
-            #  dump() the class instance as a YAML config document
-            self.hash_sizes = [self.pd_data[categ_name].nunique() for categ_name in self.categ_names]
-            return
-
-        # Step 1: Load label, numerical, and categorical features
-        label_ll = [list() for _ in range(self.label_num)]  # list of label data
-        numer_ll = [list() for _ in range(self.numer_num)]  # list of each numerical feature's data
-        categ_ll = [list() for _ in range(self.categ_num)]  # list of each categorical feature's data
-        # Define defaultdict where key="feature index" & val="defaultdict" where key="category" & val="count".
-        categ_count_dict = defaultdict(lambda: defaultdict(int))
-
-        with open(self.dataset_path, 'r') as ld:
-            for line in ld:
-                # Using zero "0" as substitute for missing values in:
-                #   1) Numerical feature may corrupt data because 0 is numerical.
-                #   2) Categorical feature will not corrupt data because the string "0" is a new category.
-                # TODO: Need a principled way to determine missing values for numerical features.
-                line = [v if v != "" else "0" for v in line.strip('\n').split('\t')]
-
-                for i, j in enumerate(self.label_indices):  # record label feature data
-                    label_ll[i].append(int(line[j]))  # typecast from string to save memory
-                for i, j in enumerate(self.numer_indices):  # record numerical feature data
-                    numer_ll[i].append(int(line[j]))  # typecast from string to save memory
-                for i, j in enumerate(self.categ_indices):  # record categorical feature data
-                    categ_ll[i].append(line[j])  # cannot typecast string data
-                    categ_count_dict[i][line[j]] += 1  # count category occurrences
-
-        # Step 2: Create dictionary for indexing categories.
-        if Path(self.fit_dictionary_path).is_file():
-            categ_index_dict = load_pickle(self.fit_dictionary_path)
-        else:
-            # Define defaultdict where key="feature index" & val="defaultdict" where key="category" & val="index".
-            # TODO: Implement as a parent-class function
-            categ_index_dict = defaultdict(lambda: defaultdict(int))
-
-            # TODO: Rename variables, e.g., feat_index > i
-            for feat_index, categ_dict in categ_count_dict.items():
-                categ_index = 0
-                for categ, count in categ_dict.items():
-                    if count >= self.categ_filter:  # index filtered categories at a later stage
-                        categ_index_dict[feat_index][categ] = categ_index
-                        categ_index += 1
-            del categ_count_dict  # release memory
-            gc.collect()
-            # Save fit dictionary.
-            save_pickle(self.fit_dictionary_path, dict(categ_index_dict))  # cannot pickle defaultdict using lambda
-
-        # Step 3: Index categories.
-        for i, categ_l in enumerate(categ_ll):
-            for j, c in enumerate(categ_l):
-                if c in categ_index_dict[i]:
-                    categ_ll[i][j] = categ_index_dict[i][c]  # index in-place
-                else:  # index filtered categories as the end index
-                    categ_ll[i][j] = len(categ_index_dict[i])
-        del categ_index_dict  # release memory
-        gc.collect()
-
-        # Step 4: Format data and obtain hash statistics.
-        array_data = np.concatenate((np.asarray(label_ll).T, np.asarray(numer_ll).T, np.asarray(categ_ll).T), axis=1)
-        del label_ll, numer_ll, categ_ll  # release memory
-        gc.collect()
-
-        self.pd_data = pd.DataFrame(array_data, columns=self.used_columns_names)
-        self.hash_sizes = [self.pd_data[categ_name].nunique() for categ_name in self.categ_names]
-        del array_data  # release memory
-        gc.collect()
-
-        for col_name, dtype in self.dtype_dict.items():
-            self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
-        # Save transformed data.
-        save_pickle(self.transformed_data_path, self.pd_data)
-
-    def scale_numerical_data(self):
-
-        # TODO: Designated transformation functions to specified place.
-        def scale_by_natural_log(num):
-            # TODO: 1) Explain why the conditional statement makes exception for numbers like 1, where 1>ln(1)**2
-            if num > 2:
-                num = math.log(float(num))**2
-            return num
-
-        for numer_name in self.numer_names:
-            self.pd_data[numer_name] = self.pd_data[numer_name].map(scale_by_natural_log)
-
-    def split_data(self, X, y, train_size, validate_size):
-        """
-
-        :param X: numpy array
-        :param y: numpy array
-        :param train_size:
-        :param validate_size:
-        :return:
-        """
-        # Step 1: Obtain shuffled data indices.
-        data_size = X.shape[0]
-        shuffled_indices = np.random.permutation(range(data_size))
-
-        # Step 2: Determine data split positions.
-        train_end = int(train_size * data_size)
-        validate_end = train_end + int(validate_size * data_size)
-
-        # Step 3: Split shuffled data.
-        train_X = X[shuffled_indices][:train_end]
-        train_y = y[shuffled_indices][:train_end]
-        validate_X = X[shuffled_indices][train_end:validate_end]
-        validate_y = y[shuffled_indices][train_end:validate_end]
-        test_X = X[shuffled_indices][validate_end:]
-        test_y = y[shuffled_indices][validate_end:]
-
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
-
-    def preprocessing(self, train_size, validate_size, random_state=42):
-        # Step 1: Load data for fit and transform categorical data.
-        self.load_data()
-
-        # Step 2: Transform numerical data.
-        self.scale_numerical_data()
-
-        # Step 3: Split data for training, validation, and testing.
-        X = self.pd_data.iloc[:, 1:].values
-        y = self.pd_data.iloc[:, [0]].values
-        train_X, train_y, validate_X, validate_y, test_X, test_y = self.split_data(
-            X, y, train_size=train_size, validate_size=validate_size)
-
-        # Step 4: Arrange data for training algorithms.
-        train_X = [train_X[:, :self.numer_num], train_X[:, self.numer_num:]]
-        validate_X = [validate_X[:, :self.numer_num], validate_X[:, self.numer_num:]]
-        test_X = [test_X[:, :self.numer_num], test_X[:, self.numer_num:]]
-
-        return train_X, train_y, validate_X, validate_y, test_X, test_y
-
-class NetflixPrizePreprocessor(BaseRatingPredictionProprocessor):
-
-    def __init__(self, dataset_path):
-        super(NetflixPrizePreprocessor, self).__init__(dataset_path=dataset_path, )
-        self.columns_names = ["user_id", "item_id", "rating"]
-        self.used_columns_names = ["user_id", "item_id", "rating"]
-        self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32}
-        self._load_data()
-
-    def _load_data(self):
-        """
-
-        CustomerIDs range from 1 to 2649429, with gaps. There are 480189 users.
-        :return:
-        """
-        cols = [list() for _ in range(len(self.columns_names))]
-        user2index_dict = dict()  # needs renumber since CustomerID ranges from 1 to 2649429, with gaps
-
-        for fp in self.dataset_path:  # TODO: deal with list of paths
-
-            with open(fp, 'r') as f:
-                for line in f.readlines():
-                    if ':' in line:
-                        movie = int(line.strip(":\n"))-1  # -1 because the sequential MovieIDs starts from 1
-                    else:
-                        user, rating = [int(v) for v in line.strip().split(',')[:2]]
-                        cols[1].append(movie)
-                        cols[2].append(rating)
-
-                        if user in user2index_dict.keys():
-                            cols[0].append(user2index_dict[user])
-                        else:
-                            cols[0].append(len(user2index_dict.keys()))  # number users from 0
-                            user2index_dict[user] = len(user2index_dict.keys())
-
-        # TODO: load date as well, later keep only selected data via self.used_columns_names
-        self.pd_data = pd.DataFrame(dict(zip(self.columns_names, cols)))
-
-        for col_name, dtype in self.dtype_dict.items():
-            self.pd_data[col_name] = self.pd_data[col_name].astype(dtype)
-
-        self.pd_data = self.pd_data[self.used_columns_names]
-        self.user_num = self.pd_data["user_id"].nunique()
-        self.item_num = self.pd_data["item_id"].nunique()
-
-    def preprocessing(self, val_test_size, random_state):
-        self.X = self.pd_data.iloc[::, :-1].values
-        self.y = self.pd_data.iloc[::, [-1]].values
-        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
-                                                                              random_state=random_state)
-        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
-                                                                              random_state=random_state)
-
-class MovielensPreprocessor(BaseRatingPredictionProprocessor):
-
-    used_columns_names: List[str]
-
-    def __init__(self, dataset_path, sep='::'):
-        super(MovielensPreprocessor, self).__init__(dataset_path=dataset_path, )
-        self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
-        self.used_columns_names = ["user_id", "item_id", "rating"]
-        self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
-        self.sep = sep
-        self._load_data()
-
-    def _load_data(self):
-        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
-                                   dtype=self.dtype_dict)
-        self.pd_data = self.pd_data[self.used_columns_names]
-
-    def preprocessing(self, val_test_size, random_state):
-        self.X = self.pd_data.iloc[::, :-1].values
-        self.user_num = max( self.X[::,0] ) + 1
-        self.item_num = max( self.X[::, 1] ) + 1
-        self.y = self.pd_data.iloc[::, -1].values
-        self.train_X, self.val_test_X, self.train_y, self.val_test_y = train_test_split(self.X, self.y, test_size = val_test_size * 2,
-                                                                              random_state=random_state)
-        self.val_X, self.test_X, self.val_y, self.test_y = train_test_split(self.val_test_X, self.val_test_y, test_size = 0.5,
-                                                                              random_state=random_state)
-
-
-
-class MovielensCTRPreprocessor(BasePointWiseProprocessor):
-
-    def __init__(self, dataset_path, sep='::'):
-        super(MovielensCTRPreprocessor, self).__init__(dataset_path=dataset_path)
-        self.columns_names = ["user_id", "item_id", "rating", "timestamp"]
-        self.used_columns_names = ["user_id", "item_id", "rating"]
-        self.dtype_dict = {"user_id": np.int32, "item_id": np.int32, "rating": np.float32, "timestamp": np.int32}
-        self.sep = sep
-        self._load_data()
-
-    def _load_data(self):
-        self.pd_data = pd.read_csv(self.dataset_path, sep=self.sep, header=None, names=self.columns_names,
-                                   dtype=self.dtype_dict)
-        self.pd_data = self.pd_data[self.used_columns_names]
-
-    def _negative_sampling(self, input_df, num_neg, mult=1):
-        """ Add a column of negative item IDs to the input DataFrame
-        :param input_df: DataFrame user-item interactions with columns=[user_id, item_id, rating]
-        :param num_neg: Integer number of negative interaction to sample per user-item interaction (cannot be 0)
-        :param mult: Integer multiplier for boosting the rank of negative item candidates in case of deficiency
-        :return: DataFrame user-item interactions with columns=[user_id, item_id, rating, neg_item_ids]
-        TODO: proper mult should be calculated by program and not asking user to specify
-        TODO: notice a positive relation may receive duplicated negatively sampled items; consider this universal but may require attention
-        """
-        # Find candidate negative items (CNI) for each user
-        item_set = set(input_df['item_id'].unique())
-        u_pi_series = input_df.groupby('user_id')['item_id'].apply(set)  # series where index=user & data=positive items
-        u_cni_series = item_set - u_pi_series  # series where index=user & data=candidate negative items
-
-        # Find sampled negative items (SNI) for each user
-        u_sni_series = u_cni_series.agg(  # series where index=user & data=sampled negative items
-            lambda x: np.random.RandomState().permutation(list(x)*num_neg*mult)[:num_neg * (len(item_set) - len(x))])
-
-        # Distribute SNI to positive user-item interactions by chunk
-        u_snic_series = u_sni_series.agg(  # series where index=user & data=sampled negative item chunks (SNIC)
-            lambda x: [x[i*num_neg: (i+1)*num_neg] for i in range(int(len(x)/num_neg))])
-
-        # Distribute SNIC to users
-        u_snic_df = u_snic_series.to_frame().apply(pd.Series.explode).reset_index()
-
-        # Add SNI to input DataFrame
-        input_df["neg_item_ids"] = u_snic_df["item_id"]
-
-        return input_df
-
-    def preprocessing(self, test_size, num_neg, random_state, mult):
-        compact_data = self._negative_sampling(self.pd_data, num_neg=num_neg, mult=mult)
-        compact_X = compact_data.loc[:, compact_data.columns != 'rating']
-        compact_y = compact_data[['rating']]
-        compact_train_X, compact_val_X, compact_train_y, compact_val_y = train_test_split(compact_X, compact_y,
-            test_size=test_size, random_state=random_state)
-
-        def expand(unexpanded_X, unexpanded_y):
-            # Extract positive relations
-            unexpanded_data = pd.concat([unexpanded_X, unexpanded_y], axis=1)
-            pos_data = unexpanded_data[['user_id', 'item_id', 'rating']]
-            pos_data['rating'] = 1
-
-            # Expand negative relations
-            neg_data = unexpanded_data.explode('neg_item_ids').dropna()[['user_id', 'neg_item_ids', 'rating']].rename(
-                columns={'neg_item_ids': 'item_id'})
-            neg_data['rating'] = 0
-
-            # Combine negative relations with positive relations
-            pos_neg_data = pos_data.append(neg_data, ignore_index=True).reset_index(drop=True)
-
-            pos_neg_data["item_id"] = pos_neg_data["item_id"].astype(np.int32)
-            pos_neg_data["user_id"] = pos_neg_data["user_id"].astype(np.int32)
-            pos_neg_data["rating"] = pos_neg_data["rating"].astype(np.int32)
-
-            return pos_neg_data
-
-        self.pd_data = expand(compact_X, compact_y)
-        self.X = (self.pd_data.loc[:, self.pd_data.columns != 'rating']).values
-        self.y = self.pd_data['rating'].values
-
-        expanded_train_data = expand(compact_train_X, compact_train_y)
-        self.train_X = (expanded_train_data.loc[:, expanded_train_data.columns != 'rating']).values
-        self.train_y = expanded_train_data['rating'].values
-
-        expanded_val_data = expand(compact_val_X, compact_val_y)
-        self.val_X = (expanded_val_data.loc[:, expanded_val_data.columns != 'rating']).values
-        self.val_y = expanded_val_data['rating'].values
+        return x_train, y_train, x_validate, y_validate, x_test, y_test

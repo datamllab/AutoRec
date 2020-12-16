@@ -126,31 +126,21 @@ if __name__ == '__main__':
     parser.add_argument('-early_stop', type=int, help='early stop')
     parser.add_argument('-trials', type=int, help='try number')
     args = parser.parse_args()
-    # print("args:", args)
+
     if args.sep == None:
         args.sep = '::'
 
-    # Load dataset
+    # Step 1: Preprocess data
     if args.data == "ml":
-        data = MovielensPreprocessor(args.data_path, sep=args.sep)
-    if args.data == "netflix":
-        dataset_paths = [args.data_path + "/combined_data_" + str(i) + ".txt" for i in range(1, 5)]
-        data = NetflixPrizePreprocessor(dataset_paths)
-    data.preprocessing(val_test_size=0.1, random_state=1314)
-    train_X, train_y = data.train_X, data.train_y
-    val_X, val_y = data.val_X, data.val_y
-    test_X, test_y = data.test_X, data.test_y
-    user_num, item_num = data.user_num, data.item_num
-    logging.info('train_X size: {}'.format(train_X.shape))
-    logging.info('train_y size: {}'.format(train_y.shape))
-    logging.info('val_X size: {}'.format(val_X.shape))
-    logging.info('val_y size: {}'.format(val_y.shape))
-    logging.info('test_X size: {}'.format(test_X.shape))
-    logging.info('test_y size: {}'.format(test_y.shape))
-    logging.info('user total number: {}'.format(user_num))
-    logging.info('item total number: {}'.format(item_num))
+        data = MovielensPreprocessor(csv_path=args.data_path, validate_percentage=0.1, test_percentage=0.1)
+        train_X, train_y, val_X, val_y, test_X, test_y = data.preprocess()
+        train_X_categorical = data.get_x_categorical(train_X)
+        val_X_categorical = data.get_x_categorical(val_X)
+        test_X_categorical = data.get_x_categorical(test_X)
+        user_num, item_num = data.get_hash_size()
 
-    # select model
+    # Step 2: Build the recommender, which provides search space
+
     if args.model == 'mf':
         model = build_mf(user_num, item_num)
     if args.model == 'mlp':
@@ -162,25 +152,29 @@ if __name__ == '__main__':
     if args.model == 'autorec':
         model = build_autorec(user_num, item_num)
 
-    # search and predict.
+    # Step 3: Build the searcher, which provides search algorithm
     searcher = Search(model=model,
-                      tuner=args.search,  ## hyperband, bayesian
+                      tuner=args.search,
                       tuner_params={'max_trials': args.trials, 'overwrite': True}
                       )
 
+    # Step 4: Use the searcher to search the recommender
     start_time = time.time()
-    searcher.search(x=train_X,
+    searcher.search(x=train_X_categorical,
                     y=train_y,
-                    x_val=val_X,
+                    x_val=val_X_categorical,
                     y_val=val_y,
                     objective='val_mse',
                     batch_size=args.batch_size,
                     epochs=args.epochs,
                     callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args.early_stop)])
     end_time = time.time()
-    # print("Runing time:", end_time - start_time)
-    # print("Args", args)
-    logging.info('Runing time: {}'.format(end_time - start_time))
-    logging.info('Args: {}'.format(args))
-    logging.info('Predicting Val Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=val_X, y_true=val_y)))
-    logging.info('Predicting Test Dataset Accuracy (mse): {}'.format(searcher.evaluate(x=test_X, y_true=test_y)))
+    print("Runing time:", end_time - start_time)
+    print("Args", args)
+    logger.info('Validation Accuracy (mse): {}'.format(searcher.evaluate(x=val_X_categorical,
+                                                                         y_true=val_y)))
+
+    # Step 5: Evaluate the searched model
+    logger.info('Test Accuracy (mse): {}'.format(searcher.evaluate(x=test_X_categorical,
+                                                                   y_true=test_y)))
+
