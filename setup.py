@@ -26,7 +26,7 @@ setup(
         'scipy==1.3.1',
         'tabulate==0.8.5',
         'tensorboard==2.0.0',
-        'tensorflow-gpu==2.2.0',
+        'tensorflow-gpu==2.4.0',
         'termcolor==1.1.0',
         'terminaltables==3.1.0',
         'tqdm==4.36.1',
