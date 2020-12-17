@@ -30,3 +30,4 @@ examples/ctr_test_criteo.py
 
 # Others
 autorecsys/utils/config.py
+.ipynb_checkpoints/
