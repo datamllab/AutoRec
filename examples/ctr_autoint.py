@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# sync
 # load dataset
 mini_criteo = np.load("datasets/criteo_ctr/criteo_1000.npz")
 # TODO: preprocess train val split

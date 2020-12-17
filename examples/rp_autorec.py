@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
+import sys
+
+#sys.path.append('/home/suil5044/AutoRec/sync/examples')
 
 import os
 
