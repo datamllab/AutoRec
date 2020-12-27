@@ -38,7 +38,6 @@ class TestPreprocessors(unittest.TestCase):
             [4, 1, 1]
         ])
         self.input_df = pd.DataFrame(tabular_data, columns=column_names)
-        self.num_neg = 1
 
     def test_MovielensPreprocessor(self):
         movielens = MovielensPreprocessor(csv_path=os.path.join(dataset_directory,'movielens/ratings-10k.dat'))
@@ -51,6 +50,7 @@ class TestPreprocessors(unittest.TestCase):
         print(test_y.shape)
         print(train_X[:10])
         print(train_y[:10])
+        assert movielens.data_df.shape == (10000, 3) # check shape to verify transform functions
         assert movielens.get_categorical_count() == 2
         assert movielens.get_numerical_count() == 0
         assert movielens.get_x().shape[0] == movielens.get_y().shape[0] # check x and y have same length
@@ -68,7 +68,7 @@ class TestPreprocessors(unittest.TestCase):
         print(test_y.shape)
         print(train_X[:10])
         print(train_y[:10])
-        print(criteo.get_categorical_count(), criteo.get_numerical_count())
+        assert criteo.data_df.shape == (10000, 40)
         assert criteo.get_categorical_count() == 26
         assert criteo.get_numerical_count() == 13
         assert criteo.get_x().shape[0] == criteo.get_y().shape[0]
@@ -86,7 +86,7 @@ class TestPreprocessors(unittest.TestCase):
         print(test_y.shape)
         print(train_X[:10])
         print(train_y[:10])
-        print(netflix.get_categorical_count(), netflix.get_numerical_count())
+        assert netflix.data_df.shape == (10000, 3)
         assert netflix.get_categorical_count() == 2
         assert netflix.get_numerical_count() == 0
         assert netflix.get_x().shape[0] == netflix.get_y().shape[0]
@@ -104,7 +104,7 @@ class TestPreprocessors(unittest.TestCase):
         print(test_y.shape)
         print(train_X[:10])
         print(train_y[:10])
-        print(avazu.get_categorical_count(), avazu.get_numerical_count())
+        assert avazu.data_df.shape == (9999, 23)
         assert avazu.get_categorical_count() == 22
         assert avazu.get_numerical_count() == 0
         assert avazu.get_x().shape[0] == avazu.get_y().shape[0]
