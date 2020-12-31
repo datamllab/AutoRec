@@ -47,13 +47,15 @@ def np_ndarray_dataframe():
 
     
 class test_common(unittest.TestCase):
+    #Can't use the provided decive_info() or else pytest throws a fit, looking into fixing
     def test_set_cpu(self):
-        set_device(device_info)
+        set_device("cpu:0")
         print(device_lib.list_local_devices())
         print(tf.config.experimental.list_physical_devices())
         # checks that the current devices being used by tf is a cpu
         assert (len(tf.config.experimental.list_physical_devices()) > 0)
        
+    #Snake case fails on testing, although this appears to be the function not working properly
     def test_to_snake_case(self):
         temp = to_snake_case(snake_string())
         print(temp)
@@ -61,13 +63,13 @@ class test_common(unittest.TestCase):
         temp = to_snake_case(snake_string_private())
         print(temp)
         assert(temp == "private_i_am_a_private_string")
-        
+    #Creates a directory and sees if it exists
     def test_create_directory(self):
         create_directory(directory())
         print(directory())
         assert(os.path.exists(directory())==True)
     
-        
+    #Tests for panda dataframe for 5 possible inputs
     def test_load_dataframe_input(self):
         #Test for panda dataframe
         temp = load_dataframe_input(pd_dataframe())
@@ -89,7 +91,7 @@ class test_common(unittest.TestCase):
             print("Properly handled wrong file extension")
             assert(True)
         assert(isinstance(load_dataframe_input("test.csv"), pd.DataFrame))
-    
+    #Sets seed then compares the output to the expected output
     def test_set_seed(self):
         set_seed(10);
         temp = random.random()
@@ -106,7 +108,7 @@ class test_common(unittest.TestCase):
         tf.random.set_seed(10)
         print(temp)
         assert(tf.random.uniform([1]) == temp)
-    
+    #Saves and loads pickle
     def test_save_pickle(self):
         #save_pickle(path, obj)
         #load_pickle(path)
