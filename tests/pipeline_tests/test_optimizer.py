@@ -26,7 +26,8 @@ class TestOptimizers(unittest.TestCase):
         super(TestOptimizers, self).setUp()
         self.batch = 2
         self.emb = 4
-        self.inputs = [tf.random.uniform([self.batch, self.emb], dtype=tf.float32)]
+        self.inputs = [tf.random.uniform([self.batch, self.emb], dtype=tf.float32),
+                       tf.random.uniform([self.batch, self.emb], dtype=tf.float32)]
 
     def test_RatingPredictionOptimizer(self):
         """
