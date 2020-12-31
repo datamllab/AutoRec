@@ -9,6 +9,7 @@ from autorecsys.pipeline.optimizer import (
     RatingPredictionOptimizer,
 )
 from autorecsys.searcher.core import hyperparameters as hp_module
+from tensorflow.python.util import nest
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress warning for running TF with CPU
 
@@ -23,18 +24,16 @@ class TestOptimizers(unittest.TestCase):
 
     def setUp(self):
         super(TestOptimizers, self).setUp()
-        self.row = 2
-        self.col = 13
         self.batch = 2
-        self.inputs = [tf.random.uniform([self.batch, self.row*self.col], dtype=tf.float32)]
-        # self.inputs = tf.constant([([1, 2], [3, 4]), ([5, 6], [7, 8])], dtype=tf.float32)
+        self.emb = 4
+        self.inputs = [tf.random.uniform([self.batch, self.emb], dtype=tf.float32)]
 
     def test_RatingPredictionOptimizer(self):
         """
         Test class RatingPredictionOptimizer in optimizer.py
         """
-        # a = self.batch * self.row
         hp = hp_module.HyperParameters()
         interactor = RatingPredictionOptimizer()
-        ans = interactor.build(hp, self.inputs)
-        assert ans.shape == self.batch
+        output = interactor.build(hp, self.inputs)
+        assert len(nest.flatten(output)) == 1
+        assert output.shape == self.batch

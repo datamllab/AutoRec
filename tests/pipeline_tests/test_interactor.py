@@ -13,13 +13,12 @@ from autorecsys.pipeline.interactor import (
     CrossNetInteraction
 )
 from autorecsys.searcher.core import hyperparameters as hp_module
-from .pipeline_tests_utils import layer_test
+from tensorflow.python.util import nest
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress warning for running TF with CPU
 
 logger = logging.getLogger(__name__)
-
-# tf.random.set_seed(1)
 
 
 class TestInteractors(unittest.TestCase):
@@ -30,58 +29,122 @@ class TestInteractors(unittest.TestCase):
 
     def setUp(self):
         super(TestInteractors, self).setUp()
-        # self.inputs = tf.constant([([1, 2], [3, 4]), ([5, 6], [7, 8])], dtype=tf.float32)
-        self.row = 2
-        self.col = 13
-        self.batch = 2
-        self.inputs = tf.random.uniform([self.batch, self.row, self.col], dtype=tf.float32)
+        self.inputs = [tf.constant([[1, 2, 3]], dtype='float32'), tf.constant([[4, 5, 6]], dtype='float32')]
 
     def test_concatenate(self):
         """
         Test class ConcatenateInteraction in interactor.py
         """
-        sol = tf.constant([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=tf.float32)  # Arrange
+
         hp = hp_module.HyperParameters()
         interactor = ConcatenateInteraction()
-        ans = interactor.build(hp, self.inputs)  # Act
-        assert tf.reduce_all(tf.equal(ans, sol))  # Assert
+        output = interactor.build(hp, self.inputs)  # Act
 
-    # def test_elementwise_add(self):
-    #     """
-    #     Test class ElementwiseAddInteraction in interactor.py
-    #     """
-    #     sol = tf.constant([[6, 8], [10, 12]])  # p
-    #     hp = hp_module.HyperParameters()
-    #     interactor = ElementwiseInteraction(elementwise_type="sum")
-    #     ans = interactor.build(hp, self.inputs)  # Act
-    #     assert tf.reduce_all((tf.equal(ans, sol)))  # Assert
+        # output
+        assert len(nest.flatten(output)) == 1
+
+        sol = tf.constant([[1, 2, 3, 4, 5, 6]], dtype=tf.float32)  # Arrange
+        assert tf.reduce_all(tf.equal(output, sol))  # Assert
 
     def test_MLPInteraction(self):
         """
-        Test class ElementwiseAddInteraction in interactor.py
+        Test class MLPInteraction in interactor.py
         """
+        # intialize
         hp = hp_module.HyperParameters()
-        p = [32, 2, False, .25]  # units, num_layer, use_batchnorm, dropout
-        interactor = MLPInteraction(*p)
-        ans = interactor.build(hp, self.inputs)  # Act
-        layer_test(interactor, self.inputs, ans, p, name='MLP')
+        p = {
+            'units': 16,
+            'num_layers': 2,
+            'use_batchnorm': False,
+            'dropout_rate': 0.25}  # units, num_layer, use_batchnorm, dropout
+        interactor = MLPInteraction(**p)
+
+        # test get_state()
+        sol_get_state = {
+            'name': 'mlp_interaction_1',
+            'units': 16,
+            'num_layers': 2,
+            'use_batchnorm': False,
+            'dropout_rate': 0.25}
+
+        assert interactor.get_state() == sol_get_state
+
+        # test set_state()
+        p = {
+            'units': 32,
+            'num_layers': 1,
+            'use_batchnorm': True,
+            'dropout_rate': 0.0}
+        sol_set_state = {
+            'name': 'mlp_interaction_1',
+            'units': 32,
+            'num_layers': 1,
+            'use_batchnorm': True,
+            'dropout_rate': 0.0}
+        interactor.set_state(p)
+        ans_set_state = interactor.get_state()
+        assert ans_set_state == sol_set_state
+
+        # output shape
+        output = interactor.build(hp, self.inputs)  # Act
+        assert len(nest.flatten(output)) == 1
 
     def test_FMInteraction(self):
         """
         Test class FMInteraction in interactor.py
         """
         hp = hp_module.HyperParameters()
-        p = [8]  # embed_dim
-        interactor = FMInteraction(*p)
-        ans = interactor.build(hp, self.inputs)  # Act
-        layer_test(interactor, self.inputs, ans, p, name='FM')
+        p = {
+            'embedding_dim': 8}  # embedding_dim
+        interactor = FMInteraction(**p)
+
+        # test get_state()
+        sol_get_state = {
+            'name': 'fm_interaction_1',
+            'embedding_dim': 8}
+
+        assert interactor.get_state() == sol_get_state
+
+        # test set_state()
+        p = {
+            'embedding_dim': 16}
+        sol_set_state = {
+            'name': 'fm_interaction_1',
+            'embedding_dim': 16}
+        interactor.set_state(p)
+        ans_set_state = interactor.get_state()
+        assert ans_set_state == sol_set_state
+
+        # output shape
+        output = interactor.build(hp, self.inputs)  # Act
+        assert len(nest.flatten(output)) == 1
 
     def test_CrossNetInteraction(self):
         """
         Test class CrossNetInteraction in interactor.py
         """
         hp = hp_module.HyperParameters()
-        p = [1]  # num_layer
-        interactor = CrossNetInteraction(*p)
-        ans = interactor.build(hp, self.inputs)  # Act
-        layer_test(interactor, self.inputs, ans, p, name='CrossNet')
+        p = {
+            'layer_num': 1}  # embedding_dim
+        interactor = CrossNetInteraction(**p)
+
+        # test get_state()
+        sol_get_state = {
+            'name': 'cross_net_interaction_1',
+            'layer_num': 1}
+
+        assert interactor.get_state() == sol_get_state
+
+        # test set_state()
+        p = {
+            'layer_num': 2}
+        sol_set_state = {
+            'name': 'cross_net_interaction_1',
+            'layer_num': 2}
+        interactor.set_state(p)
+        ans_set_state = interactor.get_state()
+        assert ans_set_state == sol_set_state
+
+        # output shape
+        output = interactor.build(hp, self.inputs)  # Act
+        assert len(nest.flatten(output)) == 1

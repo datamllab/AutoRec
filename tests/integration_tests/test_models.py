@@ -8,9 +8,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress warning for running TF with
 os.chdir("../../examples")
 
 logger = logging.getLogger(__name__)
-
-
 # tf.random.set_seed(1)
+
 
 class CTRTestModels(unittest.TestCase):
 
