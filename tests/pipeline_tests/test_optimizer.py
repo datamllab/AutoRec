@@ -1,14 +1,12 @@
-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import logging
 import pytest
 import unittest
-
-import numpy as np
 import tensorflow as tf
 from autorecsys.pipeline.optimizer import (
+    PointWiseOptimizer,
     RatingPredictionOptimizer,
 )
 from autorecsys.searcher.core import hyperparameters as hp_module
@@ -27,8 +25,15 @@ class TestOptimizers(unittest.TestCase):
 
     def setUp(self):
         super(TestOptimizers, self).setUp()
+        self.batch = 2
+        self.emb = 4
+        self.inputs = [tf.random.uniform([self.batch, self.emb], dtype=tf.float32),
+                       tf.random.uniform([self.batch, self.emb], dtype=tf.float32)]
 
-
-    def test_RatingPredictionOptimizer(self):
-        # TODO: Anthony
-        pass    
+    def test_PointWiseOptimizer(self):
+        # TODO: Sean
+        hp = hp_module.HyperParameters()  # Arrange
+        optimizer = PointWiseOptimizer()
+        output = optimizer.build(hp, self.inputs)  # Act
+        assert len(tf.nest.flatten(output)) == 1  # Assert
+        assert output.shape == (self.batch, 1)

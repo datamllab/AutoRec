@@ -14,6 +14,7 @@ from autorecsys.pipeline import Input, LatentFactorMapper, DenseFeatureMapper, S
                         ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, \
                         CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, \
                         PointWiseOptimizer
+from autorecsys.pipeline.interactor import InnerProductInteraction
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor, AvazuPreprocessor
 from autorecsys.recommender import CTRRecommender
 
@@ -75,7 +76,7 @@ def build_autoint(emb_dict):
 
 def build_neumf(emb_dict):
     emb_list = [emb for _, emb in emb_dict.items()]
-    innerproduct_output = [ElementwiseInteraction(elementwise_type="innerporduct")(emb_list)]
+    innerproduct_output = [InnerProductInteraction()(emb_list)]
     mlp_output = [MLPInteraction(num_layers=2)(emb_list)]
     output = innerproduct_output + mlp_output
     return output

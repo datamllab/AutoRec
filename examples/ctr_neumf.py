@@ -7,7 +7,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 import logging
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, PointWiseOptimizer, ElementwiseInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, PointWiseOptimizer
+from autorecsys.pipeline.interactor import InnerProductInteraction
 from autorecsys.recommender import CTRRecommender
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor
 
@@ -36,7 +37,7 @@ user_emb_mlp = LatentFactorMapper(feat_column_id=0,
 item_emb_mlp = LatentFactorMapper(feat_column_id=1,
                                   id_num=10000,
                                   embedding_dim=64)(input)
-innerproduct_output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb_gmf, item_emb_gmf])
+innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
 mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 output = PointWiseOptimizer()([innerproduct_output, mlp_output])
 model = CTRRecommender(inputs=input, outputs=output)
