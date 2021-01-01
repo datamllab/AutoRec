@@ -15,8 +15,9 @@ import tensorflow as tf
 
 import logging
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, ElementwiseInteraction
-from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
+from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer
+from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 
 # logging setting
@@ -48,7 +49,7 @@ item_emb = LatentFactorMapper(feat_column_id=1,
                               embedding_dim=64)(input)
 
 # Step 2.2: Setup interactors to handle models
-output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
+output = InnerProductInteraction()([user_emb, item_emb])
 
 # Step 2.3: Setup optimizer to handle the target task
 output = RatingPredictionOptimizer()(output)

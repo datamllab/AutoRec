@@ -20,6 +20,7 @@ import tensorflow as tf
 from autorecsys.auto_search import Search
 from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
     ElementwiseInteraction
+from autorecsys.pipeline.interactor import InnerProductInteraction
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
 from autorecsys.recommender import RPRecommender
 
@@ -34,7 +35,7 @@ def build_mf(user_num, item_num):
     item_emb = LatentFactorMapper(feat_column_id=1,
                                   id_num=item_num,
                                   embedding_dim=64)(input)
-    output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
+    output = InnerProductInteraction()([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
     model = RPRecommender(inputs=input, outputs=output)
     return model
@@ -48,7 +49,7 @@ def build_gmf(user_num, item_num):
     item_emb = LatentFactorMapper(feat_column_id=1,
                                   id_num=item_num,
                                   embedding_dim=64)(input)
-    output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb, item_emb])
+    output = InnerProductInteraction()([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
     model = RPRecommender(inputs=input, outputs=output)
     return model
@@ -76,7 +77,7 @@ def build_neumf(user_num, item_num):
     item_emb_gmf = LatentFactorMapper(feat_column_id=1,
                                       id_num=item_num,
                                       embedding_dim=64)(input)
-    innerproduct_output = ElementwiseInteraction(elementwise_type="innerporduct")([user_emb_gmf, item_emb_gmf])
+    innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
 
     user_emb_mlp = LatentFactorMapper(feat_column_id=0,
                                       id_num=user_num,
