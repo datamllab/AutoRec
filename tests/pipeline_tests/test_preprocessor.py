@@ -12,24 +12,22 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-from autorecsys.pipeline.preprocessor import NetflixPrizePreprocessor, CriteoPreprocessor, AvazuPreprocessor, MovielensPreprocessor
+from autorecsys.pipeline.preprocessor import Movielens1MCTRPreprocessor, Movielens1MPreprocessor
 
 
 logger = logging.getLogger(__name__)
 
-current_directory = os.path.dirname(os.path.abspath(__file__)) # directory of this test file so that datasets are imported no mattter where the code is run
-dataset_directory = os.path.join(current_directory,'../../examples/example_datasets')
-
 
 class TestPreprocessors(unittest.TestCase):
-    @pytest.fixture(autouse=True)
-    def initdir(self, tmpdir):
-        tmpdir.chdir()  # change to pytest-provided temporary directory
-        tmpdir.join("test_preprocessor.ini").write("# testdata")
+    # @pytest.fixture(autouse=True)
+    # def initdir(self, tmpdir):
+    #     tmpdir.chdir()  # change to pytest-provided temporary directory
+    #     tmpdir.join("test_preprocessor.ini").write("# testdata")
 
     def setUp(self):
         super(TestPreprocessors, self).setUp()
 
+        self.dataset_path = "../datasets/ml-1m/ratings.dat"
         column_names = ["user_id", "item_id", "rating"]
         tabular_data = np.array([
             [1, 1, 1], [1, 2, 1], [1, 3, 1], [1, 4, 1],
@@ -38,77 +36,49 @@ class TestPreprocessors(unittest.TestCase):
             [4, 1, 1]
         ])
         self.input_df = pd.DataFrame(tabular_data, columns=column_names)
+        self.num_neg = 1
 
-    def test_MovielensPreprocessor(self):
-        movielens = MovielensPreprocessor(csv_path=os.path.join(dataset_directory,'movielens/ratings-10k.dat'))
-        train_X, train_y, val_X, val_y, test_X, test_y = movielens.preprocess()
+    def test_negative_sampling(self):
+        # Test the following cases:
+        #   1) Insufficient negative sampling candidates (user explored most items)
+        #   2) Sufficient negative sampling candidates
+        sol_num_pos = 10  # Arrange
+        sol_num_neg = 4
+        sol_type = pd.DataFrame
+        mock_preprocessor = Movielens1MCTRPreprocessor("../datasets/ml-1m/ratings.dat")
+
+        ans = mock_preprocessor._negative_sampling(self.input_df, self.num_neg)  # Act
+
+        input(ans)
+
+        ans_num_pos, ans_num_neg = ans["rating"].value_counts()[1], ans["rating"].value_counts()[0]  # Assert
+        assert (ans_num_pos == sol_num_pos) & (ans_num_neg == sol_num_neg) & (type(ans) == sol_type)
+
+
+
+    def test_Movielens1MPreprocessor(self):
+        ml_1m = Movielens1MPreprocessor("../datasets/ml-1m/ratings.dat")
+        ml_1m.preprocessing(test_size=0.2, random_state=1314)
+        train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
         print(train_X.shape)
         print(train_y.shape)
         print(val_X.shape)
         print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
         print(train_X[:10])
         print(train_y[:10])
-        assert movielens.data_df.shape == (10000, 3) # check shape to verify transform functions
-        assert movielens.get_categorical_count() == 2
-        assert movielens.get_numerical_count() == 0
-        assert movielens.get_x().shape[0] == movielens.get_y().shape[0] # check x and y have same length
-        assert len(movielens.get_hash_size()) == movielens.get_categorical_count()
-        assert movielens.get_numerical_count() + movielens.get_categorical_count() == len(movielens.get_x().columns) # check numerical + categorical = total columns
+        print(type(train_X[:20][0][0]))
+        print(type(train_y[:20][0]))
 
-    def test_CriteoPreprocessor(self):
-        criteo = CriteoPreprocessor(csv_path=os.path.join(dataset_directory,'criteo/train-10k.txt'))
-        train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
+
+    def test_Movielens1MCTRPreprocessor(self):
+        ml_1m = Movielens1MCTRPreprocessor("../datasets/ml-1m/ratings.dat")
+        ml_1m.preprocessing(test_size=0.2, num_neg=10, random_state=1314)
+        train_X, train_y, val_X, val_y = ml_1m.train_X, ml_1m.train_y, ml_1m.val_X, ml_1m.val_y
         print(train_X.shape)
         print(train_y.shape)
         print(val_X.shape)
         print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
-        assert criteo.data_df.shape == (10000, 40)
-        assert criteo.get_categorical_count() == 26
-        assert criteo.get_numerical_count() == 13
-        assert criteo.get_x().shape[0] == criteo.get_y().shape[0]
-        assert len(criteo.get_hash_size()) == criteo.get_categorical_count()
-        assert criteo.get_numerical_count() + criteo.get_categorical_count() == len(criteo.get_x().columns)
-
-    def test_NetflixPreprocessor(self):
-        netflix = NetflixPrizePreprocessor(non_csv_path=os.path.join(dataset_directory,'netflix/combined_data_1-10k.txt'), csv_path=os.path.join(dataset_directory,'netflix/combined_data_1-10k.csv'))
-        train_X, train_y, val_X, val_y, test_X, test_y = netflix.preprocess()
-        print(train_X.shape)
-        print(train_y.shape)
-        print(val_X.shape)
-        print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
-        assert netflix.data_df.shape == (10000, 3)
-        assert netflix.get_categorical_count() == 2
-        assert netflix.get_numerical_count() == 0
-        assert netflix.get_x().shape[0] == netflix.get_y().shape[0]
-        assert len(netflix.get_hash_size()) == netflix.get_categorical_count()
-        assert netflix.get_numerical_count() + netflix.get_categorical_count() == len(netflix.get_x().columns)
-
-    def test_AvazuPreprocessor(self):
-        avazu = AvazuPreprocessor(csv_path=os.path.join(dataset_directory,'avazu/train-10k'))
-        train_X, train_y, val_X, val_y, test_X, test_y = avazu.preprocess()
-        print(train_X.shape)
-        print(train_y.shape)
-        print(val_X.shape)
-        print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
-        assert avazu.data_df.shape == (9999, 23)
-        assert avazu.get_categorical_count() == 22
-        assert avazu.get_numerical_count() == 0
-        assert avazu.get_x().shape[0] == avazu.get_y().shape[0]
-        assert len(avazu.get_hash_size()) == avazu.get_categorical_count()
-        assert avazu.get_numerical_count() + avazu.get_categorical_count() == len(avazu.get_x().columns)
-
-
+        print(train_X[:20])
+        print(train_y[:20])
+        print(type(train_X[:20][0][0]))
+        print( type( train_y[:20][0] ) )
