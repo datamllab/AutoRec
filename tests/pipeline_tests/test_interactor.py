@@ -29,7 +29,8 @@ class TestInteractors(unittest.TestCase):
 
     def setUp(self):
         super(TestInteractors, self).setUp()
-        self.inputs = [tf.constant([[1, 2, 3]], dtype='float32'), tf.constant([[4, 5, 6]], dtype='float32')]
+        self.inputs = [tf.constant([[1, 2, 3]], dtype='float32'),
+                       tf.constant([[4, 5, 6]], dtype='float32')]
 
     def test_concatenate(self):
         """

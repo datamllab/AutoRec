@@ -33,9 +33,8 @@ class TestMappers(unittest.TestCase):
         self.input_shape = 13
         self.batch = 2
         self.embed_dim = 8
-        self.inputs = [tf.random.uniform([self.batch, self.input_shape], dtype=tf.float32)]
+        self.dense_inputs = [tf.random.uniform([self.batch, self.input_shape], dtype=tf.float32)]
         self.sparse_inputs = pd.DataFrame(np.random.rand(self.batch, self.input_shape))
-        # create pandas by series
 
     def test_DenseFeatureMapper(self):
         """
@@ -45,7 +44,7 @@ class TestMappers(unittest.TestCase):
         p = {
             'num_of_fields': 10,
             'embedding_dim': 4}  # units, num_layer, use_batchnorm, dropout
-        interactor = DenseFeatureMapper(**p)
+        mapper = DenseFeatureMapper(**p)
 
         # test get_state()
         sol_get_state = {
@@ -53,7 +52,7 @@ class TestMappers(unittest.TestCase):
             'num_of_fields': 10,
             'embedding_dim': 4}
 
-        assert interactor.get_state() == sol_get_state
+        assert mapper.get_state() == sol_get_state
 
         # test set_state()
         p = {
@@ -64,17 +63,14 @@ class TestMappers(unittest.TestCase):
             'num_of_fields': self.input_shape,
             'embedding_dim': self.embed_dim}
 
-        interactor.set_state(p)
-        ans_set_state = interactor.get_state()
+        mapper.set_state(p)
+        ans_set_state = mapper.get_state()
         assert ans_set_state == sol_set_state
 
-        output = interactor.build(hp, self.inputs)  # Act
+        output = mapper.build(hp, self.dense_inputs)  # Act
 
         assert len(nest.flatten(output)) == 1
-        assert isinstance(self.inputs, list), "input needs to be a list"
-        assert output.shape[0] == self.batch  # row
-        assert output.shape[1] == self.input_shape  # input shape
-        assert output.shape[2] == self.embed_dim  # embed_dim
+        assert output.shape == (self.batch, self.input_shape, self.embed_dim)
 
     def test_SparseFeatureMapper(self):
         """
@@ -86,7 +82,7 @@ class TestMappers(unittest.TestCase):
             'num_of_fields': 10,
             'hash_size': [2, 4, 10],
             'embedding_dim': 4}  # units, num_layer, use_batchnorm, dropout
-        interactor = SparseFeatureMapper(**p)
+        mapper = SparseFeatureMapper(**p)
 
         # test get_state()
         sol_get_state = {
@@ -95,7 +91,7 @@ class TestMappers(unittest.TestCase):
             'hash_size': [2, 4, 10],
             'embedding_dim': 4}
 
-        assert interactor.get_state() == sol_get_state
+        assert mapper.get_state() == sol_get_state
 
         # test set_state()
         hash_size = self.sparse_inputs.nunique().tolist()
@@ -109,17 +105,13 @@ class TestMappers(unittest.TestCase):
             'hash_size': hash_size,
             'embedding_dim': self.embed_dim}
 
-        interactor.set_state(p)
-        ans_set_state = interactor.get_state()
+        mapper.set_state(p)
+        ans_set_state = mapper.get_state()
         assert ans_set_state == sol_set_state
 
-        # add + 1 (?)
-        # hash_size = [x + 1 for x in hash_size]
         inputs = [tf.convert_to_tensor(self.sparse_inputs.values, dtype=tf.int32)]
-        interactor = SparseFeatureMapper(**p)
-        output = interactor.build(hp, inputs)  # Act
+        mapper = SparseFeatureMapper(**p)
+        output = mapper.build(hp, inputs)  # Act
 
         assert len(nest.flatten(output)) == 1
-        assert output.shape[0] == self.batch  # Row
-        assert output.shape[1] == self.input_shape  # input shape
-        assert output.shape[2] == self.embed_dim  # embed_dim
+        assert output.shape == (self.batch, self.input_shape, self.embed_dim)

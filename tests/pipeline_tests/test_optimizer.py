@@ -34,7 +34,7 @@ class TestOptimizers(unittest.TestCase):
         Test class RatingPredictionOptimizer in optimizer.py
         """
         hp = hp_module.HyperParameters()
-        interactor = RatingPredictionOptimizer()
-        output = interactor.build(hp, self.inputs)
+        optimizer = RatingPredictionOptimizer()
+        output = optimizer.build(hp, self.inputs)
         assert len(nest.flatten(output)) == 1
         assert output.shape == self.batch
