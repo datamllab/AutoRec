@@ -8,6 +8,7 @@ import logging
 import pytest
 import unittest
 
+import math
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -103,6 +104,7 @@ class TestPreprocessors(unittest.TestCase):
             [3, 1, 1], [3, 2, 1],
             [4, 1, 1]
         ])
+        self.validation_and_test_size = 0.1
         self.input_size = 10
         self.input_df = pd.DataFrame(tabular_data, columns=column_names)
     
@@ -128,14 +130,14 @@ class TestPreprocessors(unittest.TestCase):
     def test_MovielensPreprocessor(self):
         movielens = MovielensPreprocessor(csv_path=os.path.join(dataset_directory,'movielens/ratings-10k.dat'))
         train_X, train_y, val_X, val_y, test_X, test_y = movielens.preprocess()
-        print(train_X.shape)
-        print(train_y.shape)
-        print(val_X.shape)
-        print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
+        num_rows = 10000
+        test_size = math.ceil(num_rows * self.validation_and_test_size)
+        assert train_X.shape[0] == num_rows - 2 * test_size
+        assert train_y.shape[0] == num_rows - 2 * test_size
+        assert val_X.shape[0] == test_size
+        assert val_y.shape[0] == test_size
+        assert test_X.shape[0] == test_size
+        assert test_y.shape[0] == test_size
         assert movielens.data_df.shape == (10000, 3) # check shape to verify transform functions
         assert movielens.get_categorical_count() == 2
         assert movielens.get_numerical_count() == 0
@@ -146,14 +148,14 @@ class TestPreprocessors(unittest.TestCase):
     def test_CriteoPreprocessor(self):
         criteo = CriteoPreprocessor(csv_path=os.path.join(dataset_directory,'criteo/train-10k.txt'))
         train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
-        print(train_X.shape)
-        print(train_y.shape)
-        print(val_X.shape)
-        print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
+        num_rows = 10000
+        test_size = math.ceil(num_rows * self.validation_and_test_size)
+        assert train_X.shape[0] == num_rows - 2 * test_size
+        assert train_y.shape[0] == num_rows - 2 * test_size
+        assert val_X.shape[0] == test_size
+        assert val_y.shape[0] == test_size
+        assert test_X.shape[0] == test_size
+        assert test_y.shape[0] == test_size
         assert criteo.data_df.shape == (10000, 40)
         assert criteo.get_categorical_count() == 26
         assert criteo.get_numerical_count() == 13
@@ -164,14 +166,14 @@ class TestPreprocessors(unittest.TestCase):
     def test_NetflixPreprocessor(self):
         netflix = NetflixPrizePreprocessor(non_csv_path=os.path.join(dataset_directory,'netflix/combined_data_1-10k.txt'), csv_path=os.path.join(dataset_directory,'netflix/combined_data_1-10k.csv'))
         train_X, train_y, val_X, val_y, test_X, test_y = netflix.preprocess()
-        print(train_X.shape)
-        print(train_y.shape)
-        print(val_X.shape)
-        print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
+        num_rows = 10000
+        test_size = math.ceil(num_rows * self.validation_and_test_size)
+        assert train_X.shape[0] == num_rows - 2 * test_size
+        assert train_y.shape[0] == num_rows - 2 * test_size
+        assert val_X.shape[0] == test_size
+        assert val_y.shape[0] == test_size
+        assert test_X.shape[0] == test_size
+        assert test_y.shape[0] == test_size
         assert netflix.data_df.shape == (10000, 3)
         assert netflix.get_categorical_count() == 2
         assert netflix.get_numerical_count() == 0
@@ -182,14 +184,14 @@ class TestPreprocessors(unittest.TestCase):
     def test_AvazuPreprocessor(self):
         avazu = AvazuPreprocessor(csv_path=os.path.join(dataset_directory,'avazu/train-10k'))
         train_X, train_y, val_X, val_y, test_X, test_y = avazu.preprocess()
-        print(train_X.shape)
-        print(train_y.shape)
-        print(val_X.shape)
-        print(val_y.shape)
-        print(test_X.shape)
-        print(test_y.shape)
-        print(train_X[:10])
-        print(train_y[:10])
+        num_rows = 9999
+        test_size = math.ceil(num_rows * self.validation_and_test_size)
+        assert train_X.shape[0] == num_rows - 2 * test_size
+        assert train_y.shape[0] == num_rows - 2 * test_size
+        assert val_X.shape[0] == test_size
+        assert val_y.shape[0] == test_size
+        assert test_X.shape[0] == test_size
+        assert test_y.shape[0] == test_size
         assert avazu.data_df.shape == (9999, 23)
         assert avazu.get_categorical_count() == 22
         assert avazu.get_numerical_count() == 0
