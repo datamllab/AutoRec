@@ -23,11 +23,15 @@ class TestBias(unittest.TestCase):
     def setUp(self):
         super(TestBias, self).setUp()
         self.inputs = tf.constant([[1, 2, 3],[4, 5, 6]], dtype="float32")
+    
+    def test_constructor(self):
+        bias = Bias(units=self.test_units)
+        assert bias.bias.shape == (self.test_units,)
 
     def test_call(self):
         """
         Test Bias.call()
         """
-        bias = Bias(self.inputs.shape[-1])  # Act
+        bias = Bias(self.inputs.shape[-1])  # Pass shape of input as units argument
         ans = bias(self.inputs)
         tf.assert_equal(self.inputs, ans)  # Assert tensor is equal since bias layer adds zeroes
