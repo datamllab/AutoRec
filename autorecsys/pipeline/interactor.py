@@ -32,7 +32,7 @@ class RandomSelectInteraction(Block):
 
 
 class ConcatenateInteraction(Block):
-    """Module for outputing one vector by concatenating the input vector list.
+    """Module to concatenate the input vectors to output a vector.
     # Attributes:
         None
     """
@@ -49,17 +49,40 @@ class ConcatenateInteraction(Block):
 
     def build(self, hp, inputs=None):
         input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
-        output_node = tf.concat(input_node, axis=1)
+        output_node = tf.concat(input_node, axis=1)  # axis=0 is the batch size
+        return output_node
+
+
+class InnerProductInteraction(Block):
+    """ Module to conduct inner product for the input vectors.
+    # Attributes:
+        None
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def get_state(self):
+        state = super().get_state()
+        return state
+
+    def set_state(self, state):
+        super().set_state(state)
+
+    def build(self, hp, inputs=None):
+        input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
+        output_node = tf.reduce_sum(tf.reduce_prod(input_node, axis=0), axis=1, keepdims=True)
         return output_node
 
 
 class ElementwiseInteraction(Block):
-    """Module for element-wise operation. this block includes the element-wise sum ,average, innerporduct, max, and min.
-        The default operation is average.
+    """Module for element-wise operation. this block includes the element-wise sum, average, multiply (Hadamard
+        product), max, and min.
+        The default operation is element-wise sum.
     # Attributes:
         elementwise_type("str"):  Can be used to select the element-wise operation. the default value is None. If the
-        value of this parameter is None, the block can select the operation for the
-        sum ,average, innerporduct, max, and min, according to the search algorithm.
+        value of this parameter is None, the block can select the operation for the element-wise sum, average, multiply,
+        max, and min, according to the search algorithm.
     """
 
     def __init__(self,
@@ -83,22 +106,22 @@ class ElementwiseInteraction(Block):
 
         shape_set = set()
         for node in input_node:
-            shape_set.add(node.shape[1])
+            shape_set.add(node.shape[1])  # shape[0] is the batch size
         if len(shape_set) > 1:
             # raise ValueError("Inputs of ElementwiseInteraction should have same dimension.")
             min_len = min( shape_set )
 
-            input_node = [tf.keras.layers.Dense(min_len)(node) 
-                        if node.shape[1] != min_len  else node for node in input_node]
+            input_node = [tf.keras.layers.Dense(min_len)(node)
+                          if node.shape[1] != min_len else node for node in input_node]
 
         elementwise_type = self.elementwise_type or hp.Choice('elementwise_type',
-                                                              ["sum", "average", "innerporduct", "max", "min"],
+                                                              ["sum", "average", "multiply", "max", "min"],
                                                               default='average')
         if elementwise_type == "sum":
             output_node = tf.add_n(input_node)
         elif elementwise_type == "average":
             output_node = tf.reduce_mean(input_node, axis=0)
-        elif elementwise_type == "innerporduct":
+        elif elementwise_type == "multiply":
             output_node = tf.reduce_prod(input_node, axis=0)
         elif elementwise_type == "max":
             output_node = tf.reduce_max(input_node, axis=[0])
@@ -110,10 +133,10 @@ class ElementwiseInteraction(Block):
 
 
 class MLPInteraction(Block):
-    """Module for MLP operation. This block can seted as MLP with different layer, unit, and other setting .
+    """Module for MLP operation. This block can be configured with different layer, unit, and other settings.
     # Attributes:
         units (int). The units of all layer in the MLP block.
-        num_layers (int). The number of the layers in the MLP blck
+        num_layers (int). The number of the layers in the MLP block.
         use_batchnorm (Boolean). Use batch normalization or not.
         dropout_rate(float). The value of drop out in the last layer of MLP.
     """
@@ -186,16 +209,27 @@ class HyperInteraction(Block):
             "ConcatenateInteraction": ConcatenateInteraction,
             "RandomSelectInteraction": RandomSelectInteraction,
             "ElementwiseInteraction": ElementwiseInteraction,
-            "FMInteraction": FMInteraction, 
+            "FMInteraction": FMInteraction,
             "CrossNetInteraction": CrossNetInteraction,
             "SelfAttentionInteraction": SelfAttentionInteraction,
+            "InnerProductInteraction": InnerProductInteraction,
         }
 
     def get_state(self):
         state = super().get_state()
         state.update({
-            'interactor_type': self.interactor_type,
-            'meta_interator_num': self.meta_interator_num
+            "interactor_type": self.interactor_type,
+            "meta_interator_num": self.meta_interator_num,
+            "name2interactor": {
+                "MLPInteraction": MLPInteraction,
+                "ConcatenateInteraction": ConcatenateInteraction,
+                "RandomSelectInteraction": RandomSelectInteraction,
+                "ElementwiseInteraction": ElementwiseInteraction,
+                "FMInteraction": FMInteraction,
+                "CrossNetInteraction": CrossNetInteraction,
+                "SelfAttentionInteraction": SelfAttentionInteraction,
+                "InnerProductInteraction": InnerProductInteraction,
+        }
         })
         return state
 
@@ -298,7 +332,7 @@ class CrossNetInteraction(Block):
     (batch_size, embedding_size). 
 
     We assume the input could be a list of tensors of 2D or 3D, and the block will 
-    flatten them as as list of 2D tensors, and ten concatenate them as a single 2D
+    flatten them as as list of 2D tensors, and then concatenate them as a single 2D
     tensor. The cross interaction follows the reference and the number of 
     layers of the cross interaction is tunable.
 
@@ -325,9 +359,7 @@ class CrossNetInteraction(Block):
         super().set_state(state)
         self.layer_num = state['layer_num']
 
-
     def build(self, hp, inputs=None):
-
         input_node = [tf.keras.layers.Flatten()(node) if len(node.shape) > 2 else node for node in nest.flatten(inputs)]
         input_node = tf.concat(input_node, axis=1)
 
@@ -349,7 +381,7 @@ class CrossNetInteraction(Block):
 class SelfAttentionInteraction(Block):
     """CTR module for the multi-head self-attention layer in the autoint paper.
 
-    Reference: https://arxiv.org/pdf/1708.05123.pdf
+    Reference: https://arxiv.org/pdf/1810.11921.pdf
 
     This block applies multi-head self-attention on a 3D tensor of size 
     (batch_size, field_size, embedding_size). 
@@ -374,7 +406,7 @@ class SelfAttentionInteraction(Block):
         super(SelfAttentionInteraction, self).__init__(**kwargs)
 
         self.embedding_dim = embedding_dim
-        self.att_embedding_dim = embedding_dim
+        self.att_embedding_dim = att_embedding_dim
         self.head_num = head_num
         self.residual = residual
 
@@ -444,10 +476,9 @@ class SelfAttentionInteraction(Block):
 
         # align the embedding_dim of input nodes if they're not the same
         embedding_dim = self.embedding_dim or hp.Choice('embedding_dim', [4, 8, 16], default=8)
-        output_node = [tf.keras.layers.Dense(embedding_dim)(node) 
-                        if node.shape[2] != embedding_dim  else node for node in input_node]
+        output_node = [tf.keras.layers.Dense(embedding_dim)(node)
+                       if node.shape[2] != embedding_dim else node for node in input_node]
         output_node = tf.concat(output_node, axis=1)
-
 
         att_embedding_dim = self.att_embedding_dim or hp.Choice('att_embedding_dim', [4, 8, 16], default=8)
         head_num = self.head_num or hp.Choice('head_num', [1, 2, 3, 4], default=2)
