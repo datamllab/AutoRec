@@ -22,10 +22,10 @@ class TestBias(unittest.TestCase):
 
     def setUp(self):
         super(TestBias, self).setUp()
-        self.inputs = tf.constant([[1, 2, 3],[4, 5, 6]], dtype="float32")
+        self.inputs = tf.constant([ [1, 2, 3], [4, 5, 6] ], dtype="float32")
         self.test_units = 4
     
-    def test_constructor(self):
+    def test_Bias(self):
         bias = Bias(units=self.test_units)
         assert bias.bias.shape == (self.test_units,)
 
