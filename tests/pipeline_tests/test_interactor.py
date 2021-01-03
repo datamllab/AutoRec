@@ -38,7 +38,6 @@ class TestInteractors(unittest.TestCase):
         self.inputs = [tf.constant([[1, 2, 3]], dtype='float32'), tf.constant([[4, 5, 6]], dtype='float32')]
 
     def test_RandomSelectInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
         p = {}
         interactor = RandomSelectInteraction(**p)
@@ -240,7 +239,6 @@ class TestInteractors(unittest.TestCase):
         assert all(tf.equal(ans, sol)[0])  # Assert
 
     def test_ElementwiseInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
         p = {
             'elementwise_type': 'average',
@@ -298,12 +296,7 @@ class TestInteractors(unittest.TestCase):
         ans = interactor.build(hp, self.inputs)  # Act
         assert all(tf.equal(ans, sol)[0])  # Assert
 
-    def test_MLPInteraction(self):
-        # TODO: Suil
-        pass
-
     def test_HyperInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
         p = {
             'meta_interator_num': 3,
@@ -358,16 +351,7 @@ class TestInteractors(unittest.TestCase):
         sol = 1
         assert len(tf.nest.flatten(ans)) == sol
 
-    def test_FMInteraction(self):
-        # TODO: Suil
-        pass
-
-    def test_CrossNetInteraction(self):
-        # TODO: Suil
-        pass
-
     def test_SelfAttentionInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
         p = {
             'embedding_dim': 8,

@@ -41,7 +41,6 @@ class TestOptimizers(unittest.TestCase):
         assert output.shape == self.batch
 
     def test_PointWiseOptimizer(self):
-        # TODO: Sean
         hp = hp_module.HyperParameters()  # Arrange
         optimizer = PointWiseOptimizer()
         output = optimizer.build(hp, self.inputs)  # Act
