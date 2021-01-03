@@ -82,15 +82,7 @@ class DummyPreprocessor(BasePreprocessor):
         self.data_df = data_df
 
     def preprocess(self):
-        self.transform_categorical()
-        self.transform_numerical()
-        x = self.get_x()
-        y = self.get_y()
-        x_train, x_test, y_train, y_test = self.split_data(
-            x, y, self.test_percentage)
-        x_train, x_validate, y_train, y_validate = self.split_data(
-            x_train, y_train, self.validate_percentage)
-        return x_train, y_train, x_validate, y_validate, x_test, y_test
+        return []
 
 
 class TestPreprocessors(unittest.TestCase):
@@ -109,110 +101,88 @@ class TestPreprocessors(unittest.TestCase):
             [3, 1, 1], [3, 2, 1],
             [4, 1, 1]
         ])
-        self.validation_and_test_size = 0.1
-        self.input_size = 10
+        small_data = np.array([[1, 1, 1], [1, 2, 1], [2, 3, 1]])
         self.input_df = pd.DataFrame(tabular_data, columns=column_names)
+        self.small_input_df = pd.DataFrame(small_data, columns=column_names)
+        self.x_df = self.small_input_df.drop(["rating"], axis=1)
 
-    def test_BasePreprocessor(self):
+    def test_split_data(self):
         base = DummyPreprocessor(data_df=self.input_df)
+        train_X, test_X, train_y,  test_y = base.split_data(base.get_x(), base.get_y(), 0.2)
+        assert train_X.shape[0] == 8
+        assert train_y.shape[0] == 8
+        assert test_X.shape[0] == 2
+        assert test_y.shape[0] == 2
+
+    def test_transform_numerical(self):
+        sol = np.array([[1, 1, 1], [1, 2, 1], [2, math.log(float(3)) ** 2, 1]])
+        base = DummyPreprocessor(data_df=self.small_input_df)
         base.transform_numerical()
-        assert base.data_df.shape == (10, 3)
+        assert base.data_df.shape == (3, 3)
+        assert np.array_equal(sol, base.data_df.values)
+
+    def test_transform_categorical(self):
+        sol = np.array([[0, 1, 1], [0, 2, 1], [1, 3, 1]])
+        base = DummyPreprocessor(data_df=self.small_input_df)
         base.transform_categorical()
-        assert base.data_df.shape == (10, 3)
-        assert base.get_hash_size() == [4]
+        assert base.data_df.shape == (3, 3)
+        assert np.array_equal(sol, base.data_df.values)
 
-        x_cols = base.get_x()
-        x_sol = self.input_df.drop(["rating"], axis=1)
-        pd.testing.assert_frame_equal(x_sol, x_cols)
+    def test_get_hash_size(self):
+        base = DummyPreprocessor(data_df=self.small_input_df)
+        base.transform_categorical()
+        assert base.get_hash_size() == [2]
+
+    def test_get_x(self):
+        sol = self.x_df
+        base = DummyPreprocessor(data_df=self.small_input_df)
+        pd.testing.assert_frame_equal(sol, base.get_x())
+
+    def test_get_x_numerical(self):
+        sol = self.x_df[['num_people']].values
+        base = DummyPreprocessor(data_df=self.small_input_df)
         assert np.array_equal(base.get_x_numerical(
-            x_cols), x_sol[['num_people']].values)
-        assert np.array_equal(base.get_x_categorical(
-            x_cols), x_sol[['user_id']].values)
+            self.x_df), sol)
 
-        y_vals_sol = np.ones(self.input_size)
-        assert all(base.get_y() == y_vals_sol)
-        assert base.get_numerical_count() == 1
+    def test_get_x_categorical(self):
+        sol = self.x_df[['user_id']].values
+        base = DummyPreprocessor(data_df=self.small_input_df)
+        assert np.array_equal(base.get_x_categorical(
+            self.x_df), sol)
+
+    def test_get_y(self):
+        sol = np.ones(3)
+        base = DummyPreprocessor(data_df=self.small_input_df)
+        assert np.array_equal(base.get_y(), sol)
+
+    def test_get_categorical_count(self):
+        base = DummyPreprocessor(data_df=self.small_input_df)
         assert base.get_categorical_count() == 1
+
+    def test_get_numerical_count(self):
+        base = DummyPreprocessor(data_df=self.small_input_df)
+        assert base.get_numerical_count() == 1
 
     def test_MovielensPreprocessor(self):
         movielens = MovielensPreprocessor(csv_path=os.path.join(
             dataset_directory, 'movielens/ratings-10k.dat'))
-        train_X, train_y, val_X, val_y, test_X, test_y = movielens.preprocess()
-        num_rows = 10000
-        test_size = math.ceil(num_rows * self.validation_and_test_size)
-        assert train_X.shape[0] == num_rows - 2 * test_size
-        assert train_y.shape[0] == num_rows - 2 * test_size
-        assert val_X.shape[0] == test_size
-        assert val_y.shape[0] == test_size
-        assert test_X.shape[0] == test_size
-        assert test_y.shape[0] == test_size
-        # check shape to verify transform functions
+        movielens.preprocess()
         assert movielens.data_df.shape == (10000, 3)
-        assert movielens.get_categorical_count() == 2
-        assert movielens.get_numerical_count() == 0
-        assert movielens.get_x().shape[0] == movielens.get_y(
-        ).shape[0]  # check x and y have same length
-        assert len(movielens.get_hash_size()
-                   ) == movielens.get_categorical_count()
-        assert movielens.get_numerical_count() + movielens.get_categorical_count() == len(
-            movielens.get_x().columns)  # check numerical + categorical = total columns
 
     def test_CriteoPreprocessor(self):
         criteo = CriteoPreprocessor(csv_path=os.path.join(
             dataset_directory, 'criteo/train-10k.txt'))
-        train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
-        num_rows = 10000
-        test_size = math.ceil(num_rows * self.validation_and_test_size)
-        assert train_X.shape[0] == num_rows - 2 * test_size
-        assert train_y.shape[0] == num_rows - 2 * test_size
-        assert val_X.shape[0] == test_size
-        assert val_y.shape[0] == test_size
-        assert test_X.shape[0] == test_size
-        assert test_y.shape[0] == test_size
+        criteo.preprocess()
         assert criteo.data_df.shape == (10000, 40)
-        assert criteo.get_categorical_count() == 26
-        assert criteo.get_numerical_count() == 13
-        assert criteo.get_x().shape[0] == criteo.get_y().shape[0]
-        assert len(criteo.get_hash_size()) == criteo.get_categorical_count()
-        assert criteo.get_numerical_count(
-        ) + criteo.get_categorical_count() == len(criteo.get_x().columns)
 
     def test_NetflixPreprocessor(self):
         netflix = NetflixPrizePreprocessor(non_csv_path=os.path.join(
             dataset_directory, 'netflix/combined_data_1-10k.txt'), csv_path=os.path.join(dataset_directory, 'netflix/combined_data_1-10k.csv'))
-        train_X, train_y, val_X, val_y, test_X, test_y = netflix.preprocess()
-        num_rows = 10000
-        test_size = math.ceil(num_rows * self.validation_and_test_size)
-        assert train_X.shape[0] == num_rows - 2 * test_size
-        assert train_y.shape[0] == num_rows - 2 * test_size
-        assert val_X.shape[0] == test_size
-        assert val_y.shape[0] == test_size
-        assert test_X.shape[0] == test_size
-        assert test_y.shape[0] == test_size
+        netflix.preprocess()
         assert netflix.data_df.shape == (10000, 3)
-        assert netflix.get_categorical_count() == 2
-        assert netflix.get_numerical_count() == 0
-        assert netflix.get_x().shape[0] == netflix.get_y().shape[0]
-        assert len(netflix.get_hash_size()) == netflix.get_categorical_count()
-        assert netflix.get_numerical_count(
-        ) + netflix.get_categorical_count() == len(netflix.get_x().columns)
 
     def test_AvazuPreprocessor(self):
         avazu = AvazuPreprocessor(csv_path=os.path.join(
             dataset_directory, 'avazu/train-10k'))
-        train_X, train_y, val_X, val_y, test_X, test_y = avazu.preprocess()
-        num_rows = 9999
-        test_size = math.ceil(num_rows * self.validation_and_test_size)
-        assert train_X.shape[0] == num_rows - 2 * test_size
-        assert train_y.shape[0] == num_rows - 2 * test_size
-        assert val_X.shape[0] == test_size
-        assert val_y.shape[0] == test_size
-        assert test_X.shape[0] == test_size
-        assert test_y.shape[0] == test_size
+        avazu.preprocess()
         assert avazu.data_df.shape == (9999, 23)
-        assert avazu.get_categorical_count() == 22
-        assert avazu.get_numerical_count() == 0
-        assert avazu.get_x().shape[0] == avazu.get_y().shape[0]
-        assert len(avazu.get_hash_size()) == avazu.get_categorical_count()
-        assert avazu.get_numerical_count(
-        ) + avazu.get_categorical_count() == len(avazu.get_x().columns)
