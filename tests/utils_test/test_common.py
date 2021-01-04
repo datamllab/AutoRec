@@ -17,42 +17,26 @@ import numpy as np
 import random
 import unittest
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-@pytest.fixture
-def snake_string():
-    return "i am a string"
+snake_string = "i am a string"
 
-def snake_string_private():
-    return "_i am a private string"
+snake_string_private = "_i am a private string"
 
-def snake_string_caps():
-    return "I AM A STRING WITH CAPS"
+snake_string_caps = "IAmStringWithCaps"
 
-def snake_string_special():
-    return "I#am%a&string(with*special+characters"
+snake_string_special = "I#am%a&string(with*special+characters"
 
-def directory():
-    return "test_dir"
+directory = "test_dir"
 
-def pickle_directory():
-    return "test_dir_pickle"
+pickle_file = { "lion": "yellow", "kitty": "red" }
 
-def pd_dataframe():
-    d = {'col1': [1, 2], 'col2': [3, 4]}
-    df = pd.DataFrame(data=d)
-    return df
+pd_dataframe = pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]})
 
-def np_ndarray_series():
-    arr = np.array( [ 1, 2, 3])
-    return arr
-    
-def np_ndarray_dataframe():
-    arr = np.array( [[ 1, 2, 3],
+np_ndarray_series = np.array( [ 1, 2, 3])
+
+np_ndarray_dataframe = np.array( [[ 1, 2, 3],
                  [ 4, 2, 5]] )
-    return arr
-
-
     
 class test_common(unittest.TestCase):
     device_info = "cpu:0"
@@ -67,37 +51,40 @@ class test_common(unittest.TestCase):
         
     #Snake case fails on testing, although this appears to be the function not working properly
     def test_to_snake_case(self):
-        temp = to_snake_case(snake_string())
+        temp = to_snake_case(snake_string)
         print(temp)
         assert(temp == "i_am_a_string")
-        temp = to_snake_case(snake_string_private())
+        temp = to_snake_case(snake_string_private)
         print(temp)
         assert(temp == "private_i_am_a_private_string")
-        temp = to_snake_case(snake_string_caps())
+        temp = to_snake_case(snake_string_caps)
         print(temp)
-        assert(temp == "i_am_a_string_with_caps")
-        temp = to_snake_case(snake_string_special())
+        assert(temp == "i_am_string_with_caps")
+        temp = to_snake_case(snake_string_special)
         print(temp)
         assert(temp == "i_am_a_string_with_special_characters")
         
     #Creates a directory and sees if it exists
     def test_create_directory(self):
-        create_directory(directory())
-        print(directory())
-        assert(os.path.exists(directory())==True)
+        assert(os.path.exists(directory)==False)
+        create_directory(directory)
+        print(directory)
+        assert(os.path.exists(directory)==True)
+        
+        
     
     #Tests for panda dataframe for 5 possible inputs
     def test_load_dataframe_input(self):
         #Test for panda dataframe
-        temp = load_dataframe_input(pd_dataframe())
+        temp = load_dataframe_input(pd_dataframe)
         print(temp)
-        assert(isinstance(load_dataframe_input(pd_dataframe()), pd.DataFrame))
+        assert(isinstance(load_dataframe_input(pd_dataframe), pd.DataFrame))
         
         
         #Test for np_ndarray
-        assert(isinstance(load_dataframe_input(np_ndarray_series()), pd.Series))
+        assert(isinstance(load_dataframe_input(np_ndarray_series), pd.Series))
         
-        assert(isinstance(load_dataframe_input(np_ndarray_dataframe()), pd.DataFrame))
+        assert(isinstance(load_dataframe_input(np_ndarray_dataframe), pd.DataFrame))
         
         
         #Test for string 
@@ -127,9 +114,10 @@ class test_common(unittest.TestCase):
         assert(tf.random.uniform([1]) == temp)
     #Saves and loads pickle
     def test_save_pickle(self):
-        #save_pickle(path, obj)
-        #load_pickle(path)
-        print("Save and load sucessful")
+        save_pickle("test_pickle", pickle_file)
+        assert(os.path.exists("test_pickle") == True)
         
-
-        
+    def test_load_pickle(self):
+        save_pickle("test_pickle", pickle_file)
+        temp = load_pickle("test_pickle")
+        assert(temp == pickle_file)

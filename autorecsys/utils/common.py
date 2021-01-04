@@ -26,6 +26,11 @@ def to_snake_case(name):
     #insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
     
     insecure = re.sub(r"(.+?)([A-Z])", snake, name, 0)
+    
+    insecure = insecure.lower()
+    
+    print(insecure)
+    
     replaceChars = "~`!@#$%^&*()-+={[}]|\:;<,>.? "
     for c in replaceChars:
         insecure = insecure.replace(c, "_")
