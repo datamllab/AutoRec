@@ -17,18 +17,26 @@ import numpy as np
 import random
 import unittest
 
-@pytest.fixture
-def device_info():
-    return "cpu:0"
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+@pytest.fixture
 def snake_string():
     return "i am a string"
 
 def snake_string_private():
     return "_i am a private string"
 
+def snake_string_caps():
+    return "I AM A STRING WITH CAPS"
+
+def snake_string_special():
+    return "I#am%a&string(with*special+characters"
+
 def directory():
     return "test_dir"
+
+def pickle_directory():
+    return "test_dir_pickle"
 
 def pd_dataframe():
     d = {'col1': [1, 2], 'col2': [3, 4]}
@@ -47,6 +55,7 @@ def np_ndarray_dataframe():
 
     
 class test_common(unittest.TestCase):
+    device_info = "cpu:0"
     #Can't use the provided decive_info() or else pytest throws a fit, looking into fixing
     def test_set_cpu(self):
         set_device("cpu:0")
@@ -55,6 +64,7 @@ class test_common(unittest.TestCase):
         # checks that the current devices being used by tf is a cpu
         assert (len(tf.config.experimental.list_physical_devices()) > 0)
        
+        
     #Snake case fails on testing, although this appears to be the function not working properly
     def test_to_snake_case(self):
         temp = to_snake_case(snake_string())
@@ -63,6 +73,13 @@ class test_common(unittest.TestCase):
         temp = to_snake_case(snake_string_private())
         print(temp)
         assert(temp == "private_i_am_a_private_string")
+        temp = to_snake_case(snake_string_caps())
+        print(temp)
+        assert(temp == "i_am_a_string_with_caps")
+        temp = to_snake_case(snake_string_special())
+        print(temp)
+        assert(temp == "i_am_a_string_with_special_characters")
+        
     #Creates a directory and sees if it exists
     def test_create_directory(self):
         create_directory(directory())
@@ -113,3 +130,6 @@ class test_common(unittest.TestCase):
         #save_pickle(path, obj)
         #load_pickle(path)
         print("Save and load sucessful")
+        
+
+        

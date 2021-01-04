@@ -18,10 +18,18 @@ import pickle
 def dataset_shape(dataset):
     return tf.compat.v1.data.get_output_shapes(dataset)
 
+def snake(match):
+    return match.group(1).lower() + "_" + match.group(2).lower()
 
 def to_snake_case(name):
-    intermediate = re.sub('(.)([A-Z][a-z0-9]+)', r'\1_\2', name)
-    insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
+    #intermediate = re.sub('(.)([A-Z][a-z0-9]+)', r'\1_\2', name)
+    #insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
+    
+    insecure = re.sub(r"(.+?)([A-Z])", snake, name, 0)
+    replaceChars = "~`!@#$%^&*()-+={[}]|\:;<,>.? "
+    for c in replaceChars:
+        insecure = insecure.replace(c, "_")
+    
     # If the class is private the name starts with "_" which is not secure
     # for creating scopes. We prefix the name with "private" in this case.
     if insecure[0] != '_':
