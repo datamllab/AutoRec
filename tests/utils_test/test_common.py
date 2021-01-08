@@ -21,13 +21,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     
 class test_common(unittest.TestCase):
     device_info = "cpu:0"
-    #Can't use the provided decive_info() or else pytest throws a fit, looking into fixing
     def test_set_cpu(self):
         set_device("cpu:0")
         # checks that the current devices being used by tf is a cpu
         assert (len(tf.config.experimental.list_physical_devices()) > 0)
        
-    #Snake case fails on testing, although this appears to be the function not working properly
     def test_to_snake_case(self):
         temp = to_snake_case("i am a string")
         assert(temp == "i_am_a_string")
@@ -76,7 +74,7 @@ class test_common(unittest.TestCase):
         tf.random.set_seed(10)
         assert(tf.random.uniform([1]) == temp)
         
-    #Saves and loads pickle
+    #Test save and load pickle
     def test_save_pickle(self):
         save_pickle("test_pickle", { "lion": "yellow", "kitty": "red" })
         assert(os.path.exists("test_pickle") == True)
