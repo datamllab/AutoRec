@@ -129,7 +129,7 @@ class BasePreprocessor(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def load_dataset(self):
+    def load_dataset(self): # pragma: no cover
         """ Load CSV data as a Pandas DataFrame object.
         """
         self.data_df = pd.read_csv(self.csv_path, sep=self.delimiter, header=self.header, names=self.columns, dtype=self.dtype_dict)
