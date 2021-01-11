@@ -54,7 +54,7 @@ class test_common(unittest.TestCase):
         #Test for string 
         
         try:
-            load_dataframe_input("wring_file.exe")
+            load_dataframe_input("wrong_file.exe")
         except TypeError:
             assert(True)
         assert(isinstance(load_dataframe_input("test.csv"), pd.DataFrame))
