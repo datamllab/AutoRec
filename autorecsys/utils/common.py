@@ -21,9 +21,11 @@ def dataset_shape(dataset):
 def snake(match):
     return match.group(1).lower() + "_" + match.group(2).lower()
 
-def to_snake_case(name):    
-    insecure = re.sub(r"(.+?)([A-Z])", snake, name, 0)    
-    insecure = insecure.lower()    
+def to_snake_case(name):
+    #insecure = re.sub(r"(.+?)([A-Z])", snake, name, 0)    
+    #insecure = insecure.lower()    
+    insecure = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    insecure = re.sub('([a-z0-9])([A-Z])', r'\1_\2', insecure).lower()
     replaceChars = "~`!@#$%^&*()-+={[}]|\:;<,>.? "
     for c in replaceChars:
         insecure = insecure.replace(c, "_")    
