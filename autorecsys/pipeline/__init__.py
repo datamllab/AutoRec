@@ -7,5 +7,5 @@ from autorecsys.pipeline.interactor import MLPInteraction,  \
                                         SelfAttentionInteraction, \
                                         HyperInteraction
 
-from autorecsys.pipeline.optimizer import RatingPredictionOptimizer, PointWiseOptimizer
+from autorecsys.pipeline.optimizer import RatingPredictionOptimizer, CTRPredictionOptimizer
 from autorecsys.pipeline.node import Input, StructuredDataInput

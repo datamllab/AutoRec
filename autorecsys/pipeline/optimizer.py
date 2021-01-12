@@ -50,7 +50,7 @@ class RatingPredictionOptimizer(Block):
         return tf.keras.losses.MeanSquaredError(name='mse')
 
 
-class PointWiseOptimizer(Block):
+class CTRPredictionOptimizer(Block):
     """ For the CTR (click-through rate) prediction task, this module employs the 'sigmoid' activation function and
     the 'BinaryCrossentropy' loss and metric for training and evaluation.
 

@@ -23,10 +23,6 @@ def dataset_shape(dataset):
     return tf.compat.v1.data.get_output_shapes(dataset)
 
 
-def snake(match):
-    return match.group(1).lower() + "_" + match.group(2).lower()
-
-
 def to_snake_case(name):
     """ Convert the given class name to snake case.
 
@@ -36,16 +32,11 @@ def to_snake_case(name):
     # Returns
         String name of the class in snake case.
     """
-    insecure = re.sub(r"(.+?)([A-Z])", snake, name, 0)    
-    insecure = insecure.lower()    
-    replace_chars = "~`!@#$%^&*()-+={[}]|\:;<,>.? "
-    for c in replace_chars:
-        insecure = insecure.replace(c, "_")    
-    # If the class is private the name starts with "_" which is not secure
-    # for creating scopes. We prefix the name with "private" in this case.
+    intermediate = re.sub('(.)([A-Z][a-z0-9]+)', r'\1_\2', name)
+    insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
+
     if insecure[0] != '_':
         return insecure
-
     # A private class (starts with "_") is not secure for creating scopes and is thus prefixed w/ "private".
     return 'private' + insecure
 

@@ -97,8 +97,8 @@ PAGES = {
     'optimizer.md': [
         'autorecsys.pipeline.optimizer.RatingPredictionOptimizer',
         'autorecsys.pipeline.optimizer.RatingPredictionOptimizer.build',
-        'autorecsys.pipeline.optimizer.PointWiseOptimizer',
-        'autorecsys.pipeline.optimizer.PointWiseOptimizer.build',
+        'autorecsys.pipeline.optimizer.CTRPredictionOptimizer',
+        'autorecsys.pipeline.optimizer.CTRPredictionOptimizer.build',
     ],
     'recommender.md': [
         'autorecsys.recommender.RPRecommender',
