@@ -87,10 +87,10 @@ def build_autorec(emb_dict):
         emb_list = [emb for _, emb in emb_dict.items()]
         output = HyperInteraction()(emb_list)
     else:
-        sparse_feat_bottom_output = [HyperInteraction(meta_interator_num=2)([sparse_feat_emb])] if 'sparse' in emb_dict else []
-        dense_feat_bottom_output = [HyperInteraction(meta_interator_num=2)([dense_feat_emb])] if 'dense' in emb_dict else []
-        top_mlp_output = HyperInteraction(meta_interator_num=2)(sparse_feat_bottom_output + dense_feat_bottom_output)
-        output = HyperInteraction(meta_interator_num=2)([top_mlp_output])
+        sparse_feat_bottom_output = [HyperInteraction(meta_interactor_num=2)([sparse_feat_emb])] if 'sparse' in emb_dict else []
+        dense_feat_bottom_output = [HyperInteraction(meta_interactor_num=2)([dense_feat_emb])] if 'dense' in emb_dict else []
+        top_mlp_output = HyperInteraction(meta_interactor_num=2)(sparse_feat_bottom_output + dense_feat_bottom_output)
+        output = HyperInteraction(meta_interactor_num=2)([top_mlp_output])
     return output
 
 

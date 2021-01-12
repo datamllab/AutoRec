@@ -31,9 +31,6 @@ class TestOptimizers(unittest.TestCase):
                        tf.random.uniform([self.batch, self.emb], dtype=tf.float32)]
 
     def test_RatingPredictionOptimizer(self):
-        """
-        Test class RatingPredictionOptimizer in optimizer.py
-        """
         hp = hp_module.HyperParameters()
         optimizer = RatingPredictionOptimizer()
         output = optimizer.build(hp, self.inputs)

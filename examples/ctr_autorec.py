@@ -41,9 +41,9 @@ sparse_feat_emb = SparseFeatureMapper(
     embedding_dim=2)(sparse_input_node)
 
 # Step 2.2: Setup interactors to handle models
-sparse_feat_bottom_output = HyperInteraction(meta_interator_num=2)([sparse_feat_emb])
-dense_feat_bottom_output = HyperInteraction(meta_interator_num=2)([dense_feat_emb])
-hyper_output = HyperInteraction(meta_interator_num=2)([sparse_feat_bottom_output, dense_feat_bottom_output])
+sparse_feat_bottom_output = HyperInteraction(meta_interactor_num=2)([sparse_feat_emb])
+dense_feat_bottom_output = HyperInteraction(meta_interactor_num=2)([dense_feat_emb])
+hyper_output = HyperInteraction(meta_interactor_num=2)([sparse_feat_bottom_output, dense_feat_bottom_output])
 
 # Step 2.3: Setup optimizer to handle the target task
 output = PointWiseOptimizer()(hyper_output)

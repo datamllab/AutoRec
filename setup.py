@@ -25,7 +25,7 @@ setup(
         'scikit-learn==0.21.3',
         'scipy==1.3.1',
         'tabulate==0.8.5',
-        'tensorboard==2.0.0',
+        'tensorboard==2.4.0',
         'tensorflow-gpu==2.2.0',
         'termcolor==1.1.0',
         'terminaltables==3.1.0',
