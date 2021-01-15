@@ -15,8 +15,7 @@ import tensorflow as tf
 
 import logging
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer
-from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, InnerProductInteraction, RatingPredictionOptimizer
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 

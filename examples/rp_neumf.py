@@ -7,8 +7,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 import logging
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
-from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, InnerProductInteraction,\
+    RatingPredictionOptimizer
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 

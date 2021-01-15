@@ -10,10 +10,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import logging
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, DenseFeatureMapper, SparseFeatureMapper, \
-                        ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, \
-                        CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, CTRPredictionOptimizer
-from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, \
+    CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, InnerProductInteraction, CTRPredictionOptimizer
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor, AvazuPreprocessor
 from autorecsys.recommender import CTRRecommender
 

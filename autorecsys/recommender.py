@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from autorecsys.pipeline.graph import HyperGraph
 
 
-class RPRecommender(HyperGraph):
+class RPRecommender(HyperGraph):  # pragma: no cover
     """A rating prediction HyperModel based on connected Blocks and HyperBlocks.
 
     # Arguments
@@ -14,7 +14,7 @@ class RPRecommender(HyperGraph):
         super().__init__(**kwargs)
 
 
-class CTRRecommender(HyperGraph):
+class CTRRecommender(HyperGraph):  # pragma: no cover
     """A CTR (click-through rate) prediction HyperModel based on connected Blocks and HyperBlocks.
 
     # Arguments

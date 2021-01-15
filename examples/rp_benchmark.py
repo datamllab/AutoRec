@@ -18,10 +18,9 @@ logging.basicConfig(stream=sys.stdout,
 
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
-    ElementwiseInteraction
-from autorecsys.pipeline.interactor import InnerProductInteraction
-from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
+from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction,\
+    InnerProductInteraction
+from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 
 
