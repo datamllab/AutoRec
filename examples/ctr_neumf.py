@@ -24,18 +24,18 @@ train_X, train_y, val_X, val_y, test_X, test_y = criteo.preprocess()
 
 # build the pipeline.
 input = Input(shape=[criteo.get_categorical_count()])
-user_emb_gmf = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+user_emb_gmf = LatentFactorMapper(column_id=0,
+                                  num_of_entities=10000,
                                   embedding_dim=64)(input)
-item_emb_gmf = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+item_emb_gmf = LatentFactorMapper(column_id=1,
+                                  num_of_entities=10000,
                                   embedding_dim=64)(input)
 
-user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                  id_num=10000,
+user_emb_mlp = LatentFactorMapper(column_id=0,
+                                  num_of_entities=10000,
                                   embedding_dim=64)(input)
-item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                  id_num=10000,
+item_emb_mlp = LatentFactorMapper(column_id=1,
+                                  num_of_entities=10000,
                                   embedding_dim=64)(input)
 innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
 mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
