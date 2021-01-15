@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="http://autokeras.org/examples/ctr_deepfm_test_avazu/">
+        <link rel="canonical" href="http://autokeras.org/tutorials/Overview/">
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
@@ -18,7 +18,7 @@
     
     
       
-        <title>Ctr deepfm test avazu - AutoRec</title>
+        <title>Overview - AutoRec</title>
       
     
     
@@ -64,6 +64,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#autorec-10-tutorial" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -90,7 +95,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Ctr deepfm test avazu
+              Overview
             
           </span>
         </div>
@@ -212,10 +217,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
     <label class="md-nav__link" for="nav-3">
       Tutorials
       <span class="md-nav__icon md-icon"></span>
@@ -232,11 +239,104 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../tutorials/Overview/" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Overview
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
       Overview
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-task" class="md-nav__link">
+    Supported Task
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#searchable-customized-model" class="md-nav__link">
+    Searchable Customized Model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizable-nodesblocks" class="md-nav__link">
+    Customizable Nodes/Blocks
+  </a>
+  
+    <nav class="md-nav" aria-label="Customizable Nodes/Blocks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#preprocessor" class="md-nav__link">
+    Preprocessor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node" class="md-nav__link">
+    Node
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocks" class="md-nav__link">
+    Blocks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactor" class="md-nav__link">
+    Interactor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimizer" class="md-nav__link">
+    Optimizer
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -266,7 +366,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_AutoInt/" class="md-nav__link">
+    <a href="../CTR_AutoInt/" class="md-nav__link">
       CTR AutoInt
     </a>
   </li>
@@ -278,7 +378,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_CrossNet/" class="md-nav__link">
+    <a href="../CTR_CrossNet/" class="md-nav__link">
       CTR CrossNet
     </a>
   </li>
@@ -290,7 +390,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_DeepFM/" class="md-nav__link">
+    <a href="../CTR_DeepFM/" class="md-nav__link">
       CTR DeepFM
     </a>
   </li>
@@ -302,7 +402,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_DLRM/" class="md-nav__link">
+    <a href="../CTR_DLRM/" class="md-nav__link">
       CTR DLRM
     </a>
   </li>
@@ -314,7 +414,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_NeuMF/" class="md-nav__link">
+    <a href="../CTR_NeuMF/" class="md-nav__link">
       CTR NeuMF
     </a>
   </li>
@@ -326,7 +426,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/RP_MF/" class="md-nav__link">
+    <a href="../RP_MF/" class="md-nav__link">
       RP MF
     </a>
   </li>
@@ -338,7 +438,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/RP_NeuMF/" class="md-nav__link">
+    <a href="../RP_NeuMF/" class="md-nav__link">
       RP NeuMF
     </a>
   </li>
@@ -375,7 +475,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_AutoRec/" class="md-nav__link">
+    <a href="../CTR_AutoRec/" class="md-nav__link">
       CTR AutoRec
     </a>
   </li>
@@ -387,7 +487,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/RP_AutoRec/" class="md-nav__link">
+    <a href="../RP_AutoRec/" class="md-nav__link">
       RP AutoRec
     </a>
   </li>
@@ -531,75 +631,153 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-task" class="md-nav__link">
+    Supported Task
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#searchable-customized-model" class="md-nav__link">
+    Searchable Customized Model
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizable-nodesblocks" class="md-nav__link">
+    Customizable Nodes/Blocks
+  </a>
+  
+    <nav class="md-nav" aria-label="Customizable Nodes/Blocks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#preprocessor" class="md-nav__link">
+    Preprocessor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node" class="md-nav__link">
+    Node
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blocks" class="md-nav__link">
+    Blocks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interactor" class="md-nav__link">
+    Interactor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimizer" class="md-nav__link">
+    Optimizer
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
               
                 
                 
-                  <h1>Ctr deepfm test avazu</h1>
-                
-                <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;7&quot;</span>
-
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">autorecsys.auto_search</span> <span class="kn">import</span> <span class="n">Search</span>
-<span class="kn">from</span> <span class="nn">autorecsys.pipeline</span> <span class="kn">import</span> <span class="n">Input</span><span class="p">,</span> <span class="n">DenseFeatureMapper</span><span class="p">,</span> <span class="n">SparseFeatureMapper</span><span class="p">,</span> <span class="n">FMInteraction</span><span class="p">,</span> <span class="n">MLPInteraction</span><span class="p">,</span> <span class="n">PointWiseOptimizer</span>
-<span class="kn">from</span> <span class="nn">autorecsys.recommender</span> <span class="kn">import</span> <span class="n">CTRRecommender</span>
-<span class="kn">from</span> <span class="nn">autorecsys.pipeline.preprocessor</span> <span class="kn">import</span> <span class="n">CriteoPreprocessor</span><span class="p">,</span> <span class="n">AvazuPreprocessor</span>
-<span class="kn">from</span> <span class="nn">autorecsys.utils.common</span> <span class="kn">import</span> <span class="n">set_seed</span>
-
-
-<span class="c1"># logging setting</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-
-
-
-
-
-
-
-<span class="n">avazu</span> <span class="o">=</span> <span class="n">AvazuPreprocessor</span><span class="p">()</span>
-<span class="n">train_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">val_X</span><span class="p">,</span> <span class="n">val_y</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">avazu</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
-<span class="n">train_X</span> <span class="o">=</span> <span class="n">avazu</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">train_X</span><span class="p">)</span>
-<span class="n">val_X</span> <span class="o">=</span> <span class="n">avazu</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">val_X</span><span class="p">)</span>
-
-<span class="n">sparse_input_node</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">avazu</span><span class="o">.</span><span class="n">categorical_columns</span><span class="p">)])</span>
-
-<span class="c1"># Step 1: Mapper</span>
-<span class="n">sparse_feat_emb</span> <span class="o">=</span> <span class="n">SparseFeatureMapper</span><span class="p">(</span>
-    <span class="n">num_of_fields</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">avazu</span><span class="o">.</span><span class="n">categorical_columns</span><span class="p">),</span>
-    <span class="n">hash_size</span><span class="o">=</span><span class="n">avazu</span><span class="o">.</span><span class="n">get_hash_size</span><span class="p">(),</span>
-    <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">sparse_input_node</span><span class="p">)</span>
-
-<span class="c1"># Step 2.1: Interactor</span>
-<span class="n">fm_output</span> <span class="o">=</span> <span class="n">FMInteraction</span><span class="p">()([</span><span class="n">sparse_feat_emb</span><span class="p">])</span>
-
-<span class="c1"># Step 2.2: Interactor</span>
-<span class="n">top_mlp_output</span> <span class="o">=</span> <span class="n">MLPInteraction</span><span class="p">()([</span><span class="n">fm_output</span><span class="p">])</span>
-
-<span class="c1"># Step 3: Optimizer</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">PointWiseOptimizer</span><span class="p">()(</span><span class="n">top_mlp_output</span><span class="p">)</span>
-
-<span class="c1"># Step 4: Recommender wrapper</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">CTRRecommender</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">sparse_input_node</span><span class="p">],</span>
-                       <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-
-
-<span class="c1"># AutoML search and predict.</span>
-<span class="n">searcher</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">tuner</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span>
-                  <span class="n">tuner_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;max_trials&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},)</span>
-<span class="n">searcher</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">train_y</span><span class="p">,</span> <span class="n">x_val</span><span class="o">=</span><span class="n">val_X</span><span class="p">,</span> <span class="n">y_val</span><span class="o">=</span><span class="n">val_y</span><span class="p">,</span>
-                <span class="n">objective</span><span class="o">=</span><span class="s1">&#39;val_BinaryCrossentropy&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
-
-<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;First 10 Predicted Ratings: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">searcher</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">val_X</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]))</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Predicting BinaryCrossentropy: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">searcher</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">val_X</span><span class="p">,</span> <span class="n">y_true</span><span class="o">=</span><span class="n">val_y</span><span class="p">)))</span>
-</code></pre></div>
+                <h1 id="autorec-10-tutorial">AutoRec 1.0 Tutorial</h1>
+<h2 id="supported-task">Supported Task</h2>
+<p>AutoRec supports two tasks with several built-in models. You can click the link below to see the details of each task/models.</p>
+<p>Click-Through rate (CTR)</p>
+<ul>
+<li><a href="../CTR_AutoInt/">CTR AutoInt</a></li>
+<li><a href="../CTR_AutoRec/">CTR AutoRec</a></li>
+<li><a href="CTR_Crossnet.md">CTR CrossNet</a></li>
+<li><a href="CTR_Deepfm.md">CTR DeepFM</a></li>
+<li><a href="../CTR_DLRM/">CTR DLRM</a></li>
+<li><a href="../CTR_NeuMF/">CTR NeuMF</a></li>
+</ul>
+<p>Rating Prediction (RP)</p>
+<ul>
+<li><a href="../RP_MF/">RP MF</a></li>
+<li><a href="../RP_NeuMF/">RP NeuMF</a></li>
+</ul>
+<h2 id="searchable-customized-model">Searchable Customized Model</h2>
+<p>You can quickly construct a high level architecture for your own searchable model. AutoRec will search for the best model.</p>
+<ul>
+<li><a href="../CTR_AutoRec/">CTR AutoRec</a></li>
+<li><a href="../RP_AutoRec/">RP AutoRec</a></li>
+</ul>
+<h2 id="customizable-nodesblocks">Customizable Nodes/Blocks</h2>
+<p>These are predefined input Nodes/Blocks where you can customize your own stacked up model. You can click the link below to redirect. </p>
+<h4 id="preprocessor">Preprocessor</h4>
+<ul>
+<li>BasePreprocessor</li>
+</ul>
+<h4 id="node">Node</h4>
+<ul>
+<li>Input</li>
+</ul>
+<h4 id="blocks">Blocks</h4>
+<ul>
+<li>Mapper</li>
+<li>DenseFeatureMapper</li>
+<li>SparseFeatureMapper</li>
+</ul>
+<h4 id="interactor">Interactor</h4>
+<ul>
+<li>RandomSelectInteraction</li>
+<li>ConcatenateInteraction</li>
+<li>InnerProductInteraction</li>
+<li>ElementwiseInteraction</li>
+<li>MLPInteraction</li>
+<li>HyperInteraction</li>
+<li>FMInteraction</li>
+<li>CrossNetInteraction</li>
+<li>SelfAttentionInteraction</li>
+</ul>
+<h4 id="optimizer">Optimizer</h4>
+<ul>
+<li>CTROptimizer</li>
+<li>RPOptimizer</li>
+</ul>
                 
               
               
@@ -614,6 +792,41 @@
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../../install/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Installation
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../CTR_AutoInt/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                CTR AutoInt
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">

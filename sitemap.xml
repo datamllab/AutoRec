@@ -1,43 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>http://autokeras.org/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/install/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/Overview/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/CTR_AutoInt/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/CTR_CrossNet/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/CTR_DeepFM/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/CTR_DLRM/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/CTR_NeuMF/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/RP_MF/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/RP_NeuMF/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/CTR_AutoRec/</loc>
+     <lastmod>2021-01-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url><url>
+     <loc>http://autokeras.org/tutorials/RP_AutoRec/</loc>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/preprocessor/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/mapper/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/node/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/interactor/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/optimizer/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/recommender/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/auto_search/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>http://autokeras.org/about/</loc>
-     <lastmod>2020-10-30</lastmod>
+     <lastmod>2021-01-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>

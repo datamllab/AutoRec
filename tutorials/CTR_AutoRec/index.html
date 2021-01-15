@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="http://autokeras.org/examples/ctr_autorec/">
+        <link rel="canonical" href="http://autokeras.org/tutorials/CTR_AutoRec/">
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
@@ -18,7 +18,7 @@
     
     
       
-        <title>Ctr autorec - AutoRec</title>
+        <title>CTR AutoRec - AutoRec</title>
       
     
     
@@ -64,6 +64,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#autorec" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -90,7 +95,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Ctr autorec
+              CTR AutoRec
             
           </span>
         </div>
@@ -212,10 +217,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
     <label class="md-nav__link" for="nav-3">
       Tutorials
       <span class="md-nav__icon md-icon"></span>
@@ -234,7 +241,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/Overview/" class="md-nav__link">
+    <a href="../Overview/" class="md-nav__link">
       Overview
     </a>
   </li>
@@ -266,7 +273,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_AutoInt/" class="md-nav__link">
+    <a href="../CTR_AutoInt/" class="md-nav__link">
       CTR AutoInt
     </a>
   </li>
@@ -278,7 +285,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_CrossNet/" class="md-nav__link">
+    <a href="../CTR_CrossNet/" class="md-nav__link">
       CTR CrossNet
     </a>
   </li>
@@ -290,7 +297,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_DeepFM/" class="md-nav__link">
+    <a href="../CTR_DeepFM/" class="md-nav__link">
       CTR DeepFM
     </a>
   </li>
@@ -302,7 +309,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_DLRM/" class="md-nav__link">
+    <a href="../CTR_DLRM/" class="md-nav__link">
       CTR DLRM
     </a>
   </li>
@@ -314,7 +321,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/CTR_NeuMF/" class="md-nav__link">
+    <a href="../CTR_NeuMF/" class="md-nav__link">
       CTR NeuMF
     </a>
   </li>
@@ -326,7 +333,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/RP_MF/" class="md-nav__link">
+    <a href="../RP_MF/" class="md-nav__link">
       RP MF
     </a>
   </li>
@@ -338,7 +345,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/RP_NeuMF/" class="md-nav__link">
+    <a href="../RP_NeuMF/" class="md-nav__link">
       RP NeuMF
     </a>
   </li>
@@ -353,10 +360,12 @@
           
           
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3" >
+    <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3" checked>
     <label class="md-nav__link" for="nav-3-3">
       Searchable Models
       <span class="md-nav__icon md-icon"></span>
@@ -373,11 +382,49 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../tutorials/CTR_AutoRec/" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        CTR AutoRec
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
       CTR AutoRec
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-simple-example-below" class="md-nav__link">
+    A simple example below
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -387,7 +434,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/RP_AutoRec/" class="md-nav__link">
+    <a href="../RP_AutoRec/" class="md-nav__link">
       RP AutoRec
     </a>
   </li>
@@ -531,17 +578,55 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-simple-example-below" class="md-nav__link">
+    A simple example below
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
               
                 
                 
-                  <h1>Ctr autorec</h1>
-                
-                <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+                <p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"/></svg></span> <a href="https://colab.research.google.com/github/datamllab/AutoRec/blob/tutorial_ipynb/docs/ipynb_/CTR_AutoRec.ipynb"><strong>View in Colab</strong></a> &nbsp; <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg></span> <a href="https://github.com/datamllab/AutoRec/tree/master/examples/ctr_autorec.py"><strong>GitHub source</strong></a></p>
+<div class="highlight"><pre><span></span><code><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">autorec</span>
+</code></pre></div>
+<h1 id="autorec">AutoRec</h1>
+<p><em>Click-through rate</em></p>
+<p>Description:
+Our AutoRec has a specaility when you want to search a model without any prior knowledge. Autorec selects different blocks in the interactor. Autorec is especially useful for 1) users who need the optimal model after systematic exploration and  2) users who wants to contemplate about the intuition behind the searched model.</p>
+<h2 id="a-simple-example-below">A simple example below</h2>
+<p><strong>Step 0:Imports and Configurations</strong></p>
+<p>First, handle the imports with the correct configurations set. Also include the logging settings here.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;7&quot;</span>
-
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -555,48 +640,69 @@
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-<span class="c1"># Step 1: Preprocess data</span>
-<span class="n">criteo</span> <span class="o">=</span> <span class="n">CriteoPreprocessor</span><span class="p">()</span>  <span class="c1"># automatically set up for preprocessing the Criteo dataset</span>
+</code></pre></div>
+<p><strong>Step 1: Preprocess data</strong></p>
+<p>CriteoPreprocessor() is a already built-in preprocessor for the Criteo dataset. </p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Step 1: Preprocess data</span>
+<span class="n">criteo</span> <span class="o">=</span> <span class="n">CriteoPreprocessor</span><span class="p">()</span>  <span class="c1"># the default arguments are setup to preprocess the Criteo example dataset</span>
 <span class="n">train_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">val_X</span><span class="p">,</span> <span class="n">val_y</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
-
-<span class="c1"># Step 2: Build model</span>
-<span class="n">dense_input_node</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_numerical_count</span><span class="p">()])</span>
-<span class="n">sparse_input_node</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_categorical_count</span><span class="p">()])</span>
-
+<span class="n">train_X_numerical</span><span class="p">,</span> <span class="n">train_X_categorical</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">train_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">train_X</span><span class="p">)</span>
+<span class="n">val_X_numerical</span><span class="p">,</span> <span class="n">val_X_categorical</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">val_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">val_X</span><span class="p">)</span>
+<span class="n">test_X_numerical</span><span class="p">,</span> <span class="n">test_X_categorical</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">test_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">test_X</span><span class="p">)</span>
+<span class="n">numerical_count</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_numerical_count</span><span class="p">()</span>
+<span class="n">categorical_count</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_categorical_count</span><span class="p">()</span>
+<span class="n">hash_size</span> <span class="o">=</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_hash_size</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>Step 2.0: Build the recommender</strong></p>
+<p>Creates the pipeline</p>
+<p>Models can be customized for a searchable recommender</p>
+<p><strong>Step 2.1: Setup mappers to handle inputs</strong></p>
+<p>This step is to build a input node for your data. Criteo dataset has both dense &amp; sparse inputs.</p>
+<div class="highlight"><pre><span></span><code><span class="n">dense_input_node</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">numerical_count</span><span class="p">])</span> <span class="c1"># shape=13 </span>
+<span class="n">sparse_input_node</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">categorical_count</span><span class="p">])</span> <span class="c1"># shape=26</span>
 <span class="n">dense_feat_emb</span> <span class="o">=</span> <span class="n">DenseFeatureMapper</span><span class="p">(</span>
-    <span class="n">num_of_fields</span><span class="o">=</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_numerical_count</span><span class="p">(),</span>
+    <span class="n">num_of_fields</span><span class="o">=</span><span class="n">numerical_count</span><span class="p">,</span>
     <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">dense_input_node</span><span class="p">)</span>
 <span class="n">sparse_feat_emb</span> <span class="o">=</span> <span class="n">SparseFeatureMapper</span><span class="p">(</span>
-    <span class="n">num_of_fields</span><span class="o">=</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_categorical_count</span><span class="p">(),</span>
-    <span class="n">hash_size</span><span class="o">=</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_hash_size</span><span class="p">(),</span>
+    <span class="n">num_of_fields</span><span class="o">=</span><span class="n">categorical_count</span><span class="p">,</span>
+    <span class="n">hash_size</span><span class="o">=</span><span class="n">hash_size</span><span class="p">,</span>
     <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">sparse_input_node</span><span class="p">)</span>
-
-<span class="n">sparse_feat_bottom_output</span> <span class="o">=</span> <span class="n">HyperInteraction</span><span class="p">(</span><span class="n">meta_interator_num</span><span class="o">=</span><span class="mi">2</span><span class="p">)([</span><span class="n">sparse_feat_emb</span><span class="p">])</span>
+</code></pre></div>
+<p><strong>Step 2.2: Setup interactors to handle models</strong></p>
+<p>This example has one interactor that is used three times. Any of other interactors can be stacked of your choice. </p>
+<div class="highlight"><pre><span></span><code><span class="n">sparse_feat_bottom_output</span> <span class="o">=</span> <span class="n">HyperInteraction</span><span class="p">(</span><span class="n">meta_interator_num</span><span class="o">=</span><span class="mi">2</span><span class="p">)([</span><span class="n">sparse_feat_emb</span><span class="p">])</span>
 <span class="n">dense_feat_bottom_output</span> <span class="o">=</span> <span class="n">HyperInteraction</span><span class="p">(</span><span class="n">meta_interator_num</span><span class="o">=</span><span class="mi">2</span><span class="p">)([</span><span class="n">dense_feat_emb</span><span class="p">])</span>
 <span class="n">hyper_output</span> <span class="o">=</span> <span class="n">HyperInteraction</span><span class="p">(</span><span class="n">meta_interator_num</span><span class="o">=</span><span class="mi">2</span><span class="p">)([</span><span class="n">sparse_feat_bottom_output</span><span class="p">,</span> <span class="n">dense_feat_bottom_output</span><span class="p">])</span>
-
-<span class="n">output</span> <span class="o">=</span> <span class="n">PointWiseOptimizer</span><span class="p">()(</span><span class="n">hyper_output</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Step 2.3: Setup optimizer to handle the target task</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">output</span> <span class="o">=</span> <span class="n">PointWiseOptimizer</span><span class="p">()(</span><span class="n">hyper_output</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">CTRRecommender</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">dense_input_node</span><span class="p">,</span> <span class="n">sparse_input_node</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-
-<span class="c1"># Step 3: Build Searcher</span>
-<span class="n">searcher</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+</code></pre></div>
+<p><strong>Step 3: Build the searcher</strong></p>
+<p>This provides the search algorithm.</p>
+<div class="highlight"><pre><span></span><code><span class="n">searcher</span> <span class="o">=</span> <span class="n">Search</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
                   <span class="n">tuner</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span>
                   <span class="n">tuner_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;max_trials&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;overwrite&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
                   <span class="p">)</span>
-
-<span class="c1"># Step 4: Search model &amp; HP</span>
-<span class="n">searcher</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">train_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">train_X</span><span class="p">)],</span>
+</code></pre></div>
+<p><strong>Step 4: Use the searcher to search the recommender</strong></p>
+<p>Search the best model and validate accuracy of the model</p>
+<p>Inputs such as objective, batch_size, call backs can be customized for you own model.</p>
+<div class="highlight"><pre><span></span><code><span class="n">searcher</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">train_X_numerical</span><span class="p">,</span> <span class="n">train_X_categorical</span><span class="p">],</span>
                 <span class="n">y</span><span class="o">=</span><span class="n">train_y</span><span class="p">,</span>
-                <span class="n">x_val</span><span class="o">=</span><span class="p">[</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">val_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">val_X</span><span class="p">)],</span>
+                <span class="n">x_val</span><span class="o">=</span><span class="p">[</span><span class="n">val_X_numerical</span><span class="p">,</span> <span class="n">val_X_categorical</span><span class="p">],</span>
                 <span class="n">y_val</span><span class="o">=</span><span class="n">val_y</span><span class="p">,</span>
                 <span class="n">objective</span><span class="o">=</span><span class="s1">&#39;val_BinaryCrossentropy&#39;</span><span class="p">,</span>
                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
-                <span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
-                <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span> 
+                <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
                 <span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;First 10 Predicted Ratings: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">searcher</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">val_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">val_X</span><span class="p">)])[:</span><span class="mi">10</span><span class="p">]))</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Predicting Accuracy (logloss): </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">searcher</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">criteo</span><span class="o">.</span><span class="n">get_x_numerical</span><span class="p">(</span><span class="n">val_X</span><span class="p">),</span> <span class="n">criteo</span><span class="o">.</span><span class="n">get_x_categorical</span><span class="p">(</span><span class="n">val_X</span><span class="p">)],</span> <span class="n">y_true</span><span class="o">=</span><span class="n">val_y</span><span class="p">)))</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Validation Accuracy (logloss): </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">searcher</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">val_X_numerical</span><span class="p">,</span> <span class="n">val_X_categorical</span><span class="p">],</span>
+                                                                         <span class="n">y_true</span><span class="o">=</span><span class="n">val_y</span><span class="p">)))</span>
+</code></pre></div>
+<p><strong>Step 5: Evaluate the searched model</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Test Accuracy (logloss): </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">searcher</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">test_X_numerical</span><span class="p">,</span> <span class="n">test_X_categorical</span><span class="p">],</span>
+                                                                   <span class="n">y_true</span><span class="o">=</span><span class="n">test_y</span><span class="p">)))</span>
 </code></pre></div>
                 
               
@@ -612,6 +718,41 @@
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../RP_NeuMF/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                RP NeuMF
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../RP_AutoRec/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                RP AutoRec
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
