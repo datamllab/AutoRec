@@ -38,8 +38,8 @@ class TestInteractors(unittest.TestCase):
         self.inputs = [tf.constant([[1, 2, 3]], dtype='float32'), tf.constant([[4, 5, 6]], dtype='float32')]
 
     def test_RandomSelectInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         p = {}
         interactor = RandomSelectInteraction(**p)
         ans_state = interactor.get_state()
@@ -69,25 +69,35 @@ class TestInteractors(unittest.TestCase):
         assert all([all(tf.equal(a, s)[0]) for a, s in zip(ans, sol)])  # Assert: [0] unwraps the batch dimension
 
     def test_ConcatenateInteraction(self):
-        """
-        Test class ConcatenateInteraction in interactor.py
-        """
+        # Step 1: Test constructor and get_state
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
+        p = {}
+        interactor = ConcatenateInteraction(**p)
+        ans_state = interactor.get_state()
+        sol_state = {
+            'name': 'concatenate_interaction_1',
+        }
+        assert ans_state == sol_state
 
+        # Step 2: Test set_state
+        p = {}
+        interactor.set_state(p)
+        ans_state = interactor.get_state()
+        sol_state = {
+            'name': 'concatenate_interaction_1',
+        }
+        assert ans_state == sol_state
+
+        # Step 3: Test build and associated functions
+        sol = tf.constant([[1, 2, 3, 4, 5, 6]], dtype='float32')  # Arrange
         hp = hp_module.HyperParameters()
         interactor = ConcatenateInteraction()
-        output = interactor.build(hp, self.inputs)  # Act
-
-        # output
-        assert len(tf.nest.flatten(output)) == 1
-
-        sol = tf.constant([[1, 2, 3, 4, 5, 6]], dtype=tf.float32)  # Arrange
-        assert tf.reduce_all(tf.equal(output, sol))  # Assert
+        ans = interactor.build(hp, self.inputs)  # Act
+        assert all(tf.equal(ans, sol)[0])  # Assert
 
     def test_MLPInteraction(self):
-        """
-        Test class MLPInteraction in interactor.py
-        """
-        # intialize
+        # initialize
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         hp = hp_module.HyperParameters()
         p = {
             'units': 16,
@@ -127,9 +137,7 @@ class TestInteractors(unittest.TestCase):
         assert len(tf.nest.flatten(output)) == 1
 
     def test_FMInteraction(self):
-        """
-        Test class FMInteraction in interactor.py
-        """
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         hp = hp_module.HyperParameters()
         p = {
             'embedding_dim': 8}  # embedding_dim
@@ -157,9 +165,7 @@ class TestInteractors(unittest.TestCase):
         assert len(tf.nest.flatten(output)) == 1
 
     def test_CrossNetInteraction(self):
-        """
-        Test class CrossNetInteraction in interactor.py
-        """
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         hp = hp_module.HyperParameters()
         p = {
             'layer_num': 1}  # embedding_dim
@@ -185,36 +191,10 @@ class TestInteractors(unittest.TestCase):
         # output shape
         output = interactor.build(hp, self.inputs)  # Act
         assert len(tf.nest.flatten(output)) == 1
-        # Step 1: Test constructor and get_state
-        p = {}
-        interactor = ConcatenateInteraction(**p)
-        ans_state = interactor.get_state()
-        sol_state = {
-            'name': 'concatenate_interaction_1',
-        }
-        assert ans_state == sol_state
-
-        # Step 2: Test set_state
-        p = {}
-        interactor.set_state(p)
-        ans_state = interactor.get_state()
-        sol_state = {
-            'name': 'concatenate_interaction_1',
-        }
-        assert ans_state == sol_state
-
-        # Step 3: Test build and associated functions
-        sol = tf.constant([[1, 2, 3, 4, 5, 6]], dtype='float32')  # Arrange
-        hp = hp_module.HyperParameters()
-        interactor = ConcatenateInteraction()
-        ans = interactor.build(hp, self.inputs)  # Act
-        assert all(tf.equal(ans, sol)[0])  # Assert
 
     def test_InnerProductInteraction(self):
-        """
-        Test class InnerProductInteraction in interactor.py
-        """
         # Step 1: Test constructor and get_state
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         p = {}
         interactor = InnerProductInteraction(**p)
         ans_state = interactor.get_state()
@@ -240,8 +220,8 @@ class TestInteractors(unittest.TestCase):
         assert all(tf.equal(ans, sol)[0])  # Assert
 
     def test_ElementwiseInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         p = {
             'elementwise_type': 'average',
         }
@@ -251,7 +231,6 @@ class TestInteractors(unittest.TestCase):
             'name': 'elementwise_interaction_1',
             'elementwise_type': 'average',
         }
-        print(ans_state)
         assert ans_state == sol_state
 
         # Step 2: Test set_state
@@ -298,22 +277,18 @@ class TestInteractors(unittest.TestCase):
         ans = interactor.build(hp, self.inputs)  # Act
         assert all(tf.equal(ans, sol)[0])  # Assert
 
-    def test_MLPInteraction(self):
-        # TODO: Suil
-        pass
-
     def test_HyperInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         p = {
-            'meta_interator_num': 3,
+            'meta_interactor_num': 3,
             'interactor_type': 'ConcatenateInteraction',
         }
         interactor = HyperInteraction(**p)
         ans_state = interactor.get_state()
         sol_state = {
             'name': 'hyper_interaction_1',
-            'meta_interator_num': 3,
+            'meta_interactor_num': 3,
             'interactor_type': 'ConcatenateInteraction',
             'name2interactor': {
                 'RandomSelectInteraction': RandomSelectInteraction,
@@ -330,14 +305,14 @@ class TestInteractors(unittest.TestCase):
 
         # Step 2: Test set_state
         p = {
-            'meta_interator_num': 6,
+            'meta_interactor_num': 6,
             'interactor_type': 'MLPInteraction',
         }
         interactor.set_state(p)
         ans_state = interactor.get_state()
         sol_state = {
             'name': 'hyper_interaction_1',
-            'meta_interator_num': 6,
+            'meta_interactor_num': 6,
             'interactor_type': 'MLPInteraction',
             'name2interactor': {
                 'RandomSelectInteraction': RandomSelectInteraction,
@@ -358,17 +333,9 @@ class TestInteractors(unittest.TestCase):
         sol = 1
         assert len(tf.nest.flatten(ans)) == sol
 
-    def test_FMInteraction(self):
-        # TODO: Suil
-        pass
-
-    def test_CrossNetInteraction(self):
-        # TODO: Suil
-        pass
-
     def test_SelfAttentionInteraction(self):
-        # TODO: Sean
         # Step 1: Test constructor and get_state
+        tf.keras.backend.reset_uids()  # prevent get_state() from getting uid based on the interactor's previous calls
         p = {
             'embedding_dim': 8,
             'att_embedding_dim': 8,

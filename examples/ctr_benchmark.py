@@ -10,11 +10,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import logging
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, DenseFeatureMapper, SparseFeatureMapper, \
-                        ElementwiseInteraction, FMInteraction, MLPInteraction, ConcatenateInteraction, \
-                        CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, \
-                        PointWiseOptimizer
-from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, \
+    CrossNetInteraction, SelfAttentionInteraction, HyperInteraction, InnerProductInteraction, CTRPredictionOptimizer
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor, AvazuPreprocessor
 from autorecsys.recommender import CTRRecommender
 
@@ -87,10 +84,10 @@ def build_autorec(emb_dict):
         emb_list = [emb for _, emb in emb_dict.items()]
         output = HyperInteraction()(emb_list)
     else:
-        sparse_feat_bottom_output = [HyperInteraction(meta_interator_num=2)([sparse_feat_emb])] if 'sparse' in emb_dict else []
-        dense_feat_bottom_output = [HyperInteraction(meta_interator_num=2)([dense_feat_emb])] if 'dense' in emb_dict else []
-        top_mlp_output = HyperInteraction(meta_interator_num=2)(sparse_feat_bottom_output + dense_feat_bottom_output)
-        output = HyperInteraction(meta_interator_num=2)([top_mlp_output])
+        sparse_feat_bottom_output = [HyperInteraction(meta_interactor_num=2)([sparse_feat_emb])] if 'sparse' in emb_dict else []
+        dense_feat_bottom_output = [HyperInteraction(meta_interactor_num=2)([dense_feat_emb])] if 'dense' in emb_dict else []
+        top_mlp_output = HyperInteraction(meta_interactor_num=2)(sparse_feat_bottom_output + dense_feat_bottom_output)
+        output = HyperInteraction(meta_interactor_num=2)([top_mlp_output])
     return output
 
 
@@ -177,7 +174,7 @@ if __name__ == '__main__':
         output = build_autorec(emb_dict)
 
     # Step 2.3: Setup optimizer to handle the target task
-    output = PointWiseOptimizer()(output)
+    output = CTRPredictionOptimizer()(output)
     model = CTRRecommender(inputs=input, outputs=output)
 
     # Step 3: Build the searcher, which provides search algorithm

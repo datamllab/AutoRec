@@ -6,9 +6,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import logging
 import tensorflow as tf
-import numpy as np
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, HyperInteraction, PointWiseOptimizer
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, HyperInteraction, CTRPredictionOptimizer
 from autorecsys.recommender import CTRRecommender
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor
 
@@ -41,12 +40,12 @@ sparse_feat_emb = SparseFeatureMapper(
     embedding_dim=2)(sparse_input_node)
 
 # Step 2.2: Setup interactors to handle models
-sparse_feat_bottom_output = HyperInteraction(meta_interator_num=2)([sparse_feat_emb])
-dense_feat_bottom_output = HyperInteraction(meta_interator_num=2)([dense_feat_emb])
-hyper_output = HyperInteraction(meta_interator_num=2)([sparse_feat_bottom_output, dense_feat_bottom_output])
+sparse_feat_bottom_output = HyperInteraction(meta_interactor_num=2)([sparse_feat_emb])
+dense_feat_bottom_output = HyperInteraction(meta_interactor_num=2)([dense_feat_emb])
+hyper_output = HyperInteraction(meta_interactor_num=2)([sparse_feat_bottom_output, dense_feat_bottom_output])
 
 # Step 2.3: Setup optimizer to handle the target task
-output = PointWiseOptimizer()(hyper_output)
+output = CTRPredictionOptimizer()(hyper_output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
 
 # Step 3: Build the searcher, which provides search algorithm

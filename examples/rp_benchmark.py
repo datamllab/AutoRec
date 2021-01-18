@@ -18,10 +18,9 @@ logging.basicConfig(stream=sys.stdout,
 
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction, \
-    ElementwiseInteraction
-from autorecsys.pipeline.interactor import InnerProductInteraction
-from autorecsys.pipeline.preprocessor import MovielensPreprocessor, NetflixPrizePreprocessor
+from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer, HyperInteraction, MLPInteraction,\
+    InnerProductInteraction
+from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 
 
@@ -29,11 +28,11 @@ from autorecsys.recommender import RPRecommender
 
 def build_mf(user_num, item_num):
     input = Input(shape=[2])
-    user_emb = LatentFactorMapper(feat_column_id=0,
-                                  id_num=user_num,
+    user_emb = LatentFactorMapper(column_id=0,
+                                  num_of_entities=user_num,
                                   embedding_dim=64)(input)
-    item_emb = LatentFactorMapper(feat_column_id=1,
-                                  id_num=item_num,
+    item_emb = LatentFactorMapper(column_id=1,
+                                  num_of_entities=item_num,
                                   embedding_dim=64)(input)
     output = InnerProductInteraction()([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
@@ -43,11 +42,11 @@ def build_mf(user_num, item_num):
 
 def build_gmf(user_num, item_num):
     input = Input(shape=[2])
-    user_emb = LatentFactorMapper(feat_column_id=0,
-                                  id_num=user_num,
+    user_emb = LatentFactorMapper(column_id=0,
+                                  num_of_entities=user_num,
                                   embedding_dim=64)(input)
-    item_emb = LatentFactorMapper(feat_column_id=1,
-                                  id_num=item_num,
+    item_emb = LatentFactorMapper(column_id=1,
+                                  num_of_entities=item_num,
                                   embedding_dim=64)(input)
     output = InnerProductInteraction()([user_emb, item_emb])
     output = RatingPredictionOptimizer()(output)
@@ -57,11 +56,11 @@ def build_gmf(user_num, item_num):
 
 def build_mlp(user_num, item_num):
     input = Input(shape=[2])
-    user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                      id_num=user_num,
+    user_emb_mlp = LatentFactorMapper(column_id=0,
+                                      num_of_entities=user_num,
                                       embedding_dim=64)(input)
-    item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                      id_num=user_num,
+    item_emb_mlp = LatentFactorMapper(column_id=1,
+                                      num_of_entities=user_num,
                                       embedding_dim=64)(input)
     output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
     output = RatingPredictionOptimizer()(output)
@@ -71,19 +70,19 @@ def build_mlp(user_num, item_num):
 
 def build_neumf(user_num, item_num):
     input = Input(shape=[2])
-    user_emb_gmf = LatentFactorMapper(feat_column_id=0,
-                                      id_num=user_num,
+    user_emb_gmf = LatentFactorMapper(column_id=0,
+                                      num_of_entities=user_num,
                                       embedding_dim=64)(input)
-    item_emb_gmf = LatentFactorMapper(feat_column_id=1,
-                                      id_num=item_num,
+    item_emb_gmf = LatentFactorMapper(column_id=1,
+                                      num_of_entities=item_num,
                                       embedding_dim=64)(input)
     innerproduct_output = InnerProductInteraction()([user_emb_gmf, item_emb_gmf])
 
-    user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                      id_num=user_num,
+    user_emb_mlp = LatentFactorMapper(column_id=0,
+                                      num_of_entities=user_num,
                                       embedding_dim=64)(input)
-    item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                      id_num=item_num,
+    item_emb_mlp = LatentFactorMapper(column_id=1,
+                                      num_of_entities=item_num,
                                       embedding_dim=64)(input)
     mlp_output = MLPInteraction()([user_emb_mlp, item_emb_mlp])
 
@@ -94,18 +93,18 @@ def build_neumf(user_num, item_num):
 
 def build_autorec(user_num, item_num):
     input = Input(shape=[2])
-    user_emb_1 = LatentFactorMapper(feat_column_id=0,
-                                    id_num=user_num,
+    user_emb_1 = LatentFactorMapper(column_id=0,
+                                    num_of_entities=user_num,
                                     embedding_dim=64)(input)
-    item_emb_1 = LatentFactorMapper(feat_column_id=1,
-                                    id_num=item_num,
+    item_emb_1 = LatentFactorMapper(column_id=1,
+                                    num_of_entities=item_num,
                                     embedding_dim=64)(input)
 
-    user_emb_2 = LatentFactorMapper(feat_column_id=0,
-                                    id_num=user_num,
+    user_emb_2 = LatentFactorMapper(column_id=0,
+                                    num_of_entities=user_num,
                                     embedding_dim=64)(input)
-    item_emb_2 = LatentFactorMapper(feat_column_id=1,
-                                    id_num=item_num,
+    item_emb_2 = LatentFactorMapper(column_id=1,
+                                    num_of_entities=item_num,
                                     embedding_dim=64)(input)
 
     output = HyperInteraction()([user_emb_1, item_emb_1, user_emb_2, item_emb_2])

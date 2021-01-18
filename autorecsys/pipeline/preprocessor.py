@@ -1,22 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 from abc import ABCMeta, abstractmethod
-from typing import List
-
 from sklearn.model_selection import train_test_split
-from collections import defaultdict
-
 import pandas as pd
 import numpy as np
-import sys
-import time
-import gc
-import psutil
-import os
 import math
-from pathlib import Path
-from autorecsys.utils.common import load_pickle, save_pickle
 
 
 class BasePreprocessor(metaclass=ABCMeta):
@@ -129,7 +117,7 @@ class BasePreprocessor(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def load_dataset(self): # pragma: no cover
+    def load_dataset(self):  # pragma: no cover
         """ Load CSV data as a Pandas DataFrame object.
         """
         self.data_df = pd.read_csv(self.csv_path, sep=self.delimiter, header=self.header, names=self.columns, dtype=self.dtype_dict)
@@ -254,6 +242,7 @@ class BasePreprocessor(metaclass=ABCMeta):
 
         return x_train, x_test, y_train, y_test
 
+    @abstractmethod
     def preprocess(self):
         """ Apply all preprocess steps.
 

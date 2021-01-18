@@ -5,47 +5,64 @@ import os
 import shutil
 import pandas as pd
 import numpy as np
-import inspect
-import pkgutil
-from collections import OrderedDict
-import importlib
 import tensorflow as tf
 import random
-from tensorflow.python.util import nest
 import pickle
 
 
 def dataset_shape(dataset):
+    """ Get the shape of the dataset.
+
+    Args:
+        dataset (tf.data.Dataset or Tf.data.Iterator): A TensorFlow Dataset or Iterator.
+
+    Returns:
+        A nested structure of tf.TensorShape object matching the structure of the dataset / iterator elements and
+            specifying the shape of the individual components.
+    """
     return tf.compat.v1.data.get_output_shapes(dataset)
 
-def snake(match):
-    return match.group(1).lower() + "_" + match.group(2).lower()
 
-def to_snake_case(name):    
-    insecure = re.sub(r"(.+?)([A-Z])", snake, name, 0)    
-    insecure = insecure.lower()    
-    replaceChars = "~`!@#$%^&*()-+={[}]|\:;<,>.? "
-    for c in replaceChars:
-        insecure = insecure.replace(c, "_")    
-    # If the class is private the name starts with "_" which is not secure
-    # for creating scopes. We prefix the name with "private" in this case.
+def to_snake_case(name):
+    """ Convert the given class name to snake case.
+
+    # Arguments
+        name (str): The name of the class.
+
+    # Returns
+        String name of the class in snake case.
+    """
+    intermediate = re.sub('(.)([A-Z][a-z0-9]+)', r'\1_\2', name)
+    insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
+
     if insecure[0] != '_':
         return insecure
+    # A private class (starts with "_") is not secure for creating scopes and is thus prefixed w/ "private".
     return 'private' + insecure
 
 
 def create_directory(path, remove_existing=False):
+    """ Create the designated directory.
+
+    # Arguments
+        path (str): Path to create the directory.
+        remove_existing (bool): Whether to remove the directory if it already exists.
+    """
     # Create the directory if it doesn't exist.
     if not os.path.exists(path):
         os.mkdir(path)
-    # If it does exist, and remove_existing is specified,
-    # the directory will be removed and recreated.
+    # Remove the preexisting directory if allowed.
     elif remove_existing:
         shutil.rmtree(path)
         os.mkdir(path)
 
 
 def set_device(device_name):
+    """ Set the computational devices used to run models.
+
+    # Arguments
+        device_name (str): Name of the CPU or GPU.
+    """
     if device_name[0:3] == "cpu":
         cpus = tf.config.experimental.list_physical_devices('CPU')
         print("Available CPUs: {}".format(cpus))
@@ -63,6 +80,17 @@ def set_device(device_name):
 
 
 def load_dataframe_input(x):
+    """ Load the input object as a DataFrame or a Series.
+
+    # Note
+        Cover the following classes: None, DataFrame, Series, ndarray, and str.
+
+    # Arguments
+        x (object): The object to be loaded as a DataFrame or Series.
+
+    # Returns
+        The loaded DataFrame or Series.
+    """
     if x is None:
         return None
     if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
@@ -75,24 +103,46 @@ def load_dataframe_input(x):
         res = pd.read_csv(x)
     else:
         raise TypeError(f"cannot load {type(x)} into pandas dataframe")
-    # make sure the returned dataframe's col name data type is string
+
+    # Ensure the type of column names is string
     if isinstance(res, pd.DataFrame):
         res.columns = res.columns.astype('str')
     return res
 
 
 def set_seed(seed=42):
+    """ Set the seed for randomization functions.
+
+    # Note
+        Cover the following libraries: Python, Numpy, and TensorFlow
+
+    # Arguments
+        seed (float): The seed number used to create fixed randomization.
+    """
     random.seed(seed)
     np.random.seed(seed)
     tf.random.set_seed(seed)
 
 
 def save_pickle(path, obj):
-    # TODO: create directory if it does not exist
+    """ Save the input object to the designated path.
+
+    # Arguments
+        path (str): Designated path to save the object.
+        obj (object): The object to be saved.
+    """
     with open(path, 'wb') as f:
         pickle.dump(obj, f)
 
 
 def load_pickle(path):
+    """ Load the object file from the designated path.
+
+    # Arguments
+        path: Designated path to load the object.
+
+    Returns:
+        The loaded object.
+    """
     with open(path, 'rb') as f:
         return pickle.load(f)

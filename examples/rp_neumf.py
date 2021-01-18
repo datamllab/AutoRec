@@ -7,8 +7,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 import logging
 import tensorflow as tf
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, RatingPredictionOptimizer
-from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, MLPInteraction, InnerProductInteraction,\
+    RatingPredictionOptimizer
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 
@@ -33,17 +33,17 @@ user_num, item_num = movielens.get_hash_size()
 # Step 2: Build the recommender, which provides search space
 # Step 2.1: Setup mappers to handle inputs
 input = Input(shape=[2])
-user_emb_gmf = LatentFactorMapper(feat_column_id=0,
-                                  id_num=user_num,
+user_emb_gmf = LatentFactorMapper(column_id=0,
+                                  num_of_entities=user_num,
                                   embedding_dim=64)(input)
-item_emb_gmf = LatentFactorMapper(feat_column_id=1,
-                                  id_num=item_num,
+item_emb_gmf = LatentFactorMapper(column_id=1,
+                                  num_of_entities=item_num,
                                   embedding_dim=64)(input)
-user_emb_mlp = LatentFactorMapper(feat_column_id=0,
-                                  id_num=user_num,
+user_emb_mlp = LatentFactorMapper(column_id=0,
+                                  num_of_entities=user_num,
                                   embedding_dim=64)(input)
-item_emb_mlp = LatentFactorMapper(feat_column_id=1,
-                                  id_num=item_num,
+item_emb_mlp = LatentFactorMapper(column_id=1,
+                                  num_of_entities=item_num,
                                   embedding_dim=64)(input)
 
 # Step 2.2: Setup interactors to handle models

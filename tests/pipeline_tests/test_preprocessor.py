@@ -176,8 +176,9 @@ class TestPreprocessors(unittest.TestCase):
         assert criteo.data_df.shape == (10000, 40)
 
     def test_NetflixPreprocessor(self):
-        netflix = NetflixPrizePreprocessor(non_csv_path=os.path.join(
-            dataset_directory, 'netflix/combined_data_1-10k.txt'), csv_path=os.path.join(dataset_directory, 'netflix/combined_data_1-10k.csv'))
+        netflix = NetflixPrizePreprocessor(
+            non_csv_path=os.path.join(dataset_directory, 'netflix/combined_data_1-10k.txt'),
+            csv_path=os.path.join(dataset_directory, 'netflix/combined_data_1-10k.csv'))
         netflix.preprocess()
         assert netflix.data_df.shape == (10000, 3)
 

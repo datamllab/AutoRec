@@ -15,8 +15,7 @@ import tensorflow as tf
 
 import logging
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, LatentFactorMapper, RatingPredictionOptimizer
-from autorecsys.pipeline.interactor import InnerProductInteraction
+from autorecsys.pipeline import Input, LatentFactorMapper, InnerProductInteraction, RatingPredictionOptimizer
 from autorecsys.pipeline.preprocessor import MovielensPreprocessor
 from autorecsys.recommender import RPRecommender
 
@@ -41,11 +40,11 @@ user_num, item_num = movielens.get_hash_size()
 # Step 2: Build the recommender, which provides search space
 # Step 2.1: Setup mappers to handle inputs
 input = Input(shape=[2])
-user_emb = LatentFactorMapper(feat_column_id=0,
-                              id_num=user_num,
+user_emb = LatentFactorMapper(column_id=0,
+                              num_of_entities=user_num,
                               embedding_dim=64)(input)
-item_emb = LatentFactorMapper(feat_column_id=1,
-                              id_num=item_num,
+item_emb = LatentFactorMapper(column_id=1,
+                              num_of_entities=item_num,
                               embedding_dim=64)(input)
 
 # Step 2.2: Setup interactors to handle models

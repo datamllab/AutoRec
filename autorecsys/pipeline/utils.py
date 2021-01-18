@@ -5,19 +5,27 @@ from tensorflow.keras.layers import Layer
 
 
 class Bias(Layer):
-    """A keras layer with only bias term. 
-      (can be understood as MLP layer with zero W matrix)
-      
-    # Attributes:
-        units (int). The units of all layer in the Bias layer.
-    """
-    def __init__(self, units=32):
-          super(Bias, self).__init__()
+    """ This module builds a Keras layer of bias terms (e.g., MLP layer with zero weight matrix).
 
-          bias_init = tf.zeros_initializer()
-          self.bias = tf.Variable(initial_value=bias_init(shape=(units,),
-                                                    dtype='float32'),
-                               trainable=True)
+    # Arguments
+        units (int): The units of all layer in the Bias layer.
+
+    # Attributes
+        bias (Tensor): The bias layer.
+    """
+
+    def __init__(self, units=32):
+        super(Bias, self).__init__()
+        bias_init = tf.zeros_initializer()
+        self.bias = tf.Variable(initial_value=bias_init(shape=(units,), dtype='float32'), trainable=True)
 
     def call(self, inputs):
-          return inputs + self.bias
+        """ Add the bias layer to the input tensor layer.
+
+        # Arguments
+            inputs (Tensor): List of batch input tensors.
+
+        # Returns
+            List of batch input tensors added with bias tensors.
+        """
+        return inputs + self.bias

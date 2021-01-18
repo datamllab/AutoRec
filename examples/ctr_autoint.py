@@ -5,9 +5,9 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 import logging
 import tensorflow as tf
-import numpy as np
 from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, SelfAttentionInteraction, MLPInteraction, PointWiseOptimizer
+from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, SelfAttentionInteraction,\
+    MLPInteraction, CTRPredictionOptimizer
 from autorecsys.recommender import CTRRecommender
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor
 
@@ -45,7 +45,7 @@ bottom_mlp_output = MLPInteraction()([dense_feat_emb])
 top_mlp_output = MLPInteraction()([attention_output, bottom_mlp_output])
 
 # Step 2.3: Setup optimizer to handle the target task
-output = PointWiseOptimizer()(top_mlp_output)
+output = CTRPredictionOptimizer()(top_mlp_output)
 model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
 
 # Step 3: Build the searcher, which provides search algorithm

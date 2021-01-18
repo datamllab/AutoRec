@@ -6,7 +6,7 @@ import pytest
 import unittest
 import tensorflow as tf
 from autorecsys.pipeline.optimizer import (
-    PointWiseOptimizer,
+    CTRPredictionOptimizer,
     RatingPredictionOptimizer,
 )
 from autorecsys.searcher.core import hyperparameters as hp_module
@@ -31,19 +31,15 @@ class TestOptimizers(unittest.TestCase):
                        tf.random.uniform([self.batch, self.emb], dtype=tf.float32)]
 
     def test_RatingPredictionOptimizer(self):
-        """
-        Test class RatingPredictionOptimizer in optimizer.py
-        """
         hp = hp_module.HyperParameters()
         optimizer = RatingPredictionOptimizer()
         output = optimizer.build(hp, self.inputs)
         assert len(nest.flatten(output)) == 1
         assert output.shape == self.batch
 
-    def test_PointWiseOptimizer(self):
-        # TODO: Sean
+    def test_CTRPredictionOptimizer(self):
         hp = hp_module.HyperParameters()  # Arrange
-        optimizer = PointWiseOptimizer()
+        optimizer = CTRPredictionOptimizer()
         output = optimizer.build(hp, self.inputs)  # Act
         assert len(tf.nest.flatten(output)) == 1  # Assert
         assert output.shape == (self.batch, 1)
