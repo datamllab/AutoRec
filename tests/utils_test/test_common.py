@@ -35,6 +35,8 @@ class test_common(unittest.TestCase):
         assert(temp == "i_am_string_with_caps")
         temp = to_snake_case("I#am%a&string(with*special+characters")
         assert(temp == "i_am_a_string_with_special_characters")
+        temp = to_snake_case("MLPInteractor")
+        assert(temp == "mlp_interactor")
         
     #Creates a directory and sees if it exists
     def test_create_directory(self):
