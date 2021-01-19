@@ -6,11 +6,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 
 import logging
 import tensorflow as tf
-import numpy as np
-from autorecsys.auto_search import Search
-from autorecsys.pipeline import Input, DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, PointWiseOptimizer
-from autorecsys.recommender import CTRRecommender
-from autorecsys.pipeline.preprocessor import CriteoPreprocessor, AvazuPreprocessor
+import autokeras as ak
+from autorecsys.pipeline import DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, PointWiseOptimizer
+from autorecsys.pipeline.preprocessor import CriteoPreprocessor
 
 
 # logging setting
@@ -30,8 +28,8 @@ hash_size = criteo.get_hash_size()
 
 # Step 2: Build the recommender, which provides search space
 # Step 2.1: Setup mappers to handle inputs
-dense_input_node = Input(shape=[numerical_count])
-sparse_input_node = Input(shape=[categorical_count])
+dense_input_node = ak.Input(shape=[numerical_count])
+sparse_input_node = ak.Input(shape=[categorical_count])
 dense_feat_emb = DenseFeatureMapper(
     num_of_fields=numerical_count,
     embedding_dim=2)(dense_input_node)
@@ -46,28 +44,27 @@ bottom_mlp_output = MLPInteraction()([dense_feat_emb])
 top_mlp_output = MLPInteraction()([fm_output, bottom_mlp_output])
 
 # Step 2.3: Setup optimizer to handle the target task
-output = PointWiseOptimizer()(top_mlp_output)
-model = CTRRecommender(inputs=[dense_input_node, sparse_input_node], outputs=output)
+output = ak.ClassificationHead()(top_mlp_output)
 
 # Step 3: Build the searcher, which provides search algorithm
-searcher = Search(model=model,
-                  tuner='random',
-                  tuner_params={'max_trials': 2, 'overwrite': True},
-                  )
+auto_model = ak.AutoModel(inputs=[dense_input_node, sparse_input_node],
+                          outputs=output,
+                          max_trials=2,
+                          objective='val_loss',
+                          tuner='random',
+                          overwrite=True)
 
 # Step 4: Use the searcher to search the recommender
-searcher.search(x=[train_X_numerical, train_X_categorical],
-                y=train_y,
-                x_val=[val_X_numerical, val_X_categorical],
-                y_val=val_y,
-                objective='val_BinaryCrossentropy',
-                batch_size=10000,
-                epochs=2,
-                callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)]
-                )
-logger.info('Validation Accuracy (logloss): {}'.format(searcher.evaluate(x=[val_X_numerical, val_X_categorical],
-                                                                         y_true=val_y)))
+auto_model.fit(x=[train_X_numerical, train_X_categorical],
+               y=train_y,
+               batch_size=32,
+               epochs=2,
+               callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)]
+               )
+
+logger.info('Validation Accuracy (logloss): {}'.format(auto_model.evaluate(x=[val_X_numerical, val_X_categorical],
+                                                                           y=val_y)))
 
 # Step 5: Evaluate the searched model
-logger.info('Test Accuracy (logloss): {}'.format(searcher.evaluate(x=[test_X_numerical, test_X_categorical],
-                                                                   y_true=test_y)))
+logger.info('Test Accuracy (logloss): {}'.format(auto_model.evaluate(x=[test_X_numerical, test_X_categorical],
+                                                                     y=test_y)))

@@ -53,7 +53,7 @@ searcher.search(x=[criteo.get_x_categorical(train_X)],
                 y_val=val_y,
                 objective='val_BinaryCrossentropy',
                 batch_size=256,
-                epochs = 20,
+                epochs = 2,
                 callbacks = [ tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1)] 
                 )
 logger.info('Predicted Ratings: {}'.format(searcher.predict(x=[criteo.get_x_categorical(val_X)])))

@@ -2,11 +2,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 from tensorflow.python.util import nest
-from autorecsys.pipeline.base import Block
+from autokeras.engine.block import Block
 from autorecsys.pipeline.utils import Bias
 import random
 import tensorflow as tf
-import numpy as np
 
 
 class RandomSelectInteraction(Block):
