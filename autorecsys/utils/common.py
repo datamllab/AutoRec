@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 import random
 import pickle
+import string
 
 
 def dataset_shape(dataset):
@@ -32,8 +33,10 @@ def to_snake_case(name):
     # Returns
         String name of the class in snake case.
     """
-    intermediate = re.sub('(.)([A-Z][a-z0-9]+)', r'\1_\2', name)
-    insecure = re.sub('([a-z])([A-Z])', r'\1_\2', intermediate).lower()
+    insecure = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    insecure = re.sub('([a-z0-9])([A-Z])', r'\1_\2', insecure).lower()
+    for p in string.punctuation:
+        insecure = insecure.replace(p, "_")
 
     if insecure[0] != '_':
         return insecure

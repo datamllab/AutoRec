@@ -48,7 +48,7 @@ class TestMappers(unittest.TestCase):
         sol_get_state = {
             'name': 'latent_factor_mapper_1',
             'column_id': 0,
-            'num_of_fields': 3,
+            'num_of_entities': 3,
             'embedding_dim': 4}
         assert mapper.get_state() == sol_get_state
 
@@ -58,7 +58,7 @@ class TestMappers(unittest.TestCase):
             'num_of_entities': self.num_of_entities,
             'embedding_dim': self.embed_dim}
         sol_set_state = {
-            'name': 'dense_feature_mapper_1',
+            'name': 'latent_factor_mapper_1',
             'column_id': self.column_id,
             'num_of_entities': self.num_of_entities,
             'embedding_dim': self.embed_dim}
@@ -70,7 +70,7 @@ class TestMappers(unittest.TestCase):
         hp = hp_module.HyperParameters()
         output = mapper.build(hp, self.dense_inputs)  # Act
         assert len(nest.flatten(output)) == 1
-        assert output.shape == (self.batch, self.input_shape, self.embed_dim)
+        assert output.shape == (self.batch, self.embed_dim)  # LatentFactorMapper does not have input shape dimension
 
     def test_DenseFeatureMapper(self):
         # test constructor and get_state
