@@ -21,7 +21,7 @@ setup(
         'numpy==1.17.3',
         'pandas==0.25.2',
         'pytest==5.2.2',
-        'PyYAML==5.1.2',
+        'PyYAML==5.4',
         'scikit-learn==0.21.3',
         'scipy==1.3.1',
         'tabulate==0.8.5',
