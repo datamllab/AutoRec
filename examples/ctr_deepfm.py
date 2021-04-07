@@ -7,7 +7,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "7"
 import logging
 import tensorflow as tf
 import autokeras as ak
-from autorecsys.pipeline import DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction, PointWiseOptimizer
+from autorecsys.pipeline import DenseFeatureMapper, SparseFeatureMapper, FMInteraction, MLPInteraction
 from autorecsys.pipeline.preprocessor import CriteoPreprocessor
 
 
